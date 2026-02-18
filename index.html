@@ -108,6 +108,10 @@
                     <span class="nav-icon">💰</span>
                     <span class="nav-label">ROI Analysis</span>
                 </a>
+                <a href="#" class="nav-item" data-view="financial_reports">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-label">Reports</span>
+                </a>
                 <a href="#" class="nav-item" data-view="users">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Users</span>
@@ -1037,6 +1041,17 @@
                     </div>
                 </div>
 
+                <!-- Financial Reports View -->
+                <div id="financial-reports-view" class="view">
+                    <div class="view-header">
+                        <h3>Financial Reports & Exports</h3>
+                        <p class="view-description">Generate comprehensive reports in multiple formats</p>
+                    </div>
+                    <div id="financial-reports-container" class="financial-reports-container">
+                        <p class="loading">Loading report templates...</p>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -1072,6 +1087,7 @@
     <script src="js/modules/scenario_analysis.js"></script>
     <script src="js/modules/benchmarking.js"></script>
     <script src="js/modules/investment_analysis.js"></script>
+    <script src="js/modules/financial_reports.js"></script>
     <script src="js/modules/permissions.js"></script>
     <script src="js/modules/users.js"></script>
     <script src="js/app.js"></script>
