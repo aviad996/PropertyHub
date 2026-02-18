@@ -193,6 +193,7 @@ const App = {
             await InvestmentAnalysis.init();
             await FinancialReports.init();
             await MLAnalytics.init();
+            await MobileApp.init();
 
             // Initialize users module if owner
             if (Users.isOwner()) {
@@ -286,6 +287,9 @@ const App = {
                     break;
                 case 'ml_analytics':
                     await MLAnalytics.loadMLAnalytics();
+                    break;
+                case 'mobile_app':
+                    await MobileApp.loadMobileApp();
                     break;
                 case 'users':
                     await Users.loadUsers();

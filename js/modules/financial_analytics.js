@@ -485,8 +485,13 @@ const FinancialAnalytics = {
     /**
      * Show debt paydown analysis
      */
-    showDebtPaydownAnalysis: () => {
-        UI.showToast('Debt Paydown analysis coming in Phase 8.2', 'info');
+    showDebtPaydownAnalysis: async () => {
+        try {
+            await DebtPaydown.loadDebtPaydown();
+        } catch (error) {
+            console.error('Error loading debt paydown analysis:', error);
+            UI.showToast('Error loading debt paydown analysis', 'error');
+        }
     },
 
     /**
