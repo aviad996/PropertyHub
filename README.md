@@ -2,13 +2,26 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, and strategic planning in one place.
 
-## Features (MVP)
+## Features (MVP + Phase 2.5 Enhancements)
 
+### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
-- **Properties Management**: Track all property details, values, and metrics
-- **Mortgage Tracking**: View complete mortgage breakdown including principal vs. interest
-- **Data Synchronization**: Real-time updates across all modules
+- **Properties Management**: Track all property details, values, strategic metrics, and utilities
+- **Mortgage Tracking**: View complete mortgage breakdown including principal vs. interest (calculated at runtime)
+- **Expenses**: Category tracking with smart bill-back logic for tenant charges
+- **Data Synchronization**: On-demand sync (page load + manual refresh, no polling)
 - **Multi-user Support**: Share portfolio with partners
+
+### Phase 2.5 Enhancements
+- **Utilities Management**: Track electricity, water, and gas providers with smart billing responsibility (Direct/Owner/Reimburse)
+- **Bill Back System**: Automatically create tenant charges for "Reimburse" category expenses
+- **Contacts Directory**: Centralized directory for utilities, contractors, HOA, property managers
+- **Strategic Metrics**: Market rent, equity percentage, property condition rating (1-5)
+- **Drive Integration**: Auto-create Google Drive folder for each property for document storage
+- **Daily Triggers**: Automated checks for pending issues (rent, insurance, leases, payments)
+- **Email Alerts**: Daily email summary of pending issues
+- **Runtime Calculations**: P&I amortization, Cap Rate, Cash-on-Cash, and portfolio metrics calculated in real-time
+- **UUID IDs**: All IDs are unique strings (prevents sync conflicts)
 
 ## Tech Stack
 
@@ -63,29 +76,45 @@ PropertyHub/
 │   ├── api.js             # Google Apps Script API calls
 │   ├── formatting.js      # Date and currency formatting
 │   ├── storage.js         # LocalStorage utilities
+│   ├── utils/
+│   │   └── calculations.js # Runtime math (P&I, ROI, metrics)
 │   └── modules/
 │       ├── dashboard.js   # Dashboard view
 │       ├── properties.js  # Properties management
-│       └── mortgages.js   # Mortgage tracking
+│       ├── mortgages.js   # Mortgage tracking
+│       ├── utilities.js   # Utilities management
+│       └── contacts.js    # Contacts directory
 ├── appsscript.js          # Google Apps Script backend (copy to GAS editor)
 ├── appsscript.json        # Google Apps Script config
 ├── .gitignore
-└── README.md
+├── README.md
+├── SETUP.md
+├── QUICKSTART.md
+└── SHARING.md
 ```
 
-## Data Schema
+## Data Schema (Enhanced)
 
-### Properties Tab
-- id, address, type, purchase_price, purchase_date, current_value, city, state
+### Properties Tab (ENHANCED)
+- id (UUID), address, type, purchase_price, purchase_date, current_value, city, state
+- **NEW**: market_rent, equity_percentage, property_condition (1-5)
+- **NEW**: electricity_provider, electricity_account_num, electricity_responsibility
+- **NEW**: water_provider, water_account_num, water_responsibility
+- **NEW**: gas_provider, gas_account_num, gas_responsibility
+- **NEW**: documents_folder_id (Google Drive folder ID)
 
 ### Mortgages Tab
-- id, property_id, lender, current_balance, interest_rate, monthly_payment, refinance_eligible_date
+- id (UUID), property_id, lender, current_balance, interest_rate, monthly_payment, refinance_eligible_date
 
-### Expenses Tab
-- id, property_id, category, amount, date, description
+### Expenses Tab (ENHANCED)
+- id (UUID), property_id, category, amount, date, description
+- **NEW**: tenant_charge_id, should_bill_tenant
 
-### Audit Tab
-- timestamp, user, action, record_id, changes
+### NEW Sheets
+- **Contacts**: utility companies, contractors, HOA, property managers
+- **Tenant Charges**: auto-created from "Reimburse" expenses
+- **Triggers**: daily checks for rent, insurance, lease, payment issues
+- **Audit**: timestamp, user, action, record_id, changes
 
 ## Usage
 
