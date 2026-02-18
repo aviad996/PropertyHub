@@ -40,6 +40,14 @@
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Contacts</span>
                 </a>
+                <a href="#" class="nav-item" data-view="tenants">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Tenants</span>
+                </a>
+                <a href="#" class="nav-item" data-view="rent_payments">
+                    <span class="nav-icon">💵</span>
+                    <span class="nav-label">Rent Payments</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -443,6 +451,150 @@
                     </div>
                 </div>
 
+                <!-- Tenants View -->
+                <div id="tenants-view" class="view">
+                    <div class="view-header">
+                        <h3>Tenants</h3>
+                        <button class="btn-primary" id="new-tenant-btn">+ New Tenant</button>
+                    </div>
+
+                    <div id="tenants-list" class="tenants-list">
+                        <p class="loading">Loading tenants...</p>
+                    </div>
+
+                    <!-- Tenant Form Modal -->
+                    <div id="tenants-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add/Edit Tenant</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="tenants-form" class="form">
+                                <div class="form-group">
+                                    <label>Property *</label>
+                                    <select id="tenant-property-select" name="property_id" required>
+                                        <option value="">Select property...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Name *</label>
+                                        <input type="text" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select name="status">
+                                            <option value="active">Active</option>
+                                            <option value="vacant">Vacant</option>
+                                            <option value="past">Past Tenant</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Phone</label>
+                                        <input type="tel" name="phone">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" name="email">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Monthly Rent *</label>
+                                        <input type="number" name="monthly_rent" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Security Deposit</label>
+                                        <input type="number" name="security_deposit" step="0.01">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Lease Start Date *</label>
+                                        <input type="date" name="lease_start_date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Lease End Date *</label>
+                                        <input type="date" name="lease_end_date" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Tenant</button>
+                                    <button type="button" class="btn-secondary" id="cancel-tenant">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rent Payments View -->
+                <div id="rent_payments-view" class="view">
+                    <div class="view-header">
+                        <h3>Rent Payments</h3>
+                        <button class="btn-primary" id="record-payment-btn">+ Record Payment</button>
+                    </div>
+
+                    <div id="rent-payments-list" class="rent-payments-list">
+                        <p class="loading">Loading rent payments...</p>
+                    </div>
+
+                    <!-- Rent Payment Form Modal -->
+                    <div id="rent-payment-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Record Rent Payment</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="rent-payment-form" class="form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Month *</label>
+                                        <input type="month" id="payment-month" name="month" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tenant *</label>
+                                        <select id="payment-tenant-select" name="tenant_id" required>
+                                            <option value="">Select tenant...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Amount *</label>
+                                        <input type="number" id="payment-amount" name="amount" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select id="payment-status" name="status">
+                                            <option value="pending">Pending</option>
+                                            <option value="paid">Paid</option>
+                                            <option value="late">Late</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Paid Date (if paid)</label>
+                                    <input type="date" id="payment-paid-date" name="paid_date">
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Record Payment</button>
+                                    <button type="button" class="btn-secondary" id="cancel-rent-payment">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -461,6 +613,8 @@
     <script src="js/modules/mortgages.js"></script>
     <script src="js/modules/utilities.js"></script>
     <script src="js/modules/contacts.js"></script>
+    <script src="js/modules/tenants.js"></script>
+    <script src="js/modules/rent_payments.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

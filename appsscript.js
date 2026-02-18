@@ -90,6 +90,32 @@ function doGet(e) {
                 result = getTriggers();
                 break;
 
+            case 'getTenants':
+                result = getTenants();
+                break;
+            case 'addTenant':
+                result = addTenant(e.parameter);
+                break;
+            case 'updateTenant':
+                result = updateTenant(e.parameter);
+                break;
+            case 'deleteTenant':
+                result = deleteTenant(e.parameter.id);
+                break;
+
+            case 'getRentPayments':
+                result = getRentPayments();
+                break;
+            case 'addRentPayment':
+                result = addRentPayment(e.parameter);
+                break;
+            case 'updateRentPayment':
+                result = updateRentPayment(e.parameter);
+                break;
+            case 'deleteRentPayment':
+                result = deleteRentPayment(e.parameter.id);
+                break;
+
             case 'getPortfolioMetrics':
                 result = getPortfolioMetrics();
                 break;
@@ -752,6 +778,169 @@ function getPortfolioMetrics() {
             ltv: totalValue > 0 ? (totalDebt / totalValue * 100).toFixed(1) : 0
         }
     };
+}
+
+// ====== TENANTS OPERATIONS ======
+
+function getTenants() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const tenants = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        obj.monthly_rent = parseFloat(obj.monthly_rent) || 0;
+        obj.security_deposit = parseFloat(obj.security_deposit) || 0;
+        return obj;
+    }).filter(t => t.id);
+
+    return { success: true, data: tenants };
+}
+
+function addTenant(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANTS);
+    const id = generateUUID();
+
+    sheet.appendRow([
+        id,
+        params.property_id || '',
+        params.name || '',
+        params.email || '',
+        params.phone || '',
+        params.lease_start_date || '',
+        params.lease_end_date || '',
+        parseFloat(params.monthly_rent) || 0,
+        parseFloat(params.security_deposit) || 0,
+        params.status || 'active',
+        new Date()
+    ]);
+
+    logAudit('CREATE', id, 'Added tenant: ' + params.name);
+    return { success: true, data: { id: id } };
+}
+
+function updateTenant(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === params.id) {
+            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
+                params.property_id || data[i][1],
+                params.name || data[i][2],
+                params.email || data[i][3],
+                params.phone || data[i][4],
+                params.lease_start_date || data[i][5],
+                params.lease_end_date || data[i][6],
+                parseFloat(params.monthly_rent) || data[i][7],
+                parseFloat(params.security_deposit) || data[i][8],
+                params.status || data[i][9]
+            ]]);
+
+            logAudit('UPDATE', params.id, 'Updated tenant: ' + params.name);
+            return { success: true, data: { id: params.id } };
+        }
+    }
+
+    return { error: 'Tenant not found' };
+}
+
+function deleteTenant(id) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANTS);
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === id) {
+            sheet.deleteRow(i + 1);
+            logAudit('DELETE', id, 'Deleted tenant');
+            return { success: true };
+        }
+    }
+
+    return { error: 'Tenant not found' };
+}
+
+// ====== RENT PAYMENTS OPERATIONS ======
+
+function getRentPayments() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const payments = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        obj.amount = parseFloat(obj.amount) || 0;
+        return obj;
+    }).filter(p => p.id);
+
+    return { success: true, data: payments };
+}
+
+function addRentPayment(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
+    const id = generateUUID();
+
+    sheet.appendRow([
+        id,
+        params.tenant_id || '',
+        params.property_id || '',
+        params.month || new Date().toISOString().split('T')[0].substring(0, 7),
+        parseFloat(params.amount) || 0,
+        params.paid_date || '',
+        params.status || 'pending',
+        new Date()
+    ]);
+
+    logAudit('CREATE', id, 'Added rent payment for tenant: ' + params.tenant_id);
+    return { success: true, data: { id: id } };
+}
+
+function updateRentPayment(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === params.id) {
+            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
+                params.tenant_id || data[i][1],
+                params.property_id || data[i][2],
+                params.month || data[i][3],
+                parseFloat(params.amount) || data[i][4],
+                params.paid_date || data[i][5],
+                params.status || data[i][6]
+            ]]);
+
+            logAudit('UPDATE', params.id, 'Updated rent payment status: ' + params.status);
+            return { success: true, data: { id: params.id } };
+        }
+    }
+
+    return { error: 'Rent payment not found' };
+}
+
+function deleteRentPayment(id) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === id) {
+            sheet.deleteRow(i + 1);
+            logAudit('DELETE', id, 'Deleted rent payment');
+            return { success: true };
+        }
+    }
+
+    return { error: 'Rent payment not found' };
 }
 
 // ====== AUDIT LOGGING ======

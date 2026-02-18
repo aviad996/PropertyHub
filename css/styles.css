@@ -914,6 +914,291 @@ html, body {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
+/* Tenants View */
+.tenants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tenants-section {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.tenants-section h3 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.tenants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.tenant-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.tenant-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.tenant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.tenant-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tenant-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.tenant-status.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.tenant-status.vacant {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.tenant-status.past {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.tenant-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.tenant-details .detail {
+    color: var(--text-secondary);
+}
+
+.lease-warning {
+    display: block;
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    border-left: 4px solid #ffc107;
+}
+
+.tenant-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.tenant-actions button {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tenant-actions .edit-btn {
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.tenant-actions .edit-btn:hover {
+    background-color: #0066cc;
+    color: white;
+}
+
+.tenant-actions .delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.tenant-actions .delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Rent Payments View */
+.rent-payments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.rent-month-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.month-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.month-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.month-stats .stat {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    color: var(--text-secondary);
+}
+
+.month-stats .stat.received {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.month-stats .stat.outstanding {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.month-stats .stat.late {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Payments Table */
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.payments-table thead {
+    background-color: var(--header-bg);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.payments-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.payments-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.payments-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.payments-table .status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.payments-table .status-paid .status-badge {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.payments-table .status-pending .status-badge {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.payments-table .status-late .status-badge {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.payment-actions button {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.payment-actions .edit-btn {
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.payment-actions .edit-btn:hover {
+    background-color: #0066cc;
+    color: white;
+}
+
+.payment-actions .delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.payment-actions .delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
 @media (max-width: 768px) {
     .utilities-grid {
         grid-template-columns: 1fr;

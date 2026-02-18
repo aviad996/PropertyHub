@@ -297,6 +297,118 @@ const API = {
     },
 
     /**
+     * Get all tenants
+     */
+    getTenants: async () => {
+        const cached = Storage.getCache('tenants');
+        if (cached) return cached;
+
+        const response = await API.call('getTenants');
+        if (response && response.data) {
+            Storage.cache('tenants', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add tenant
+     */
+    addTenant: async (tenantData) => {
+        const response = await API.call('addTenant', tenantData);
+        if (response && response.success) {
+            Storage.remove('tenants');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add tenant');
+    },
+
+    /**
+     * Update tenant
+     */
+    updateTenant: async (tenantId, tenantData) => {
+        const response = await API.call('updateTenant', {
+            id: tenantId,
+            ...tenantData
+        });
+        if (response && response.success) {
+            Storage.remove('tenants');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update tenant');
+    },
+
+    /**
+     * Delete tenant
+     */
+    deleteTenant: async (tenantId) => {
+        const response = await API.call('deleteTenant', { id: tenantId });
+        if (response && response.success) {
+            Storage.remove('tenants');
+            Storage.remove('rent_payments');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete tenant');
+    },
+
+    /**
+     * Get all rent payments
+     */
+    getRentPayments: async () => {
+        const cached = Storage.getCache('rent_payments');
+        if (cached) return cached;
+
+        const response = await API.call('getRentPayments');
+        if (response && response.data) {
+            Storage.cache('rent_payments', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add rent payment
+     */
+    addRentPayment: async (paymentData) => {
+        const response = await API.call('addRentPayment', paymentData);
+        if (response && response.success) {
+            Storage.remove('rent_payments');
+            Storage.remove('portfolio_metrics');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add rent payment');
+    },
+
+    /**
+     * Update rent payment
+     */
+    updateRentPayment: async (paymentId, paymentData) => {
+        const response = await API.call('updateRentPayment', {
+            id: paymentId,
+            ...paymentData
+        });
+        if (response && response.success) {
+            Storage.remove('rent_payments');
+            Storage.remove('portfolio_metrics');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update rent payment');
+    },
+
+    /**
+     * Delete rent payment
+     */
+    deleteRentPayment: async (paymentId) => {
+        const response = await API.call('deleteRentPayment', { id: paymentId });
+        if (response && response.success) {
+            Storage.remove('rent_payments');
+            Storage.remove('portfolio_metrics');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete rent payment');
+    },
+
+    /**
      * Get auth user email
      */
     getUserEmail: async () => {
@@ -354,7 +466,11 @@ const UI = {
             'dashboard': 'Dashboard',
             'properties': 'Properties',
             'mortgages': 'Mortgages',
-            'expenses': 'Expenses'
+            'expenses': 'Expenses',
+            'utilities': 'Utilities',
+            'contacts': 'Contacts',
+            'tenants': 'Tenants',
+            'rent_payments': 'Rent Payments'
         };
         document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
 
