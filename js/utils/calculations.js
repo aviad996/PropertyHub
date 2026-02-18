@@ -143,5 +143,199 @@ const Calculations = {
     calculateAppreciationPercentage: (currentValue, purchasePrice) => {
         if (!purchasePrice || purchasePrice === 0) return 0;
         return ((currentValue - purchasePrice) / purchasePrice * 100).toFixed(2);
+    },
+
+    /**
+     * Calculate ROI for a property in a given period
+     */
+    calculateROI: (property, mortgages, expenses, rentPayments, startDate, endDate) => {
+        if (!property || !property.current_value || property.current_value === 0) return 0;
+
+        const mortgage = mortgages?.find(m => m.property_id === property.id);
+        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
+        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+
+        // Filter by period
+        const periodExpenses = propExpenses.filter(e => {
+            const expDate = new Date(e.date);
+            return expDate >= startDate && expDate <= endDate;
+        });
+        const periodRentPayments = propRentPayments.filter(r => {
+            const payDate = new Date(r.paid_date);
+            return payDate >= startDate && payDate <= endDate;
+        });
+
+        const totalIncome = periodRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+        const totalExpenses = periodExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        const netCashFlow = totalIncome - totalExpenses;
+
+        // Annualize for comparison
+        const daysInPeriod = (endDate - startDate) / (1000 * 60 * 60 * 24) || 1;
+        const annualizedCashFlow = (netCashFlow / daysInPeriod) * 365;
+
+        return (annualizedCashFlow / property.current_value * 100).toFixed(2);
+    },
+
+    /**
+     * Calculate cash flow for a property
+     */
+    calculateCashFlow: (property, mortgages, expenses, rentPayments, startDate, endDate) => {
+        const mortgage = mortgages?.find(m => m.property_id === property.id);
+        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
+        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+
+        // Filter by period
+        const periodExpenses = propExpenses.filter(e => {
+            const expDate = new Date(e.date);
+            return expDate >= startDate && expDate <= endDate;
+        });
+        const periodRentPayments = propRentPayments.filter(r => {
+            const payDate = new Date(r.paid_date);
+            return payDate >= startDate && payDate <= endDate;
+        });
+
+        const totalIncome = periodRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+        const totalExpenses = periodExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        const mortgagePayments = (mortgage?.monthly_payment || 0) * 12; // Approximate for period
+
+        return totalIncome - totalExpenses - mortgagePayments;
+    },
+
+    /**
+     * Calculate expense ratio for a property
+     */
+    calculateExpenseRatio: (property, expenses, rentPayments, startDate, endDate) => {
+        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
+        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+
+        // Filter by period
+        const periodExpenses = propExpenses.filter(e => {
+            const expDate = new Date(e.date);
+            return expDate >= startDate && expDate <= endDate;
+        });
+        const periodRentPayments = propRentPayments.filter(r => {
+            const payDate = new Date(r.paid_date);
+            return payDate >= startDate && payDate <= endDate;
+        });
+
+        const totalIncome = periodRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+        const totalExpenses = periodExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+        if (totalIncome === 0) return 0;
+        return (totalExpenses / totalIncome * 100).toFixed(1);
+    },
+
+    /**
+     * Get top performing properties by metric
+     */
+    getTopPerformers: (properties, mortgages, expenses, rentPayments, metric = 'roi', limit = 5, startDate, endDate) => {
+        return properties
+            .map(prop => {
+                let score = 0;
+                if (metric === 'roi') {
+                    score = parseFloat(Calculations.calculateROI(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
+                } else if (metric === 'equity') {
+                    const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                    score = (prop.current_value || 0) - (mortgage?.current_balance || 0);
+                } else if (metric === 'cashflow') {
+                    score = parseFloat(Calculations.calculateCashFlow(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
+                }
+                return { ...prop, score };
+            })
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit);
+    },
+
+    /**
+     * Get underperforming properties by metric
+     */
+    getUnderperformers: (properties, mortgages, expenses, rentPayments, metric = 'roi', limit = 5, startDate, endDate) => {
+        return properties
+            .map(prop => {
+                let score = 0;
+                if (metric === 'roi') {
+                    score = parseFloat(Calculations.calculateROI(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
+                } else if (metric === 'equity') {
+                    const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                    score = (prop.current_value || 0) - (mortgage?.current_balance || 0);
+                } else if (metric === 'cashflow') {
+                    score = parseFloat(Calculations.calculateCashFlow(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
+                }
+                return { ...prop, score };
+            })
+            .sort((a, b) => a.score - b.score)
+            .slice(0, limit);
+    },
+
+    /**
+     * Calculate depreciation (simplified - not including land)
+     * Standard: Building depreciated over 27.5 years for residential
+     */
+    calculateDepreciation: (property) => {
+        if (!property || !property.current_value || !property.purchase_price) return 0;
+
+        // Assume 80% of value is building, 20% is land (rough estimate)
+        const buildingValue = property.purchase_price * 0.8;
+        const depreciationPeriod = 27.5;
+        const annualDepreciation = buildingValue / depreciationPeriod;
+
+        return annualDepreciation.toFixed(2);
+    },
+
+    /**
+     * Calculate capital gains
+     */
+    calculateCapGains: (property, salePrice) => {
+        if (!property || !property.purchase_price) return 0;
+
+        const costBasis = property.purchase_price;
+        const gains = salePrice - costBasis;
+
+        return {
+            gains: gains.toFixed(2),
+            gainsPercentage: (gains / costBasis * 100).toFixed(2),
+            costBasis: costBasis,
+            salePrice: salePrice
+        };
+    },
+
+    /**
+     * Calculate refinance ROI (return on investment for refinancing)
+     */
+    calculateRefinanceROI: (currentMortgage, newRate, loanAmount, closingCosts = 0, months = 60) => {
+        if (!currentMortgage || !newRate || !loanAmount) return 0;
+
+        const currentMonthlyRate = (currentMortgage.interest_rate || 0) / 100 / 12;
+        const newMonthlyRate = newRate / 100 / 12;
+
+        const currentPayment = Calculations.calculateMonthlyPayment(
+            currentMortgage.current_balance || loanAmount,
+            currentMonthlyRate,
+            currentMortgage.remaining_term_months || months
+        );
+
+        const newPayment = Calculations.calculateMonthlyPayment(loanAmount, newMonthlyRate, months);
+        const monthlySavings = currentPayment - newPayment;
+        const breakEvenMonths = monthlySavings > 0 ? Math.ceil(closingCosts / monthlySavings) : Infinity;
+        const totalSavings = (monthlySavings * months) - closingCosts;
+
+        return {
+            currentPayment: currentPayment.toFixed(2),
+            newPayment: newPayment.toFixed(2),
+            monthlyPaymentChange: (newPayment - currentPayment).toFixed(2),
+            monthlyPaymentSavings: monthlySavings.toFixed(2),
+            closingCosts: closingCosts,
+            breakEvenMonths: breakEvenMonths,
+            totalSavings: totalSavings.toFixed(2),
+            worthRefinancing: breakEvenMonths < months
+        };
+    },
+
+    /**
+     * Calculate payback period
+     */
+    calculatePaybackPeriod: (investment, annualCashFlow) => {
+        if (annualCashFlow <= 0) return Infinity;
+        return (investment / annualCashFlow).toFixed(1);
     }
 };

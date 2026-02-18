@@ -1540,6 +1540,297 @@ html, body {
     cursor: pointer;
 }
 
+/* Analytics & Reports */
+.report-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.report-controls select,
+.report-controls input[type="date"],
+.report-controls button {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.report-controls button {
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+.report-controls button:hover {
+    opacity: 0.9;
+}
+
+.report-controls button.hidden {
+    display: none;
+}
+
+.analytics-container {
+    padding: 20px;
+    background-color: var(--bg-primary);
+}
+
+.report-section {
+    margin-bottom: 32px;
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.report-section h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    font-size: 18px;
+}
+
+/* Metric Cards Grid */
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.metric-card {
+    padding: 16px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+}
+
+.metric-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.metric-subtext {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Comparison Table */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+.comparison-table thead {
+    background-color: var(--bg-tertiary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.comparison-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.comparison-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.comparison-table tbody tr:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Expense Breakdown */
+.expense-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.expense-category {
+    padding: 12px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.category-name {
+    text-transform: capitalize;
+    color: var(--text-primary);
+}
+
+.category-amount {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.category-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0066cc, #0099ff);
+    border-radius: 4px;
+}
+
+.category-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Trend Chart */
+.trend-chart {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 16px 0;
+    margin-bottom: 12px;
+}
+
+.trend-month {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.month-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.bars {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 150px;
+    margin-bottom: 8px;
+}
+
+.bar {
+    width: 18px;
+    border-radius: 3px 3px 0 0;
+    min-height: 4px;
+}
+
+.bar.income {
+    background-color: #34C759;
+}
+
+.bar.expenses {
+    background-color: #FF6B6B;
+}
+
+.cashflow {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.trend-legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 12px 0;
+    border-top: 1px solid var(--border-light);
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.legend-box.income {
+    background-color: #34C759;
+}
+
+.legend-box.expenses {
+    background-color: #FF6B6B;
+}
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .top-header,
+    .report-controls,
+    #sync-btn,
+    .sync-status {
+        display: none;
+    }
+
+    .main-content {
+        width: 100%;
+    }
+
+    .print-report {
+        padding: 40px;
+    }
+
+    .report-section {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    .comparison-table {
+        border: 1px solid #000;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+        border: 1px solid #000;
+    }
+}
+
 @media (max-width: 768px) {
     .utilities-grid {
         grid-template-columns: 1fr;
