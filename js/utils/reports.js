@@ -153,7 +153,7 @@ const Reports = {
 
         // Enhance with property names
         const propertyDeductions = Object.entries(deductionsByProperty).map(([propId, categories]) => {
-            const property = properties?.find(p => p.id === propId);
+            const property = properties?.find(p => String(p.id) === String(propId));
             return {
                 propertyId: propId,
                 address: property?.address || 'Unknown',

@@ -67,7 +67,7 @@ const FinancialDecisions = {
 
                 <div class="decisions-grid">
                     ${decisions.map(decision => {
-                        const property = properties?.find(p => p.id === decision.property_id);
+                        const property = properties?.find(p => String(p.id) === String(decision.property_id));
                         const statusClass = decision.status || 'pending';
                         const outcomeClass = FinancialDecisions.getOutcomeClass(decision);
 

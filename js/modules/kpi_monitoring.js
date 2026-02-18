@@ -153,10 +153,10 @@ const KPIMonitoring = {
 
             // Evaluate each property
             for (const property of properties) {
-                const propertyMortgages = mortgages.filter(m => m.property_id === property.id);
-                const propertyExpenses = expenses.filter(e => e.property_id === property.id);
+                const propertyMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
+                const propertyExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
                 const propertyRents = rentPayments.filter(r =>
-                    properties.find(p => p.id === property.id && propertyMortgages.some(m => m.property_id === property.id))
+                    properties.find(p => String(p.id) === String(property.id) && propertyMortgages.some(m => String(m.property_id) === String(property.id)))
                 );
 
                 // Calculate metrics for this property

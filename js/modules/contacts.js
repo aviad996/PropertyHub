@@ -75,7 +75,7 @@ const Contacts = {
                         <h3>${typeLabels[type]} (${items.length})</h3>
                         <div class="contacts-grid">
                             ${items.map(contact => {
-                                const property = properties.find(p => p.id === contact.property_id);
+                                const property = properties.find(p => String(p.id) === String(contact.property_id));
                                 return `
                                     <div class="contact-card" data-id="${contact.id}">
                                         <div class="contact-header">
@@ -150,7 +150,7 @@ const Contacts = {
     editContact: async (contactId) => {
         try {
             const contacts = await API.getContacts();
-            const contact = contacts.find(c => c.id === contactId);
+            const contact = contacts.find(c => String(c.id) === String(contactId));
 
             if (!contact) return;
 

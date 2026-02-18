@@ -278,13 +278,13 @@ const TaxOptimization = {
         const propertyReports = properties.map(property => {
             // Income
             const propertyRent = rentPayments?.filter(r => {
-                const rentProperty = properties.find(p => p.id === r.property_id);
-                return rentProperty?.id === property.id;
+                const rentProperty = properties.find(p => String(p.id) === String(r.property_id));
+                return String(rentProperty?.id) === String(property.id);
             }) || [];
             const annualRent = propertyRent.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
 
             // Expenses
-            const propertyExpenses = expenses?.filter(e => e.property_id === property.id) || [];
+            const propertyExpenses = expenses?.filter(e => String(e.property_id) === String(property.id)) || [];
             const annualExpenses = propertyExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
 
             // Mortgage interest

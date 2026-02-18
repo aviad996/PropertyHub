@@ -615,7 +615,7 @@ const ScenarioAnalysis = {
      * View scenario detail
      */
     viewScenarioDetail: (scenarioId) => {
-        const scenario = ScenarioAnalysis.scenarios.find(s => s.id === scenarioId);
+        const scenario = ScenarioAnalysis.scenarios.find(s => String(s.id) === String(scenarioId));
         if (!scenario) return;
 
         const projections = scenario.projections;
@@ -756,7 +756,7 @@ const ScenarioAnalysis = {
      * Export scenario data
      */
     exportScenario: async (scenarioId) => {
-        const scenario = ScenarioAnalysis.scenarios.find(s => s.id === scenarioId);
+        const scenario = ScenarioAnalysis.scenarios.find(s => String(s.id) === String(scenarioId));
         if (!scenario) return;
 
         const csv = ScenarioAnalysis.generateScenarioCSV(scenario);

@@ -49,7 +49,7 @@ const API = {
         },
         update: (collection, data) => {
             const items = API._local._getStore(collection);
-            const idx = items.findIndex(item => item.id === data.id);
+            const idx = items.findIndex(item => String(item.id) === String(data.id));
             if (idx !== -1) {
                 items[idx] = { ...items[idx], ...data };
                 API._local._setStore(collection, items);
@@ -729,7 +729,7 @@ const API = {
      */
     updateFinancialDecision: async (decisionId, decisionData) => {
         const decisions = await API.getFinancialDecisions();
-        const index = decisions.findIndex(d => d.id === decisionId);
+        const index = decisions.findIndex(d => String(d.id) === String(decisionId));
         if (index !== -1) {
             decisions[index] = { ...decisions[index], ...decisionData };
             Storage.set('financial_decisions', JSON.stringify(decisions));

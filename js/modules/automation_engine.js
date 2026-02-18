@@ -568,7 +568,7 @@ const AutomationEngine = {
 
                 for (const lease of expiringLeases) {
                     if (automation.config.auto_create_task) {
-                        const property = properties.find(p => p.id === lease.property_id);
+                        const property = properties.find(p => String(p.id) === String(lease.property_id));
                         const renewalTask = {
                             id: `task-${Date.now()}-renewal`,
                             property_id: lease.property_id,
@@ -593,7 +593,7 @@ const AutomationEngine = {
                 });
 
                 for (const policy of expiringPolicies) {
-                    const property = properties.find(p => p.id === policy.property_id);
+                    const property = properties.find(p => String(p.id) === String(policy.property_id));
                     const renewalTask = {
                         id: `task-${Date.now()}-insurance`,
                         property_id: policy.property_id,
@@ -622,7 +622,7 @@ const AutomationEngine = {
     runAutomation: async (automationId) => {
         try {
             const automations = await API.getAutomations() || [];
-            const automation = automations.find(a => a.id === automationId);
+            const automation = automations.find(a => String(a.id) === String(automationId));
 
             if (!automation) {
                 UI.showToast('Automation not found', 'error');

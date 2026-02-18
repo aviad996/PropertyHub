@@ -133,7 +133,7 @@ const Utilities = {
     editUtilities: async (propertyId) => {
         try {
             const properties = await API.getProperties();
-            const property = properties.find(p => p.id === propertyId);
+            const property = properties.find(p => String(p.id) === String(propertyId));
 
             if (!property) return;
 
