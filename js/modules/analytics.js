@@ -145,7 +145,7 @@ const Analytics = {
         // Sum property values and calculate debt
         properties.forEach(prop => {
             totalValue += parseFloat(prop.current_value) || 0;
-            const mortgage = mortgages?.find(m => m.property_id === prop.id);
+            const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
             if (mortgage) {
                 totalDebt += parseFloat(mortgage.current_balance) || 0;
             }
@@ -188,9 +188,9 @@ const Analytics = {
      */
     generatePropertyComparison: (properties, mortgages, expenses, rentPayments, startDate, endDate) => {
         return properties.map(prop => {
-            const mortgage = mortgages?.find(m => m.property_id === prop.id);
-            const propExpenses = (expenses || []).filter(e => e.property_id === prop.id);
-            const propRentPayments = (rentPayments || []).filter(r => r.property_id === prop.id);
+            const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
+            const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(prop.id));
+            const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(prop.id));
 
             // Filter by period
             const periodExpenses = Analytics.filterByDateRange(propExpenses, startDate, endDate);

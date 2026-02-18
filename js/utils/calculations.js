@@ -151,9 +151,9 @@ const Calculations = {
     calculateROI: (property, mortgages, expenses, rentPayments, startDate, endDate) => {
         if (!property || !property.current_value || property.current_value === 0) return 0;
 
-        const mortgage = mortgages?.find(m => m.property_id === property.id);
-        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
-        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+        const mortgage = mortgages?.find(m => String(m.property_id) === String(property.id));
+        const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(property.id));
+        const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(property.id));
 
         // Filter by period
         const periodExpenses = propExpenses.filter(e => {
@@ -180,9 +180,9 @@ const Calculations = {
      * Calculate cash flow for a property
      */
     calculateCashFlow: (property, mortgages, expenses, rentPayments, startDate, endDate) => {
-        const mortgage = mortgages?.find(m => m.property_id === property.id);
-        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
-        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+        const mortgage = mortgages?.find(m => String(m.property_id) === String(property.id));
+        const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(property.id));
+        const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(property.id));
 
         // Filter by period
         const periodExpenses = propExpenses.filter(e => {
@@ -205,8 +205,8 @@ const Calculations = {
      * Calculate expense ratio for a property
      */
     calculateExpenseRatio: (property, expenses, rentPayments, startDate, endDate) => {
-        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
-        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+        const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(property.id));
+        const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(property.id));
 
         // Filter by period
         const periodExpenses = propExpenses.filter(e => {
@@ -235,7 +235,7 @@ const Calculations = {
                 if (metric === 'roi') {
                     score = parseFloat(Calculations.calculateROI(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
                 } else if (metric === 'equity') {
-                    const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                    const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
                     score = (prop.current_value || 0) - (mortgage?.current_balance || 0);
                 } else if (metric === 'cashflow') {
                     score = parseFloat(Calculations.calculateCashFlow(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
@@ -256,7 +256,7 @@ const Calculations = {
                 if (metric === 'roi') {
                     score = parseFloat(Calculations.calculateROI(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
                 } else if (metric === 'equity') {
-                    const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                    const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
                     score = (prop.current_value || 0) - (mortgage?.current_balance || 0);
                 } else if (metric === 'cashflow') {
                     score = parseFloat(Calculations.calculateCashFlow(prop, mortgages, expenses, rentPayments, startDate, endDate)) || 0;
@@ -375,7 +375,7 @@ const Calculations = {
      * Returns percentage IRR
      */
     calculateIRR: (cashFlows) => {
-        if (!cashFlows || cashFlows.length === 0) return 0;
+        if (!cashFlows || cashFlows.length < 2) return 0;
 
         // Initial guess for IRR (10%)
         let rate = 0.1;
@@ -394,17 +394,28 @@ const Calculations = {
                 }
             }
 
+            // Guard against division by zero in Newton-Raphson
+            if (npvDerivative === 0 || !isFinite(npvDerivative)) {
+                return 0;
+            }
+
             // Newton-Raphson iteration
             const newRate = rate - npv / npvDerivative;
 
+            // Guard against NaN or Infinity
+            if (!isFinite(newRate)) {
+                return 0;
+            }
+
             if (Math.abs(newRate - rate) < tolerance) {
-                return (rate * 100).toFixed(2);
+                return parseFloat((rate * 100).toFixed(2));
             }
 
             rate = newRate;
         }
 
-        return (rate * 100).toFixed(2);
+        const result = parseFloat((rate * 100).toFixed(2));
+        return isFinite(result) ? result : 0;
     },
 
     /**

@@ -112,9 +112,9 @@ const TaxOptimization = {
                 <h4>Tax Deduction Summary</h4>
                 <div class="tax-summary-grid">
                     ${properties.map(property => {
-                        const propertyExpenses = expenses?.filter(e => e.property_id === property.id) || [];
+                        const propertyExpenses = expenses?.filter(e => String(e.property_id) === String(property.id)) || [];
                         const annualExpenses = propertyExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-                        const propertyMortgage = mortgages?.find(m => m.property_id === property.id);
+                        const propertyMortgage = mortgages?.find(m => String(m.property_id) === String(property.id));
                         const annualInterest = propertyMortgage ? TaxOptimization.calculateAnnualInterest(propertyMortgage) : 0;
 
                         return `
@@ -288,7 +288,7 @@ const TaxOptimization = {
             const annualExpenses = propertyExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
 
             // Mortgage interest
-            const propertyMortgage = mortgages?.find(m => m.property_id === property.id);
+            const propertyMortgage = mortgages?.find(m => String(m.property_id) === String(property.id));
             const annualInterest = propertyMortgage ? TaxOptimization.calculateAnnualInterest(propertyMortgage) : 0;
 
             // Depreciation

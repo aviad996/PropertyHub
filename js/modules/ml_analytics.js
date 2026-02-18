@@ -493,10 +493,10 @@ const MLAnalytics = {
             let totalValue = 0, totalDebt = 0, totalRent = 0, totalExpenses = 0, monthlyDebtService = 0;
             for (const property of properties) {
                 totalValue += parseFloat(property.current_value) || 0;
-                const propMortgages = mortgages.filter(m => m.property_id === property.id);
+                const propMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
                 totalDebt += propMortgages.reduce((sum, m) => sum + (parseFloat(m.current_balance) || 0), 0);
                 monthlyDebtService += propMortgages.reduce((sum, m) => sum + (parseFloat(m.monthly_payment) || 0), 0);
-                const propExpenses = expenses.filter(e => e.property_id === property.id);
+                const propExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
                 totalExpenses += propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
             }
             totalRent = rentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
@@ -508,9 +508,9 @@ const MLAnalytics = {
 
             const investmentMetrics = {};
             for (const property of properties) {
-                const propMortgages = mortgages.filter(m => m.property_id === property.id);
-                const propExpenses = expenses.filter(e => e.property_id === property.id);
-                const propRents = rentPayments.filter(r => r.property_id === property.id);
+                const propMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
+                const propExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
+                const propRents = rentPayments.filter(r => String(r.property_id) === String(property.id));
 
                 const totalPropDebt = propMortgages.reduce((sum, m) => sum + (parseFloat(m.current_balance) || 0), 0);
                 const annualRent = propRents.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);

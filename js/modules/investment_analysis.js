@@ -48,9 +48,9 @@ const InvestmentAnalysis = {
 
             // Analyze each property
             for (const property of properties) {
-                const propMortgages = mortgages.filter(m => m.property_id === property.id);
-                const propExpenses = expenses.filter(e => e.property_id === property.id);
-                const propRents = rentPayments.filter(r => r.property_id === property.id);
+                const propMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
+                const propExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
+                const propRents = rentPayments.filter(r => String(r.property_id) === String(property.id));
 
                 const analysis = InvestmentAnalysis.calculatePropertyInvestmentMetrics(
                     property,

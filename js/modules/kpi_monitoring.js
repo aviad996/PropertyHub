@@ -254,11 +254,11 @@ const KPIMonitoring = {
         for (const property of properties) {
             totalValue += parseFloat(property.current_value) || 0;
 
-            const propertyMortgages = mortgages.filter(m => m.property_id === property.id);
+            const propertyMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
             totalDebt += propertyMortgages.reduce((sum, m) => sum + (parseFloat(m.current_balance) || 0), 0);
             totalDebtService += propertyMortgages.reduce((sum, m) => sum + (parseFloat(m.monthly_payment) || 0), 0);
 
-            const propertyExpenses = expenses.filter(e => e.property_id === property.id);
+            const propertyExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
             totalExpenses += propertyExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         }
 

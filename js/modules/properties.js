@@ -27,7 +27,7 @@ const Properties = {
             }
 
             const html = properties.map(prop => {
-                const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
                 const equity = (prop.current_value || 0) - (mortgage?.current_balance || 0);
                 const ltv = mortgage ? ((mortgage.current_balance / prop.current_value) * 100).toFixed(1) : 'N/A';
 

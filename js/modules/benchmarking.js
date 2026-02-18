@@ -130,9 +130,9 @@ const PortfolioBenchmarking = {
             for (const property of properties) {
                 const propMetrics = PortfolioBenchmarking.calculatePropertyMetrics(
                     property,
-                    mortgages.filter(m => m.property_id === property.id),
-                    expenses.filter(e => e.property_id === property.id),
-                    rentPayments.filter(r => r.property_id === property.id)
+                    mortgages.filter(m => String(m.property_id) === String(property.id)),
+                    expenses.filter(e => String(e.property_id) === String(property.id)),
+                    rentPayments.filter(r => String(r.property_id) === String(property.id))
                 );
 
                 // Get benchmark for this property
@@ -178,11 +178,11 @@ const PortfolioBenchmarking = {
             totalValue += parseFloat(property.current_value) || 0;
             propertyCount++;
 
-            const propMortgages = mortgages.filter(m => m.property_id === property.id);
+            const propMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
             totalDebt += propMortgages.reduce((sum, m) => sum + (parseFloat(m.current_balance) || 0), 0);
             totalDebtService += propMortgages.reduce((sum, m) => sum + (parseFloat(m.monthly_payment) || 0), 0);
 
-            const propExpenses = expenses.filter(e => e.property_id === property.id);
+            const propExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
             totalExpenses += propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         }
 

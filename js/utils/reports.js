@@ -12,7 +12,7 @@ const Reports = {
 
         properties.forEach(prop => {
             totalValue += parseFloat(prop.current_value) || 0;
-            const mortgage = mortgages?.find(m => m.property_id === prop.id);
+            const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
             if (mortgage) {
                 totalDebt += parseFloat(mortgage.current_balance) || 0;
             }
@@ -42,9 +42,9 @@ const Reports = {
      * Generate property report with all metrics
      */
     generatePropertyReport: (property, mortgages, expenses, rentPayments) => {
-        const mortgage = mortgages?.find(m => m.property_id === property.id);
-        const propExpenses = (expenses || []).filter(e => e.property_id === property.id);
-        const propRentPayments = (rentPayments || []).filter(r => r.property_id === property.id);
+        const mortgage = mortgages?.find(m => String(m.property_id) === String(property.id));
+        const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(property.id));
+        const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(property.id));
 
         const totalExpenses = propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         const totalIncome = propRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
@@ -175,7 +175,7 @@ const Reports = {
     generateDepreciationSchedule: (properties, mortgages) => {
         return properties.map(prop => {
             const depreciation = Calculations.calculateDepreciation(prop);
-            const mortgageData = mortgages?.find(m => m.property_id === prop.id);
+            const mortgageData = mortgages?.find(m => String(m.property_id) === String(prop.id));
 
             return {
                 address: prop.address,
@@ -272,9 +272,9 @@ const Reports = {
      */
     generatePerformanceComparison: (properties, mortgages, expenses, rentPayments, metric = 'roi') => {
         const propertyMetrics = properties.map(prop => {
-            const mortgage = mortgages?.find(m => m.property_id === prop.id);
-            const propExpenses = (expenses || []).filter(e => e.property_id === prop.id);
-            const propRentPayments = (rentPayments || []).filter(r => r.property_id === prop.id);
+            const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
+            const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(prop.id));
+            const propRentPayments = (rentPayments || []).filter(r => String(r.property_id) === String(prop.id));
 
             const totalExpenses = propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
             const totalIncome = propRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);

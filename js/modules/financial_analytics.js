@@ -115,7 +115,7 @@ const FinancialAnalytics = {
                 const yearsOwned = (new Date() - purchaseDate) / (1000 * 60 * 60 * 24 * 365.25);
 
                 // Debt for this property
-                const propertyMortgages = mortgages.filter(m => m.property_id === property.id);
+                const propertyMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
                 const totalMortgageBalance = propertyMortgages.reduce(
                     (sum, m) => sum + (parseFloat(m.current_balance) || 0), 0
                 );
@@ -123,14 +123,14 @@ const FinancialAnalytics = {
                 const ltv = currentValue > 0 ? totalMortgageBalance / currentValue : 0;
 
                 // Income for this property
-                const propertyTenants = tenants.filter(t => t.property_id === property.id && t.status === 'active');
+                const propertyTenants = tenants.filter(t => String(t.property_id) === String(property.id) && t.status === 'active');
                 const monthlyRent = propertyTenants.reduce(
                     (sum, t) => sum + (parseFloat(t.monthly_rent) || 0), 0
                 );
                 const annualIncome = monthlyRent * 12;
 
                 // Expenses for this property
-                const propertyExpenses = expenses.filter(e => e.property_id === property.id);
+                const propertyExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
                 const annualExpenses = propertyExpenses.reduce(
                     (sum, e) => sum + (parseFloat(e.amount) || 0), 0
                 );
@@ -253,8 +253,8 @@ const FinancialAnalytics = {
         ];
 
         properties.forEach(property => {
-            const propertyMortgages = mortgages.filter(m => m.property_id === property.id);
-            const propertyExpenses = expenses.filter(e => e.property_id === property.id);
+            const propertyMortgages = mortgages.filter(m => String(m.property_id) === String(property.id));
+            const propertyExpenses = expenses.filter(e => String(e.property_id) === String(property.id));
 
             // Basic metrics for this property
             const currentValue = parseFloat(property.current_value) || 0;
@@ -339,7 +339,7 @@ const FinancialAnalytics = {
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Average IRR</div>
-                        <div class="metric-value">${Formatting.percentage(metrics.averageIRR)}</div>
+                        <div class="metric-value">${parseFloat(metrics.averageIRR || 0).toFixed(2)}%</div>
                         <div class="metric-detail">Internal rate of return</div>
                     </div>
                     <div class="metric-card">
@@ -390,7 +390,7 @@ const FinancialAnalytics = {
                                 .map((prop, idx) => `
                                     <tr>
                                         <td>${prop.address}</td>
-                                        <td>${Formatting.percentage(prop.irr)}</td>
+                                        <td>${parseFloat(prop.irr || 0).toFixed(2)}%</td>
                                         <td>${Formatting.percentage(prop.capRate)}</td>
                                         <td>${Formatting.percentage(prop.ltv)}</td>
                                         <td>${Formatting.currency(prop.monthlyCashFlow)}</td>

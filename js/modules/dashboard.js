@@ -46,11 +46,11 @@ const Dashboard = {
             // Create property cards
             const html = properties.map(prop => {
                 // Find associated mortgage
-                const mortgage = mortgages?.find(m => m.property_id === prop.id);
+                const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
                 const equity = (prop.current_value || 0) - (mortgage?.current_balance || 0);
 
                 // Calculate property expenses this month (simplified - you'd want real data)
-                const propExpenses = expenses?.filter(e => e.property_id === prop.id) || [];
+                const propExpenses = expenses?.filter(e => String(e.property_id) === String(prop.id)) || [];
                 const totalExpenses = propExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
                 return `
