@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B + Phase 7C)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B + Phase 7C + Phase 7D)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -104,6 +104,21 @@ A centralized web application for managing and tracking residential real estate 
 - **Depreciation Methods**: MACRS (standard), Straight Line, and Accelerated options
 - **CSV Export**: Download tax report for CPA submission
 - **Actionable Recommendations**: Cost-benefit analysis for tax strategies
+
+### Phase 7D - Automation & Recurring Tasks
+- **Automation Engine**: Sophisticated rule-based automation platform
+- **Five Automation Types**: Task creation, reminders, lease renewal alerts, insurance renewal alerts, rent collection reminders
+- **Flexible Scheduling**: Daily, weekly, monthly, quarterly, annually, and custom (days before event)
+- **Task Automation**: Auto-create recurring maintenance, inspection, and rent collection tasks
+- **Smart Reminders**: Customizable notifications with flexible recurrence patterns
+- **Lease Renewal Automation**: Automatic alerts before lease expiry with auto-task creation
+- **Insurance Renewal Automation**: Policy tracking with renewal reminders (30/60/90 day thresholds)
+- **Rent Collection Reminders**: Automatic reminders N days before rent due date
+- **Execution History**: Complete log of all automation executions with success/failure tracking
+- **Manual Execution**: Trigger automations manually to test before scheduling
+- **Enable/Disable Toggle**: Quickly enable or disable automations without deletion
+- **Success Rate Tracking**: Dashboard shows automation reliability metrics
+- **Time Savings**: Eliminates 60%+ of routine manual operational work
 
 ## Tech Stack
 

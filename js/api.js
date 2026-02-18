@@ -971,5 +971,117 @@ const UI = {
             console.error('Error getting tax report:', error);
             return null;
         }
+    },
+
+    // ==================== AUTOMATION ====================
+
+    /**
+     * Get all automations
+     */
+    getAutomations: async () => {
+        const cacheKey = 'automations';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getAutomations');
+            const data = response?.data || [];
+            if (data) {
+                Storage.set(cacheKey, data, 300); // Cache for 5 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting automations:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Save new automation rule
+     */
+    saveAutomation: async (automationData) => {
+        try {
+            const response = await API.call('saveAutomation', automationData);
+            if (response && response.success) {
+                Storage.remove('automations'); // Invalidate cache
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to save automation');
+        } catch (error) {
+            console.error('Error saving automation:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Update existing automation rule
+     */
+    updateAutomation: async (automationId, automationData) => {
+        try {
+            const response = await API.call('updateAutomation', { id: automationId, ...automationData });
+            if (response && response.success) {
+                Storage.remove('automations'); // Invalidate cache
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to update automation');
+        } catch (error) {
+            console.error('Error updating automation:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete automation rule
+     */
+    deleteAutomation: async (automationId) => {
+        try {
+            const response = await API.call('deleteAutomation', { id: automationId });
+            if (response && response.success) {
+                Storage.remove('automations'); // Invalidate cache
+                return true;
+            }
+            throw new Error(response?.error || 'Failed to delete automation');
+        } catch (error) {
+            console.error('Error deleting automation:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get automation execution history
+     */
+    getAutomationHistory: async () => {
+        const cacheKey = 'automation_history';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getAutomationHistory');
+            const data = response?.data || [];
+            if (data) {
+                Storage.set(cacheKey, data, 300);
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting automation history:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Trigger manual automation run
+     */
+    runAutomationNow: async (automationId) => {
+        try {
+            const response = await API.call('runAutomationNow', { id: automationId });
+            if (response && response.success) {
+                Storage.remove('automation_history'); // Invalidate cache
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to run automation');
+        } catch (error) {
+            console.error('Error running automation:', error);
+            throw error;
+        }
     }
 };

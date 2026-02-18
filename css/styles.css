@@ -3294,4 +3294,210 @@ html, body {
     .forecast-tabs {
         flex-wrap: wrap;
     }
+
+    /* Automation Engine */
+    .automation-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .automation-dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .automation-controls {
+        background-color: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .automation-controls h4 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+    }
+
+    .control-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .automation-results {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .empty-state {
+        background-color: var(--bg-secondary);
+        padding: 40px 20px;
+        border-radius: 8px;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    .automations-list {
+        background-color: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .automations-list h4 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+    }
+
+    .automations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+    }
+
+    .automation-card {
+        background-color: var(--bg-primary);
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .automation-card.disabled {
+        opacity: 0.6;
+        border-left-color: var(--text-secondary);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .automation-info h5 {
+        margin: 0 0 5px 0;
+        color: var(--text-primary);
+    }
+
+    .automation-type {
+        display: inline-block;
+        background-color: var(--bg-secondary);
+        color: var(--primary-color);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-badge.enabled {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .status-badge.disabled {
+        background-color: var(--text-secondary);
+        color: white;
+    }
+
+    .automation-details {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .detail {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+    }
+
+    .detail .label {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .detail .value {
+        color: var(--text-primary);
+    }
+
+    .automation-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .automation-actions button {
+        flex: 1;
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .automations-summary {
+        background-color: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .automations-summary h4 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+    }
+
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .summary-card {
+        background-color: var(--bg-primary);
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+
+    .summary-card .label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    .summary-card .value {
+        display: block;
+        color: var(--primary-color);
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .automation-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .properties-checkbox-list,
+    .policy-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .properties-checkbox-list label,
+    .policy-checkbox-list label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 }
