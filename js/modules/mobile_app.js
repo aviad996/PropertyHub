@@ -50,6 +50,11 @@ const MobileApp = {
      */
     setupPWA: async () => {
         try {
+            // Skip service worker in demo mode to avoid caching issues
+            if (API.isDemo) {
+                console.log('Demo mode - skipping Service Worker registration');
+                return;
+            }
             // Register service worker
             if ('serviceWorker' in navigator) {
                 const registration = await navigator.serviceWorker.register('/service-worker.js');

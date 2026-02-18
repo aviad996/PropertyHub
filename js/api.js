@@ -2,14 +2,164 @@
 
 const API = {
     isOnline: navigator.onLine,
+    isDemo: false,
 
     /**
-     * Call Google Apps Script function
+     * Local storage backend for demo mode
+     */
+    _local: {
+        _numericFields: [
+            'purchase_price', 'current_value', 'original_balance', 'current_balance',
+            'interest_rate', 'monthly_payment', 'remaining_term_months', 'escrow_payment',
+            'monthly_rent', 'rent_amount', 'security_deposit', 'amount',
+            'coverage_amount', 'annual_premium', 'loan_amount', 'balance'
+        ],
+        _parseNumerics: (item) => {
+            const parsed = { ...item };
+            API._local._numericFields.forEach(field => {
+                if (parsed[field] !== undefined && parsed[field] !== '' && parsed[field] !== null) {
+                    const num = parseFloat(parsed[field]);
+                    if (!isNaN(num)) parsed[field] = num;
+                }
+            });
+            return parsed;
+        },
+        _getStore: (collection) => {
+            const data = localStorage.getItem('ph_demo_' + collection);
+            return data ? JSON.parse(data) : [];
+        },
+        _setStore: (collection, data) => {
+            localStorage.setItem('ph_demo_' + collection, JSON.stringify(data));
+        },
+        _nextId: (collection) => {
+            const items = API._local._getStore(collection);
+            const maxId = items.reduce((max, item) => Math.max(max, parseInt(item.id) || 0), 0);
+            return String(maxId + 1);
+        },
+        get: (collection) => {
+            const items = API._local._getStore(collection);
+            return { data: items.map(API._local._parseNumerics) };
+        },
+        add: (collection, data) => {
+            const items = API._local._getStore(collection);
+            const newItem = { ...data, id: API._local._nextId(collection) };
+            items.push(newItem);
+            API._local._setStore(collection, items);
+            return { success: true, data: newItem };
+        },
+        update: (collection, data) => {
+            const items = API._local._getStore(collection);
+            const idx = items.findIndex(item => item.id === data.id);
+            if (idx !== -1) {
+                items[idx] = { ...items[idx], ...data };
+                API._local._setStore(collection, items);
+                return { success: true, data: items[idx] };
+            }
+            return { success: false, error: 'Not found' };
+        },
+        delete: (collection, id) => {
+            const items = API._local._getStore(collection);
+            const filtered = items.filter(item => item.id !== id);
+            API._local._setStore(collection, filtered);
+            return { success: true };
+        },
+        getMetrics: () => {
+            const properties = API._local._getStore('properties');
+            const mortgages = API._local._getStore('mortgages');
+            const tenants = API._local._getStore('tenants');
+            const totalValue = properties.reduce((sum, p) => sum + (parseFloat(p.current_value) || 0), 0);
+            const totalDebt = mortgages.reduce((sum, m) => sum + (parseFloat(m.current_balance) || parseFloat(m.balance) || parseFloat(m.loan_amount) || 0), 0);
+            const monthlyIncome = tenants.reduce((sum, t) => sum + (parseFloat(t.monthly_rent) || parseFloat(t.rent_amount) || 0), 0);
+            return {
+                data: {
+                    totalValue,
+                    totalDebt,
+                    totalEquity: totalValue - totalDebt,
+                    monthlyIncome,
+                    propertyCount: properties.length
+                }
+            };
+        }
+    },
+
+    /**
+     * Route API call - uses GAS if configured, localStorage otherwise
+     */
+    _routeCall: (functionName, params) => {
+        // Map function names to local operations
+        const collectionMap = {
+            getProperties: ['properties', 'get'],
+            addProperty: ['properties', 'add'],
+            updateProperty: ['properties', 'update'],
+            deleteProperty: ['properties', 'delete'],
+            getMortgages: ['mortgages', 'get'],
+            addMortgage: ['mortgages', 'add'],
+            updateMortgage: ['mortgages', 'update'],
+            deleteMortgage: ['mortgages', 'delete'],
+            getExpenses: ['expenses', 'get'],
+            addExpense: ['expenses', 'add'],
+            updateExpense: ['expenses', 'update'],
+            deleteExpense: ['expenses', 'delete'],
+            getTenants: ['tenants', 'get'],
+            addTenant: ['tenants', 'add'],
+            updateTenant: ['tenants', 'update'],
+            deleteTenant: ['tenants', 'delete'],
+            getRentPayments: ['rent_payments', 'get'],
+            addRentPayment: ['rent_payments', 'add'],
+            updateRentPayment: ['rent_payments', 'update'],
+            deleteRentPayment: ['rent_payments', 'delete'],
+            getInsurance: ['insurance', 'get'],
+            addInsurance: ['insurance', 'add'],
+            updateInsurance: ['insurance', 'update'],
+            deleteInsurance: ['insurance', 'delete'],
+            getTasks: ['tasks', 'get'],
+            addTasks: ['tasks', 'add'],
+            updateTask: ['tasks', 'update'],
+            deleteTask: ['tasks', 'delete'],
+            getContacts: ['contacts', 'get'],
+            addContact: ['contacts', 'add'],
+            updateContact: ['contacts', 'update'],
+            deleteContact: ['contacts', 'delete'],
+            getUtilities: ['utilities', 'get'],
+            addUtility: ['utilities', 'add'],
+            updateUtility: ['utilities', 'update'],
+            deleteUtility: ['utilities', 'delete'],
+            getTenantCharges: ['tenant_charges', 'get'],
+            addTenantCharge: ['tenant_charges', 'add'],
+            getTriggers: ['triggers', 'get'],
+            getPortfolioMetrics: ['metrics', 'special'],
+            getUserEmail: ['email', 'special']
+        };
+
+        const mapping = collectionMap[functionName];
+        if (!mapping) return null;
+
+        const [collection, operation] = mapping;
+
+        if (operation === 'special') {
+            if (collection === 'metrics') return API._local.getMetrics();
+            if (collection === 'email') return { email: 'demo@propertyhub.app' };
+        }
+
+        switch (operation) {
+            case 'get': return API._local.get(collection);
+            case 'add': return API._local.add(collection, params);
+            case 'update': return API._local.update(collection, params);
+            case 'delete': return API._local.delete(collection, params.id);
+            default: return null;
+        }
+    },
+
+    /**
+     * Call Google Apps Script function (or local storage in demo mode)
      */
     call: async (functionName, params = {}) => {
+        // Demo mode - use localStorage
         if (!CONFIG.gasUrl || CONFIG.gasUrl.includes('YOUR_DEPLOYMENT_ID')) {
-            console.error('Google Apps Script URL not configured');
-            UI.showToast('App not configured. Please set GAS_DEPLOYMENT_URL in js/config.js', 'error');
+            API.isDemo = true;
+            const result = API._routeCall(functionName, params);
+            if (result) return result;
+            console.warn(`Demo mode: no handler for ${functionName}`);
             return null;
         }
 
