@@ -396,7 +396,7 @@ const InvestmentAnalysis = {
      */
     loadInvestmentAnalysis: async () => {
         try {
-            const container = document.getElementById('financial-analytics-view');
+            const container = document.getElementById('investment_analysis-content');
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Analyzing investment performance...</div>';

@@ -460,7 +460,7 @@ const MobileApp = {
      */
     loadMobileSettings: async () => {
         try {
-            const container = document.getElementById('financial-analytics-view');
+            const container = document.getElementById('mobile_app-content');
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Loading mobile settings...</div>';

@@ -65,7 +65,7 @@ const FinancialAnalytics = {
      */
     loadFinancialAnalytics: async () => {
         try {
-            const container = document.getElementById('financial-analytics-view');
+            const container = document.getElementById('financial_analytics-content');
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Loading financial analytics...</div>';

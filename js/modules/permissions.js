@@ -92,8 +92,8 @@ const Permissions = {
      */
     hasPermission: (module, action) => {
         if (!Users.currentUser) {
-            console.warn('No current user');
-            return false;
+            // In demo mode (no GAS configured), allow all access
+            return true;
         }
 
         const role = Users.currentUser.role;

@@ -374,7 +374,7 @@ const ScenarioAnalysis = {
      */
     loadScenarioAnalysis: async () => {
         try {
-            const container = document.getElementById('financial-analytics-view');
+            const container = document.getElementById('scenario_analysis-content');
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Loading scenario analysis...</div>';
@@ -737,7 +737,7 @@ const ScenarioAnalysis = {
             </div>
         `;
 
-        document.getElementById('financial-analytics-view').innerHTML = detailHTML;
+        document.getElementById('scenario_analysis-content').innerHTML = detailHTML;
     },
 
     /**

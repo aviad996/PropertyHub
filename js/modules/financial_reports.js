@@ -666,7 +666,7 @@ const FinancialReports = {
      */
     loadFinancialReports: async () => {
         try {
-            const container = document.getElementById('financial-analytics-view');
+            const container = document.getElementById('financial_reports-content');
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Preparing financial reports...</div>';

@@ -295,7 +295,7 @@ const App = {
                     await MLAnalytics.loadMLAnalytics();
                     break;
                 case 'mobile_app':
-                    await MobileApp.loadMobileApp();
+                    await MobileApp.loadMobileSettings();
                     break;
                 case 'users':
                     await Users.loadUsers();

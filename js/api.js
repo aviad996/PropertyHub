@@ -600,10 +600,8 @@ const UI = {
             view.classList.remove('active');
         });
 
-        // Show selected view - try both underscore and hyphen variants
-        const viewId = viewName.replace(/_/g, '-');
-        const view = document.getElementById(`${viewId}-view`) ||
-                     document.getElementById(`${viewName}-view`);
+        // Show selected view
+        const view = document.getElementById(`${viewName}-view`);
         if (view) {
             view.classList.add('active');
         }
