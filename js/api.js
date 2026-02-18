@@ -409,6 +409,114 @@ const API = {
     },
 
     /**
+     * Get all insurance policies
+     */
+    getInsurance: async () => {
+        const cached = Storage.getCache('insurance');
+        if (cached) return cached;
+
+        const response = await API.call('getInsurance');
+        if (response && response.data) {
+            Storage.cache('insurance', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add insurance policy
+     */
+    addInsurance: async (insuranceData) => {
+        const response = await API.call('addInsurance', insuranceData);
+        if (response && response.success) {
+            Storage.remove('insurance');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add insurance policy');
+    },
+
+    /**
+     * Update insurance policy
+     */
+    updateInsurance: async (policyId, insuranceData) => {
+        const response = await API.call('updateInsurance', {
+            id: policyId,
+            ...insuranceData
+        });
+        if (response && response.success) {
+            Storage.remove('insurance');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update insurance policy');
+    },
+
+    /**
+     * Delete insurance policy
+     */
+    deleteInsurance: async (policyId) => {
+        const response = await API.call('deleteInsurance', { id: policyId });
+        if (response && response.success) {
+            Storage.remove('insurance');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete insurance policy');
+    },
+
+    /**
+     * Get all tasks
+     */
+    getTasks: async () => {
+        const cached = Storage.getCache('tasks');
+        if (cached) return cached;
+
+        const response = await API.call('getTasks');
+        if (response && response.data) {
+            Storage.cache('tasks', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add task
+     */
+    addTask: async (taskData) => {
+        const response = await API.call('addTasks', taskData);
+        if (response && response.success) {
+            Storage.remove('tasks');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add task');
+    },
+
+    /**
+     * Update task
+     */
+    updateTask: async (taskId, taskData) => {
+        const response = await API.call('updateTask', {
+            id: taskId,
+            ...taskData
+        });
+        if (response && response.success) {
+            Storage.remove('tasks');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update task');
+    },
+
+    /**
+     * Delete task
+     */
+    deleteTask: async (taskId) => {
+        const response = await API.call('deleteTask', { id: taskId });
+        if (response && response.success) {
+            Storage.remove('tasks');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete task');
+    },
+
+    /**
      * Get auth user email
      */
     getUserEmail: async () => {
@@ -470,7 +578,9 @@ const UI = {
             'utilities': 'Utilities',
             'contacts': 'Contacts',
             'tenants': 'Tenants',
-            'rent_payments': 'Rent Payments'
+            'rent_payments': 'Rent Payments',
+            'insurance': 'Insurance Policies',
+            'tasks': 'Tasks & Reminders'
         };
         document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
 

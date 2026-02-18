@@ -1199,6 +1199,347 @@ html, body {
     color: white;
 }
 
+/* Insurance View */
+.insurance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.insurance-property {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.property-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.property-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.property-premium {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.policies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.policy-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.policy-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.policy-header {
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.policy-type {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.policy-provider {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 4px;
+}
+
+.policy-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.policy-details .detail {
+    color: var(--text-secondary);
+}
+
+.expiry-good {
+    color: #155724;
+    background-color: #d4edda;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.expiry-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.expiry-urgent {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.expiry-expired {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.policy-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.policy-actions button {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.policy-actions .edit-btn {
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.policy-actions .edit-btn:hover {
+    background-color: #0066cc;
+    color: white;
+}
+
+.policy-actions .delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.policy-actions .delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Tasks View */
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tasks-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.overdue-badge {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.tasks-grid.completed {
+    opacity: 0.7;
+}
+
+.task-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.task-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+.task-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.category-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.task-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.task-details .detail {
+    color: var(--text-secondary);
+}
+
+.due-good {
+    color: var(--text-secondary);
+}
+
+.due-soon {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.due-today {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.due-overdue {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.task-actions button {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.task-actions .complete-btn {
+    color: #34C759;
+    border-color: #34C759;
+}
+
+.task-actions .complete-btn:hover {
+    background-color: #34C759;
+    color: white;
+}
+
+.task-actions .edit-btn {
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.task-actions .edit-btn:hover {
+    background-color: #0066cc;
+    color: white;
+}
+
+.task-actions .delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.task-actions .delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Radio Group */
+.radio-group {
+    display: flex;
+    gap: 20px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.radio-group input[type="radio"] {
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .utilities-grid {
         grid-template-columns: 1fr;

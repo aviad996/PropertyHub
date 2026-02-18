@@ -48,6 +48,14 @@
                     <span class="nav-icon">💵</span>
                     <span class="nav-label">Rent Payments</span>
                 </a>
+                <a href="#" class="nav-item" data-view="insurance">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">Insurance</span>
+                </a>
+                <a href="#" class="nav-item" data-view="tasks">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-label">Tasks</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -595,6 +603,152 @@
                     </div>
                 </div>
 
+                <!-- Insurance View -->
+                <div id="insurance-view" class="view">
+                    <div class="view-header">
+                        <h3>Insurance Policies</h3>
+                        <button class="btn-primary" id="new-insurance-btn">+ New Policy</button>
+                    </div>
+
+                    <div id="insurance-list" class="insurance-list">
+                        <p class="loading">Loading insurance policies...</p>
+                    </div>
+
+                    <!-- Insurance Form Modal -->
+                    <div id="insurance-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add/Edit Insurance Policy</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="insurance-form" class="form">
+                                <div class="form-group">
+                                    <label>Property *</label>
+                                    <select id="insurance-property-select" name="property_id" required>
+                                        <option value="">Select property...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Policy Type *</label>
+                                        <select name="policy_type" required>
+                                            <option value="">Select type...</option>
+                                            <option value="property">Property Insurance</option>
+                                            <option value="liability">Liability Insurance</option>
+                                            <option value="umbrella">Umbrella Insurance</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Provider *</label>
+                                        <input type="text" name="provider" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Policy Number</label>
+                                        <input type="text" name="policy_number">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Coverage Amount</label>
+                                        <input type="number" name="coverage_amount" step="0.01">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Annual Premium</label>
+                                        <input type="number" name="annual_premium" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Expiry Date *</label>
+                                        <input type="date" name="expiry_date" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Policy</button>
+                                    <button type="button" class="btn-secondary" id="cancel-insurance">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks View -->
+                <div id="tasks-view" class="view">
+                    <div class="view-header">
+                        <h3>Tasks & Reminders</h3>
+                        <button class="btn-primary" id="new-task-btn">+ New Task</button>
+                    </div>
+
+                    <div id="tasks-list" class="tasks-list">
+                        <p class="loading">Loading tasks...</p>
+                    </div>
+
+                    <!-- Task Form Modal -->
+                    <div id="task-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add/Edit Task</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="task-form" class="form">
+                                <div class="form-group">
+                                    <label>Property *</label>
+                                    <select id="task-property-select" name="property_id" required>
+                                        <option value="">Select property...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Task Title *</label>
+                                    <input type="text" name="title" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Category *</label>
+                                        <select name="category" required>
+                                            <option value="">Select category...</option>
+                                            <option value="maintenance">🔧 Maintenance</option>
+                                            <option value="inspection">🔍 Inspection</option>
+                                            <option value="lease_renewal">📄 Lease Renewal</option>
+                                            <option value="insurance">📋 Insurance</option>
+                                            <option value="rent_collection">💰 Rent Collection</option>
+                                            <option value="other">📝 Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Due Date *</label>
+                                        <input type="date" name="due_date" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Assigned To</label>
+                                    <input type="text" name="assigned_to" placeholder="Optional: person name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="status" value="pending" checked> Pending</label>
+                                        <label><input type="radio" name="status" value="completed"> Completed</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Task</button>
+                                    <button type="button" class="btn-secondary" id="cancel-task">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -615,6 +769,8 @@
     <script src="js/modules/contacts.js"></script>
     <script src="js/modules/tenants.js"></script>
     <script src="js/modules/rent_payments.js"></script>
+    <script src="js/modules/insurance.js"></script>
+    <script src="js/modules/tasks.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

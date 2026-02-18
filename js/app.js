@@ -111,6 +111,8 @@ const App = {
             await Contacts.init();
             await Tenants.init();
             await RentPayments.init();
+            await Insurance.init();
+            await Tasks.init();
         } catch (error) {
             console.error('Error loading data:', error);
             throw error;
@@ -147,6 +149,12 @@ const App = {
                     break;
                 case 'rent_payments':
                     await RentPayments.loadRentPayments();
+                    break;
+                case 'insurance':
+                    await Insurance.loadInsurance();
+                    break;
+                case 'tasks':
+                    await Tasks.loadTasks();
                     break;
             }
         } catch (error) {
