@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, and strategic planning in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -32,6 +32,16 @@ A centralized web application for managing and tracking residential real estate 
 - **Tenant Status**: Track active/vacant/past tenants
 - **Security Deposits**: Track security deposit amounts per tenant
 - **Monthly Organization**: Rent payments grouped by month with aggregated totals
+
+### Phase 4 - Insurance & Tasks
+- **Insurance Policy Tracking**: Monitor all property insurance with coverage amounts and premiums
+- **Renewal Alerts**: Automatic warnings for policies expiring (30/90 day thresholds with color coding)
+- **Task Management**: Create and track maintenance, inspections, and renewal tasks
+- **Overdue Task Alerts**: Visual indicators for overdue tasks with exact days overdue
+- **Task Categories**: Organized by maintenance, inspection, lease renewal, insurance, rent collection
+- **Quick-Complete**: Mark tasks as done without editing modal
+- **Assigned-To Tracking**: Optional assignment for task delegation
+- **Dashboard Summaries**: Insurance premiums, renewal status, pending and overdue tasks
 
 ## Tech Stack
 
@@ -92,17 +102,22 @@ PropertyHub/
 │       ├── dashboard.js   # Dashboard view
 │       ├── properties.js  # Properties management
 │       ├── mortgages.js   # Mortgage tracking
-│       ├── utilities.js   # Utilities management
-│       ├── contacts.js    # Contacts directory
+│       ├── utilities.js   # Utilities management (Phase 2.5)
+│       ├── contacts.js    # Contacts directory (Phase 2.5)
 │       ├── tenants.js     # Tenant management (Phase 3)
-│       └── rent_payments.js # Rent payment tracking (Phase 3)
+│       ├── rent_payments.js # Rent payment tracking (Phase 3)
+│       ├── insurance.js   # Insurance policy tracking (Phase 4)
+│       └── tasks.js       # Task management & reminders (Phase 4)
 ├── appsscript.js          # Google Apps Script backend (copy to GAS editor)
 ├── appsscript.json        # Google Apps Script config
 ├── .gitignore
 ├── README.md
 ├── SETUP.md
 ├── QUICKSTART.md
-└── SHARING.md
+├── SHARING.md
+├── PHASE-2.5.md          # Phase 2.5 features documentation
+├── PHASE-3.md            # Phase 3 features documentation
+└── PHASE-4.md            # Phase 4 features documentation
 ```
 
 ## Data Schema (Enhanced)
@@ -156,14 +171,15 @@ PropertyHub/
 - [x] Core portfolio tracking (Phase 1-2)
 - [x] Utilities and bill-back system (Phase 2.5)
 - [x] Tenant management and rent tracking (Phase 3)
+- [x] Insurance policy tracking and task management (Phase 4)
 
 ### Coming Soon 🚀
-- Insurance policy tracking with renewal reminders (Phase 4)
-- Task and reminder system with notifications (Phase 4)
-- Strategic decision logging and analytics (Phase 5)
-- Advanced comparative reporting (Phase 5)
-- Multi-user roles and permissions (Phase 6)
+- Advanced analytics and reporting (Phase 5)
+- Strategic decision logging and tax optimization (Phase 5)
 - Refinance calculator and break-even analysis (Phase 6)
+- Multi-user roles and advanced features (Phase 6)
+- Recurring tasks and automation (Phase 4.5 enhancement)
+- Task templates and maintenance checklists (Phase 4.5 enhancement)
 
 ## Support
 
