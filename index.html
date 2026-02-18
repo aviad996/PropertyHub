@@ -100,6 +100,10 @@
                     <span class="nav-icon">🎯</span>
                     <span class="nav-label">Scenarios</span>
                 </a>
+                <a href="#" class="nav-item" data-view="benchmarking">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Benchmarking</span>
+                </a>
                 <a href="#" class="nav-item" data-view="users">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Users</span>
@@ -1007,6 +1011,17 @@
                     </div>
                 </div>
 
+                <!-- Benchmarking View -->
+                <div id="benchmarking-view" class="view">
+                    <div class="view-header">
+                        <h3>Portfolio Benchmarking</h3>
+                        <p class="view-description">Regional and peer performance comparison</p>
+                    </div>
+                    <div id="benchmarking-container" class="benchmarking-container">
+                        <p class="loading">Analyzing portfolio against benchmarks...</p>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -1040,6 +1055,7 @@
     <script src="js/modules/debt_paydown.js"></script>
     <script src="js/modules/kpi_monitoring.js"></script>
     <script src="js/modules/scenario_analysis.js"></script>
+    <script src="js/modules/benchmarking.js"></script>
     <script src="js/modules/permissions.js"></script>
     <script src="js/modules/users.js"></script>
     <script src="js/app.js"></script>

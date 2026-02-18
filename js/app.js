@@ -189,6 +189,7 @@ const App = {
             await FinancialAnalytics.init();
             await KPIMonitoring.init();
             await ScenarioAnalysis.init();
+            await PortfolioBenchmarking.init();
 
             // Initialize users module if owner
             if (Users.isOwner()) {
@@ -270,6 +271,9 @@ const App = {
                     break;
                 case 'scenario_analysis':
                     await ScenarioAnalysis.loadScenarioAnalysis();
+                    break;
+                case 'benchmarking':
+                    await PortfolioBenchmarking.loadBenchmarking();
                     break;
                 case 'users':
                     await Users.loadUsers();
