@@ -53,6 +53,23 @@ const App = {
     },
 
     /**
+     * Toggle mobile sidebar
+     */
+    toggleMobileSidebar: () => {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        const hamburger = document.getElementById('hamburger-menu');
+
+        if (!sidebar || !backdrop) return;
+
+        sidebar.classList.toggle('open');
+        backdrop.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded',
+            hamburger.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
+        );
+    },
+
+    /**
      * Setup navigation
      */
     setupNavigation: () => {
@@ -63,7 +80,51 @@ const App = {
                 const viewName = item.dataset.view;
                 UI.switchView(viewName);
                 App.loadViewData(viewName);
+
+                // Close mobile sidebar after navigation (on screens < 768px)
+                if (window.innerWidth < 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    const backdrop = document.getElementById('sidebar-backdrop');
+                    const hamburger = document.getElementById('hamburger-menu');
+
+                    if (sidebar && backdrop) {
+                        sidebar.classList.remove('open');
+                        backdrop.classList.remove('open');
+                        hamburger.setAttribute('aria-expanded', 'false');
+                    }
+                }
             });
+        });
+
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger-menu');
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                App.toggleMobileSidebar();
+            });
+        }
+
+        // Close sidebar on backdrop click
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', () => {
+                App.toggleMobileSidebar();
+            });
+        }
+
+        // Close sidebar on window resize to desktop size
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const backdrop = document.getElementById('sidebar-backdrop');
+                const hamburger = document.getElementById('hamburger-menu');
+
+                if (sidebar && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    backdrop?.classList.remove('open');
+                    hamburger?.setAttribute('aria-expanded', 'false');
+                }
+            }
         });
     },
 
