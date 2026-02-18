@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, and strategic planning in one place.
 
-## Features (MVP + Phase 2.5 Enhancements)
+## Features (MVP + Phase 2.5 + Phase 3)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -22,6 +22,16 @@ A centralized web application for managing and tracking residential real estate 
 - **Email Alerts**: Daily email summary of pending issues
 - **Runtime Calculations**: P&I amortization, Cap Rate, Cash-on-Cash, and portfolio metrics calculated in real-time
 - **UUID IDs**: All IDs are unique strings (prevents sync conflicts)
+
+### Phase 3 - Tenants & Rent Payments
+- **Tenant Management**: Track all tenants by property with lease dates and contact info
+- **Lease Tracking**: Automatic warnings when lease expiring in < 60 days
+- **Rent Payment Recording**: Monthly rent payment tracking with status (pending/paid/late)
+- **Payment Status Visibility**: Color-coded status badges for quick payment status overview
+- **Monthly Summaries**: Expected rent vs. received rent per month with outstanding alerts
+- **Tenant Status**: Track active/vacant/past tenants
+- **Security Deposits**: Track security deposit amounts per tenant
+- **Monthly Organization**: Rent payments grouped by month with aggregated totals
 
 ## Tech Stack
 
@@ -83,7 +93,9 @@ PropertyHub/
 │       ├── properties.js  # Properties management
 │       ├── mortgages.js   # Mortgage tracking
 │       ├── utilities.js   # Utilities management
-│       └── contacts.js    # Contacts directory
+│       ├── contacts.js    # Contacts directory
+│       ├── tenants.js     # Tenant management (Phase 3)
+│       └── rent_payments.js # Rent payment tracking (Phase 3)
 ├── appsscript.js          # Google Apps Script backend (copy to GAS editor)
 ├── appsscript.json        # Google Apps Script config
 ├── .gitignore
@@ -110,6 +122,14 @@ PropertyHub/
 - id (UUID), property_id, category, amount, date, description
 - **NEW**: tenant_charge_id, should_bill_tenant
 
+### Tenants Tab (NEW - Phase 3)
+- id (UUID), property_id, name, email, phone
+- lease_start_date, lease_end_date, monthly_rent, security_deposit
+- status (active/vacant/past)
+
+### Rent Payments Tab (NEW - Phase 3)
+- id (UUID), tenant_id, property_id, month, amount, paid_date, status
+
 ### NEW Sheets
 - **Contacts**: utility companies, contractors, HOA, property managers
 - **Tenant Charges**: auto-created from "Reimburse" expenses
@@ -130,14 +150,20 @@ PropertyHub/
 - **Cap Rate** = Annual NOI / Purchase Price
 - **Cash-on-Cash** = Annual NOI / Cash Invested
 
-## Future Features
+## Roadmap
 
-- Tenant management and rent tracking
-- Insurance policy tracking with renewal reminders
-- Task and reminder system
-- Strategic decision logging
-- Advanced analytics and comparative reporting
-- Multi-user roles and permissions
+### Completed ✅
+- [x] Core portfolio tracking (Phase 1-2)
+- [x] Utilities and bill-back system (Phase 2.5)
+- [x] Tenant management and rent tracking (Phase 3)
+
+### Coming Soon 🚀
+- Insurance policy tracking with renewal reminders (Phase 4)
+- Task and reminder system with notifications (Phase 4)
+- Strategic decision logging and analytics (Phase 5)
+- Advanced comparative reporting (Phase 5)
+- Multi-user roles and permissions (Phase 6)
+- Refinance calculator and break-even analysis (Phase 6)
 
 ## Support
 
