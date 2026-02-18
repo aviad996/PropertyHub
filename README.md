@@ -1,8 +1,8 @@
 # PropertyHub - Real Estate Portfolio Management Platform
 
-A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, and strategic planning in one place.
+A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -42,6 +42,18 @@ A centralized web application for managing and tracking residential real estate 
 - **Quick-Complete**: Mark tasks as done without editing modal
 - **Assigned-To Tracking**: Optional assignment for task delegation
 - **Dashboard Summaries**: Insurance premiums, renewal status, pending and overdue tasks
+
+### Phase 5 - Advanced Analytics & Reports
+- **Portfolio Analytics Dashboard**: Period-filtered analysis (today/month/quarter/year/custom)
+- **Portfolio Performance Metrics**: ROI, cash flow, equity, LTV, expense ratios with visual cards
+- **Property Comparison Table**: Side-by-side metrics for all properties (value, debt, income, expenses, ROI, cap rate)
+- **Expense Analysis**: Category breakdown with visual trends and percentage distribution
+- **Income vs Expenses Trend**: Monthly chart showing cash flow trends over time
+- **Tax Optimization Report**: Depreciation schedules, deduction tracking, tax savings estimates
+- **Cost Segregation Analysis**: Identify properties eligible for accelerated depreciation
+- **Performance Ranking**: Top and bottom performing properties by ROI, equity, or cash flow
+- **CSV Export**: Download analytics data for external analysis or accounting software
+- **Print-Friendly Reports**: Optimized report generation for printing and distribution
 
 ## Tech Stack
 
@@ -107,7 +119,12 @@ PropertyHub/
 │       ├── tenants.js     # Tenant management (Phase 3)
 │       ├── rent_payments.js # Rent payment tracking (Phase 3)
 │       ├── insurance.js   # Insurance policy tracking (Phase 4)
-│       └── tasks.js       # Task management & reminders (Phase 4)
+│       ├── tasks.js       # Task management & reminders (Phase 4)
+│       └── analytics.js   # Advanced analytics & reports (Phase 5)
+│       └── tax_report.js  # Tax optimization reports (Phase 5)
+├── utils/
+│   ├── calculations.js    # Runtime math and analysis functions
+│   └── reports.js         # Report generation & export utilities (Phase 5)
 ├── appsscript.js          # Google Apps Script backend (copy to GAS editor)
 ├── appsscript.json        # Google Apps Script config
 ├── .gitignore
@@ -117,7 +134,8 @@ PropertyHub/
 ├── SHARING.md
 ├── PHASE-2.5.md          # Phase 2.5 features documentation
 ├── PHASE-3.md            # Phase 3 features documentation
-└── PHASE-4.md            # Phase 4 features documentation
+├── PHASE-4.md            # Phase 4 features documentation
+└── PHASE-5.md            # Phase 5 features documentation
 ```
 
 ## Data Schema (Enhanced)
@@ -172,14 +190,16 @@ PropertyHub/
 - [x] Utilities and bill-back system (Phase 2.5)
 - [x] Tenant management and rent tracking (Phase 3)
 - [x] Insurance policy tracking and task management (Phase 4)
+- [x] Advanced analytics, reports, and tax optimization (Phase 5)
 
 ### Coming Soon 🚀
-- Advanced analytics and reporting (Phase 5)
-- Strategic decision logging and tax optimization (Phase 5)
-- Refinance calculator and break-even analysis (Phase 6)
+- Strategic decision logging with scenario modeling (Phase 5.5)
+- IRR calculations and advanced financial metrics (Phase 5.5)
+- Refinance calculator with payback period analysis (Phase 6)
 - Multi-user roles and advanced features (Phase 6)
 - Recurring tasks and automation (Phase 4.5 enhancement)
 - Task templates and maintenance checklists (Phase 4.5 enhancement)
+- Predictive analytics and cash flow forecasting (Phase 6)
 
 ## Support
 
