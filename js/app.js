@@ -316,13 +316,11 @@ const App = {
     setupPeriodicSync: () => {
         App.syncInterval = setInterval(async () => {
             try {
-                // Silently refresh data in background
+                // Silently refresh all dashboard metrics (both rows)
                 Storage.remove('portfolio_metrics');
-                const metrics = await API.getPortfolioMetrics();
-                document.getElementById('total-value').textContent = Formatting.currency(metrics.totalValue || 0);
-                document.getElementById('total-debt').textContent = Formatting.currency(metrics.totalDebt || 0);
-                document.getElementById('total-equity').textContent = Formatting.currency(metrics.totalEquity || 0);
-                document.getElementById('monthly-income').textContent = Formatting.currency(metrics.monthlyIncome || 0);
+                Storage.remove('tenants');
+                Storage.remove('insurance');
+                await Dashboard.loadMetrics();
             } catch (error) {
                 // Silent fail for background sync
                 console.debug('Background sync error:', error);

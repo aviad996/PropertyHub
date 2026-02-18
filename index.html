@@ -175,6 +175,30 @@
                             </div>
                         </div>
 
+                        <!-- Financial Metrics Row 2 -->
+                        <div class="metrics-section metrics-row-2">
+                            <div class="metric-card metric-monthly-rent">
+                                <div class="metric-label">Monthly Rent</div>
+                                <div class="metric-value" id="monthly-rent">$0</div>
+                                <div class="metric-detail">Total rent from active tenants</div>
+                            </div>
+                            <div class="metric-card metric-monthly-mortgages">
+                                <div class="metric-label">Monthly Mortgages</div>
+                                <div class="metric-value" id="monthly-mortgages">$0</div>
+                                <div class="metric-detail">Total mortgage payments</div>
+                            </div>
+                            <div class="metric-card metric-monthly-expenses">
+                                <div class="metric-label">Monthly Expenses</div>
+                                <div class="metric-value" id="monthly-expenses">$0</div>
+                                <div class="metric-detail">Taxes + Insurance + HOA</div>
+                            </div>
+                            <div class="metric-card metric-cash-flow">
+                                <div class="metric-label">Monthly Cash Flow</div>
+                                <div class="metric-value" id="monthly-cash-flow">$0</div>
+                                <div class="metric-detail">Rent - Mortgages - Expenses</div>
+                            </div>
+                        </div>
+
                         <!-- Properties Summary -->
                         <div class="summary-section">
                             <h3>Properties Summary</h3>
@@ -227,6 +251,8 @@
                                 <button class="close-btn">&times;</button>
                             </div>
                             <form id="property-form" class="form">
+                                <!-- Basic Info -->
+                                <div class="form-section-title">Property Details</div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Address *</label>
@@ -249,6 +275,28 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
+                                        <label>Property Type</label>
+                                        <select name="type" id="property-type-select">
+                                            <option value="single_family">Single Family</option>
+                                            <option value="duplex">Duplex</option>
+                                            <option value="triplex">Triplex</option>
+                                            <option value="fourplex">Fourplex</option>
+                                            <option value="multi_family">Multi-Family (5+)</option>
+                                            <option value="condo">Condo</option>
+                                            <option value="townhouse">Townhouse</option>
+                                            <option value="commercial">Commercial</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" id="units-group" style="display:none;">
+                                        <label>Number of Units *</label>
+                                        <input type="number" name="units" min="2" placeholder="e.g. 6">
+                                    </div>
+                                </div>
+
+                                <!-- Purchase & Value -->
+                                <div class="form-section-title">Purchase & Value</div>
+                                <div class="form-row">
+                                    <div class="form-group">
                                         <label>Purchase Price *</label>
                                         <input type="number" name="purchase_price" required step="0.01">
                                     </div>
@@ -263,15 +311,78 @@
                                         <input type="number" name="current_value" required step="0.01">
                                     </div>
                                     <div class="form-group">
-                                        <label>Property Type</label>
-                                        <select name="type">
-                                            <option value="single_family">Single Family</option>
-                                            <option value="multi_family">Multi-Family</option>
-                                            <option value="condo">Condo</option>
-                                            <option value="commercial">Commercial</option>
-                                        </select>
+                                        <label>Closing Costs</label>
+                                        <input type="number" name="closing_costs" step="0.01" placeholder="0.00">
                                     </div>
                                 </div>
+
+                                <!-- Annual Taxes & Insurance -->
+                                <div class="form-section-title">Taxes & Insurance</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Annual Taxes</label>
+                                        <input type="number" name="annual_taxes" step="0.01" placeholder="0.00" id="prop-annual-taxes">
+                                        <span class="field-hint" id="prop-monthly-taxes-hint"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Annual Insurance</label>
+                                        <input type="number" name="annual_insurance" step="0.01" placeholder="0.00" id="prop-annual-insurance">
+                                        <span class="field-hint" id="prop-monthly-insurance-hint"></span>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Monthly HOA</label>
+                                        <input type="number" name="monthly_hoa" step="0.01" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group"></div>
+                                </div>
+
+                                <!-- Optional Mortgage -->
+                                <div class="form-section-title">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="has-mortgage"> Add Mortgage
+                                    </label>
+                                </div>
+                                <div id="mortgage-section" style="display:none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Lender</label>
+                                            <input type="text" name="mortgage_lender" placeholder="e.g. Wells Fargo">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Loan Amount *</label>
+                                            <input type="number" name="mortgage_amount" step="0.01" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Interest Rate (%) *</label>
+                                            <input type="number" name="mortgage_rate" step="0.001" placeholder="e.g. 6.5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Term (years) *</label>
+                                            <select name="mortgage_term">
+                                                <option value="360">30 years</option>
+                                                <option value="180">15 years</option>
+                                                <option value="240">20 years</option>
+                                                <option value="120">10 years</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Monthly Payment</label>
+                                            <input type="number" name="mortgage_payment" step="0.01" placeholder="Auto-calculated" id="prop-mortgage-payment">
+                                            <span class="field-hint">Leave blank to auto-calculate</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Escrow (monthly)</label>
+                                            <input type="number" name="mortgage_escrow" step="0.01" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="form-actions">
                                     <button type="submit" class="btn-primary">Save Property</button>
                                     <button type="button" class="btn-secondary" id="cancel-property">Cancel</button>

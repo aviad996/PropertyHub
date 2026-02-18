@@ -318,6 +318,41 @@ html, body {
     border-top: 3px solid var(--primary-color);
 }
 
+/* Row 2 Financial Metrics */
+.metrics-row-2 {
+    margin-top: 0;
+}
+
+.metric-monthly-rent {
+    border-top: 3px solid #8b5cf6;
+}
+
+.metric-monthly-mortgages {
+    border-top: 3px solid #f97316;
+}
+
+.metric-monthly-expenses {
+    border-top: 3px solid #ec4899;
+}
+
+.metric-cash-flow {
+    border-top: 3px solid var(--success-color);
+}
+
+.cash-flow-positive {
+    color: #10b981 !important;
+}
+
+.cash-flow-negative {
+    color: #ef4444 !important;
+}
+
+/* Property card cash flow */
+.property-card .cash-flow-label {
+    font-weight: 600;
+    margin-top: 4px;
+}
+
 /* Sections */
 .summary-section, .actions-section {
     background-color: var(--bg-primary);
@@ -659,6 +694,41 @@ html, body {
     margin-top: 15px;
 }
 
+/* Form section titles */
+.form-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 6px;
+    margin: 16px 0 10px;
+}
+
+.form-section-title:first-child {
+    margin-top: 0;
+}
+
+.field-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+/* Toggle label for checkboxes inline with section title */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+}
+
 /* Modal */
 .modal {
     position: fixed;
@@ -671,7 +741,7 @@ html, body {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.3s ease;
+    opacity: 1;
 }
 
 .modal.hidden {
@@ -686,7 +756,7 @@ html, body {
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
+    opacity: 1;
 }
 
 @keyframes slideUp {
