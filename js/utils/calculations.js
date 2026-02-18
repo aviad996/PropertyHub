@@ -455,10 +455,11 @@ const Calculations = {
         // Generate scenarios for each new rate
         newRateOptions.forEach(option => {
             const newMonthlyRate = option.rate / 100 / 12;
+            const newTermMonths = (option.term ? option.term * 12 : null) || currentMortgage.remaining_term_months || 360;
             const newPayment = Calculations.calculateMonthlyPayment(
                 currentMortgage.current_balance || currentMortgage.original_balance,
                 newMonthlyRate,
-                option.term || (currentMortgage.remaining_term_months || 360)
+                newTermMonths
             );
 
             const monthlySavings = currentPayment - newPayment;

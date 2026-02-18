@@ -65,7 +65,7 @@ const Refinance = {
                         <select id="mortgage-select">
                             <option value="">-- Choose a mortgage --</option>
                             ${mortgages.map(m => {
-                                const property = properties?.find(p => p.id === m.property_id);
+                                const property = properties?.find(p => String(p.id) === String(m.property_id));
                                 return `
                                     <option value="${m.id}">
                                         ${property?.address || 'Unknown Property'} - ${m.interest_rate}% @ $${parseFloat(m.monthly_payment || 0).toLocaleString()}
@@ -125,7 +125,7 @@ const Refinance = {
         // Add event listener for mortgage selection
         document.getElementById('mortgage-select').addEventListener('change', (e) => {
             if (e.target.value) {
-                const mortgage = mortgages.find(m => m.id === e.target.value);
+                const mortgage = mortgages.find(m => String(m.id) === String(e.target.value));
                 Refinance.displayMortgageInfo(mortgage);
             }
         });
@@ -219,7 +219,7 @@ const Refinance = {
             }
 
             const mortgages = await API.getMortgages();
-            const currentMortgage = mortgages.find(m => m.id === mortgageSelect.value);
+            const currentMortgage = mortgages.find(m => String(m.id) === String(mortgageSelect.value));
 
             // Collect scenario inputs
             const scenarios = [];
@@ -427,8 +427,8 @@ const Refinance = {
 
             const mortgages = await API.getMortgages();
             const properties = await API.getProperties();
-            const currentMortgage = mortgages.find(m => m.id === mortgageSelect.value);
-            const property = properties?.find(p => p.id === currentMortgage.property_id);
+            const currentMortgage = mortgages.find(m => String(m.id) === String(mortgageSelect.value));
+            const property = properties?.find(p => String(p.id) === String(currentMortgage.property_id));
 
             // Collect current scenarios
             const scenarios = [];
