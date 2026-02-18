@@ -5979,3 +5979,620 @@ html, body {
         width: 100%;
     }
 }
+
+/* ==================== INVESTMENT ANALYSIS ==================== */
+
+.investment-analysis-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.analysis-header {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.analysis-header h2 {
+    margin: 0 0 10px 0;
+    color: var(--text-primary);
+}
+
+/* Portfolio Overview */
+.portfolio-overview {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.portfolio-overview h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.portfolio-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.stat-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Top Performers */
+.top-performers-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.top-performers-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.performers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.performer-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rank-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.performer-card strong {
+    color: var(--text-primary);
+    font-size: 14px;
+    padding-right: 40px;
+}
+
+.performer-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.performer-metrics .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.performer-metrics .label {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.performer-metrics .value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.performer-metrics .value.positive {
+    color: #10b981;
+}
+
+.performer-metrics .value.negative {
+    color: #ef4444;
+}
+
+.performance-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--bg-primary);
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.score-label {
+    color: var(--text-secondary);
+}
+
+.score-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Risk Assessment */
+.risk-assessment-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.risk-assessment-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.risk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.risk-card {
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+}
+
+.risk-card.risk-low {
+    background-color: rgba(16, 185, 129, 0.05);
+    border-left-color: #10b981;
+}
+
+.risk-card.risk-medium {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-left-color: #f59e0b;
+}
+
+.risk-card.risk-high {
+    background-color: rgba(239, 68, 68, 0.05);
+    border-left-color: #ef4444;
+}
+
+.risk-card strong {
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.risk-score {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.risk-level {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Recommendations */
+.recommendations-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.recommendations-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommendation {
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    border-left: 4px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recommendation.high {
+    background-color: rgba(239, 68, 68, 0.05);
+    border-left-color: #ef4444;
+}
+
+.recommendation.medium {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-left-color: #f59e0b;
+}
+
+.recommendation.low {
+    background-color: rgba(16, 185, 129, 0.05);
+    border-left-color: #10b981;
+}
+
+.rec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.rec-header strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.priority-badge {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    background-color: var(--primary-color);
+    white-space: nowrap;
+}
+
+.rec-description {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.rec-action {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.action-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.action-text {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Opportunities */
+.opportunities-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.opportunities-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.opportunities-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.opportunity-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.opp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.opp-header strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.property-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.opp-description {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.opp-impact {
+    font-size: 12px;
+    padding: 8px;
+    background-color: var(--bg-primary);
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+/* Detailed Ranking */
+.detailed-ranking {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.detailed-ranking h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ranking-table thead {
+    background-color: var(--bg-secondary);
+}
+
+.ranking-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.ranking-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+
+.ranking-table tbody tr:hover {
+    background-color: var(--bg-secondary);
+}
+
+.rank-number {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: center;
+    min-width: 30px;
+}
+
+.ranking-table .metric-value {
+    font-weight: 600;
+}
+
+.ranking-table .metric-value.positive {
+    color: #10b981;
+}
+
+.score-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Detailed Metrics */
+.detailed-metrics {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.detailed-metrics h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.metric-tab-content {
+    display: none;
+}
+
+.property-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.details-section {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.details-section h4 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item span:first-child {
+    color: var(--text-secondary);
+}
+
+.detail-item span:last-child {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.detail-item span.positive {
+    color: #10b981;
+}
+
+.metrics-navigation {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.metric-nav-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.metric-nav-btn:hover,
+.metric-nav-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Analysis Actions */
+.analysis-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.analysis-actions button {
+    padding: 12px 24px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.analysis-actions .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.analysis-actions .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.analysis-actions .btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.analysis-actions .btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+/* Mobile responsiveness for Investment Analysis */
+@media (max-width: 599px) {
+    .portfolio-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .performers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .risk-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .opportunities-list {
+        grid-template-columns: 1fr;
+    }
+
+    .property-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-table {
+        font-size: 11px;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 8px;
+    }
+
+    .metrics-navigation {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .analysis-actions {
+        flex-direction: column;
+    }
+
+    .analysis-actions button {
+        width: 100%;
+    }
+}

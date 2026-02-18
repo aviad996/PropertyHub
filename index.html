@@ -104,6 +104,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Benchmarking</span>
                 </a>
+                <a href="#" class="nav-item" data-view="investment_analysis">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-label">ROI Analysis</span>
+                </a>
                 <a href="#" class="nav-item" data-view="users">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Users</span>
@@ -1022,6 +1026,17 @@
                     </div>
                 </div>
 
+                <!-- Investment Analysis View -->
+                <div id="investment-analysis-view" class="view">
+                    <div class="view-header">
+                        <h3>Investment Performance Analysis</h3>
+                        <p class="view-description">ROI ranking and strategic investment recommendations</p>
+                    </div>
+                    <div id="investment-analysis-container" class="investment-analysis-container">
+                        <p class="loading">Analyzing investment performance...</p>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -1056,6 +1071,7 @@
     <script src="js/modules/kpi_monitoring.js"></script>
     <script src="js/modules/scenario_analysis.js"></script>
     <script src="js/modules/benchmarking.js"></script>
+    <script src="js/modules/investment_analysis.js"></script>
     <script src="js/modules/permissions.js"></script>
     <script src="js/modules/users.js"></script>
     <script src="js/app.js"></script>
