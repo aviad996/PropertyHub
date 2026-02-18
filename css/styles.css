@@ -4675,3 +4675,329 @@ html, body {
         padding: 8px 12px;
     }
 }
+
+/* ==================== KPI MONITORING & ALERTS ==================== */
+
+.kpi-monitoring-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.monitoring-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.monitoring-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.alert-summary {
+    display: flex;
+    gap: 15px;
+}
+
+.summary-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.summary-badge .count {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.summary-badge .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.summary-badge.critical .count {
+    color: #ef4444;
+}
+
+.summary-badge.warning .count {
+    color: #f59e0b;
+}
+
+.summary-badge.info .count {
+    color: #06b6d4;
+}
+
+/* Thresholds Section */
+.thresholds-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.thresholds-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.thresholds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.threshold-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+}
+
+.threshold-label {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.threshold-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.threshold-btn:hover {
+    opacity: 0.8;
+}
+
+/* Portfolio Alerts Section */
+.portfolio-alerts-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.portfolio-alerts-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+/* Property Alerts Section */
+.property-alerts-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.property-alerts-section h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+}
+
+.properties-alerts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.property-alert-card {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    background-color: var(--bg-secondary);
+}
+
+.property-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.property-header strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.alert-count {
+    font-size: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.property-alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Alert Items */
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alert-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.alert-item.alert-error {
+    background-color: rgba(239, 68, 68, 0.05);
+    border-left-color: #ef4444;
+}
+
+.alert-item.alert-warning {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-left-color: #f59e0b;
+}
+
+.alert-item.alert-info {
+    background-color: rgba(6, 182, 212, 0.05);
+    border-left-color: #06b6d4;
+}
+
+.alert-icon {
+    font-size: 18px;
+    min-width: 24px;
+}
+
+.alert-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.alert-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.alert-recommendation {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.alert-metric {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.no-alerts {
+    padding: 20px;
+    text-align: center;
+    color: #10b981;
+    font-size: 14px;
+}
+
+/* KPI Actions */
+.kpi-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.kpi-actions button {
+    padding: 12px 24px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.kpi-actions .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.kpi-actions .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.kpi-actions .btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.kpi-actions .btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+/* Mobile responsiveness for KPI Monitoring */
+@media (max-width: 599px) {
+    .monitoring-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .alert-summary {
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .thresholds-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .threshold-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .properties-alerts {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-actions {
+        flex-direction: column;
+    }
+
+    .kpi-actions button {
+        width: 100%;
+    }
+
+    .property-alert-card {
+        margin-bottom: 10px;
+    }
+}
