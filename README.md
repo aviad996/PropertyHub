@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -10,7 +10,8 @@ A centralized web application for managing and tracking residential real estate 
 - **Mortgage Tracking**: View complete mortgage breakdown including principal vs. interest (calculated at runtime)
 - **Expenses**: Category tracking with smart bill-back logic for tenant charges
 - **Data Synchronization**: On-demand sync (page load + manual refresh, no polling)
-- **Multi-user Support**: Share portfolio with partners
+- **Multi-user Support**: Share portfolio with partners (Phase 7A)
+- **Role-Based Access Control**: Owner, Manager, Accountant, and Tenant roles (Phase 7A)
 
 ### Phase 2.5 Enhancements
 - **Utilities Management**: Track electricity, water, and gas providers with smart billing responsibility (Direct/Owner/Reimburse)
@@ -64,6 +65,19 @@ A centralized web application for managing and tracking residential real estate 
 - **Outcome Analytics**: Track projected vs. actual decision outcomes
 - **Decision History**: Learn from past financial decisions
 - **CSV Export**: Export refinance analyses and decision logs
+
+### Phase 7A - Multi-User Roles & Permissions
+- **User Management**: Invite users and manage team access
+- **Role-Based Access Control**: 4 role types with granular permissions
+  - **Owner**: Full system access, manage users and settings
+  - **Manager**: Day-to-day operations (properties, rent, expenses, tasks)
+  - **Accountant**: Financial reports and auditing (read-only)
+  - **Tenant**: View own lease and payment history
+- **User Permissions Matrix**: Customized view and actions per role
+- **Activity Audit Log**: Track all user actions with timestamp and details
+- **Session Management**: View and terminate active user sessions
+- **Permission Enforcement**: Client-side UI filtering + server-side validation
+- **Data Isolation**: Users see only data they have permission to access
 
 ## Tech Stack
 

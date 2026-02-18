@@ -2331,3 +2331,334 @@ html, body {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
 }
+
+/* ============================================ */
+/* Users Management Styles */
+/* ============================================ */
+
+.users-management-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+}
+
+.users-section,
+.sessions-section,
+.audit-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.users-section h4,
+.sessions-section h4,
+.audit-section h4 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* User Card */
+.users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.user-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.user-email {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.user-role {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-owner {
+    background-color: #fbbf24;
+    color: #78350f;
+}
+
+.role-manager {
+    background-color: #93c5fd;
+    color: #1e3a8a;
+}
+
+.role-accountant {
+    background-color: #86efac;
+    color: #15803d;
+}
+
+.role-tenant {
+    background-color: #d1d5db;
+    color: #374151;
+}
+
+.user-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.user-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    background-color: var(--primary-light);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-small:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+}
+
+.btn-small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-small.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-small.btn-danger:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+/* Sessions List */
+.sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.session-device {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.session-location {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.session-time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+/* Activity Log */
+.activity-log {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-log-table {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activity-item {
+    display: grid;
+    grid-template-columns: 150px 150px 1fr 1fr;
+    gap: 15px;
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.activity-time {
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.activity-user {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.activity-action {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.activity-details {
+    color: var(--text-secondary);
+}
+
+/* Invite Modal */
+#invite-modal .form-group {
+    margin-bottom: 15px;
+}
+
+#invite-modal select {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+#invite-modal textarea {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+/* Permission Denied Overlay */
+.permission-denied {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.permission-denied-content {
+    background-color: var(--bg-primary);
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+}
+
+.permission-denied-content h3 {
+    color: var(--danger-color);
+    margin-bottom: 15px;
+}
+
+.permission-denied-content p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .user-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-actions {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .user-actions button {
+        flex: 1;
+    }
+
+    .activity-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .session-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .session-item button {
+        margin-top: 10px;
+    }
+}

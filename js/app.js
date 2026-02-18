@@ -22,9 +22,15 @@ const App = {
                 return;
             }
 
+            // Initialize users module first (loads current user)
+            await Users.init();
+
             // Load user email
             const userEmail = await API.getUserEmail();
             document.getElementById('user-email').textContent = userEmail;
+
+            // Initialize permissions after users module
+            await Permissions.init();
 
             // Setup navigation
             App.setupNavigation();
@@ -116,6 +122,13 @@ const App = {
             await Analytics.init();
             await Refinance.init();
             await FinancialDecisions.init();
+
+            // Initialize users module if owner
+            if (Users.isOwner()) {
+                await Users.loadUsers();
+                await Users.loadActiveSessions();
+                await Users.loadActivityLog();
+            }
         } catch (error) {
             console.error('Error loading data:', error);
             throw error;
@@ -127,6 +140,11 @@ const App = {
      */
     loadViewData: async (viewName) => {
         try {
+            // Check permission before loading view
+            if (!Permissions.enforceViewPermission(viewName)) {
+                return;
+            }
+
             switch (viewName) {
                 case 'dashboard':
                     await Dashboard.loadMetrics();
@@ -167,6 +185,12 @@ const App = {
                     break;
                 case 'financial_decisions':
                     await FinancialDecisions.loadFinancialDecisions();
+                    break;
+                case 'users':
+                    await Users.loadUsers();
+                    await Users.renderUsersList();
+                    await Users.loadActiveSessions();
+                    await Users.loadActivityLog();
                     break;
             }
         } catch (error) {

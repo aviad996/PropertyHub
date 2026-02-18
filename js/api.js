@@ -653,5 +653,144 @@ const UI = {
         hide: (modalId) => {
             document.getElementById(modalId)?.classList.add('hidden');
         }
+    },
+
+    /**
+     * Get current user email
+     */
+    getUserEmail: async () => {
+        try {
+            const response = await API.call('getCurrentUserEmail');
+            return response?.email || 'user@example.com';
+        } catch (error) {
+            console.error('Error getting user email:', error);
+            return 'user@example.com';
+        }
+    },
+
+    /**
+     * Get current user role
+     */
+    getCurrentUserRole: async () => {
+        try {
+            const response = await API.call('getCurrentUserRole');
+            return response?.role || 'owner';
+        } catch (error) {
+            console.error('Error getting user role:', error);
+            return 'owner';
+        }
+    },
+
+    /**
+     * Check permission
+     */
+    checkPermission: async (action) => {
+        try {
+            const response = await API.call('checkPermission', { action });
+            return response?.allowed || false;
+        } catch (error) {
+            console.error('Error checking permission:', error);
+            return false;
+        }
+    },
+
+    /**
+     * Get all users
+     */
+    getUsers: async () => {
+        try {
+            const response = await API.call('getUsers');
+            return response?.data || [];
+        } catch (error) {
+            console.error('Error getting users:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Add user
+     */
+    addUser: async (userData) => {
+        try {
+            const response = await API.call('addUser', userData);
+            if (response && response.success) {
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to add user');
+        } catch (error) {
+            console.error('Error adding user:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Update user role
+     */
+    updateUserRole: async (email, role) => {
+        try {
+            const response = await API.call('updateUserRole', { email, role });
+            if (response && response.success) {
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to update user role');
+        } catch (error) {
+            console.error('Error updating user role:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete user
+     */
+    deleteUser: async (email) => {
+        try {
+            const response = await API.call('deleteUser', { email });
+            if (response && response.success) {
+                return true;
+            }
+            throw new Error(response?.error || 'Failed to delete user');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get activity log
+     */
+    getActivityLog: async () => {
+        try {
+            const response = await API.call('getActivityLog');
+            return response?.data || [];
+        } catch (error) {
+            console.error('Error getting activity log:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Get active sessions
+     */
+    getActiveSessions: async () => {
+        try {
+            const response = await API.call('getActiveSessions');
+            return response?.data || [];
+        } catch (error) {
+            console.error('Error getting active sessions:', error);
+            return [];
+        }
+    },
+
+    /**
+     * End session
+     */
+    endSession: async (sessionId) => {
+        try {
+            const response = await API.call('endSession', { sessionId });
+            return response?.success || false;
+        } catch (error) {
+            console.error('Error ending session:', error);
+            throw error;
+        }
     }
 };
