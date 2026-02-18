@@ -1,0 +1,26 @@
+# Config and credentials
+config.js
+.env
+.env.local
+*.key
+*.pem
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build and dependencies
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*

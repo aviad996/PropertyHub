@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropertyHub - Real Estate Portfolio Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">PropertyHub</h1>
+                <p class="tagline">Real Estate Portfolio Management</p>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-view="properties">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Properties</span>
+                </a>
+                <a href="#" class="nav-item" data-view="mortgages">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-label">Mortgages</span>
+                </a>
+                <a href="#" class="nav-item" data-view="expenses">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-label">Expenses</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="sync-btn" class="sync-btn" title="Sync data">🔄 Sync</button>
+                <p class="sync-status">Last sync: never</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <span id="user-email" class="user-email">Loading...</span>
+                    <button id="add-item-btn" class="btn-primary">+ Add Item</button>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div class="views-container">
+
+                <!-- Dashboard View -->
+                <div id="dashboard-view" class="view active">
+                    <div class="dashboard-grid">
+                        <!-- Portfolio Metrics -->
+                        <div class="metrics-section">
+                            <div class="metric-card metric-total-value">
+                                <div class="metric-label">Total Portfolio Value</div>
+                                <div class="metric-value" id="total-value">$0</div>
+                                <div class="metric-detail">Current market value of all properties</div>
+                            </div>
+                            <div class="metric-card metric-total-debt">
+                                <div class="metric-label">Total Debt</div>
+                                <div class="metric-value" id="total-debt">$0</div>
+                                <div class="metric-detail">Combined mortgage balances</div>
+                            </div>
+                            <div class="metric-card metric-total-equity">
+                                <div class="metric-label">Total Equity</div>
+                                <div class="metric-value" id="total-equity">$0</div>
+                                <div class="metric-detail">Portfolio net worth</div>
+                            </div>
+                            <div class="metric-card metric-monthly-income">
+                                <div class="metric-label">Monthly Income</div>
+                                <div class="metric-value" id="monthly-income">$0</div>
+                                <div class="metric-detail">Projected rental income</div>
+                            </div>
+                        </div>
+
+                        <!-- Properties Summary -->
+                        <div class="summary-section">
+                            <h3>Properties Summary</h3>
+                            <div id="properties-summary" class="properties-grid">
+                                <p class="loading">Loading properties...</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="actions-section">
+                            <h3>Quick Actions</h3>
+                            <div class="action-buttons">
+                                <button class="action-btn" data-action="add-property">
+                                    <span class="icon">+</span>
+                                    Add Property
+                                </button>
+                                <button class="action-btn" data-action="add-mortgage">
+                                    <span class="icon">+</span>
+                                    Add Mortgage
+                                </button>
+                                <button class="action-btn" data-action="add-expense">
+                                    <span class="icon">+</span>
+                                    Add Expense
+                                </button>
+                                <button class="action-btn" data-action="refresh">
+                                    <span class="icon">🔄</span>
+                                    Refresh Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Properties View -->
+                <div id="properties-view" class="view">
+                    <div class="view-header">
+                        <h3>All Properties</h3>
+                        <button class="btn-primary" id="new-property-btn">+ New Property</button>
+                    </div>
+
+                    <div id="properties-list" class="properties-list">
+                        <p class="loading">Loading properties...</p>
+                    </div>
+
+                    <!-- Property Form Modal -->
+                    <div id="property-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add/Edit Property</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="property-form" class="form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Address *</label>
+                                        <input type="text" name="address" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>City *</label>
+                                        <input type="text" name="city" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>State *</label>
+                                        <input type="text" name="state" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Zip Code</label>
+                                        <input type="text" name="zip">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Purchase Price *</label>
+                                        <input type="number" name="purchase_price" required step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Purchase Date *</label>
+                                        <input type="date" name="purchase_date" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Current Value *</label>
+                                        <input type="number" name="current_value" required step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Property Type</label>
+                                        <select name="type">
+                                            <option value="single_family">Single Family</option>
+                                            <option value="multi_family">Multi-Family</option>
+                                            <option value="condo">Condo</option>
+                                            <option value="commercial">Commercial</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Property</button>
+                                    <button type="button" class="btn-secondary" id="cancel-property">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mortgages View -->
+                <div id="mortgages-view" class="view">
+                    <div class="view-header">
+                        <h3>Mortgages</h3>
+                        <button class="btn-primary" id="new-mortgage-btn">+ New Mortgage</button>
+                    </div>
+
+                    <div id="mortgages-list" class="mortgages-list">
+                        <p class="loading">Loading mortgages...</p>
+                    </div>
+
+                    <!-- Mortgage Form Modal -->
+                    <div id="mortgage-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add/Edit Mortgage</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="mortgage-form" class="form">
+                                <div class="form-group">
+                                    <label>Property *</label>
+                                    <select name="property_id" id="mortgage-property-select" required>
+                                        <option value="">Select a property...</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Lender *</label>
+                                        <input type="text" name="lender" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Original Balance *</label>
+                                        <input type="number" name="original_balance" required step="0.01">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Current Balance *</label>
+                                        <input type="number" name="current_balance" required step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Interest Rate (%) *</label>
+                                        <input type="number" name="interest_rate" required step="0.001">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Monthly Payment *</label>
+                                        <input type="number" name="monthly_payment" required step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Remaining Term (months) *</label>
+                                        <input type="number" name="remaining_term_months" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Refinance Eligible Date</label>
+                                        <input type="date" name="refinance_eligible_date">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Escrow Amount (monthly)</label>
+                                        <input type="number" name="escrow_payment" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Mortgage</button>
+                                    <button type="button" class="btn-secondary" id="cancel-mortgage">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses View -->
+                <div id="expenses-view" class="view">
+                    <div class="view-header">
+                        <h3>Expenses</h3>
+                        <button class="btn-primary" id="new-expense-btn">+ New Expense</button>
+                    </div>
+
+                    <div id="expenses-list" class="expenses-list">
+                        <p class="loading">Loading expenses...</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Error/Status Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/formatting.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/modules/dashboard.js"></script>
+    <script src="js/modules/properties.js"></script>
+    <script src="js/modules/mortgages.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
