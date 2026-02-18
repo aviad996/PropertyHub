@@ -186,6 +186,7 @@ const App = {
             await PredictiveAnalytics.init();
             await TaxOptimization.init();
             await AutomationEngine.init();
+            await FinancialAnalytics.init();
 
             // Initialize users module if owner
             if (Users.isOwner()) {
@@ -258,6 +259,9 @@ const App = {
                     break;
                 case 'automation':
                     await AutomationEngine.loadAutomationEngine();
+                    break;
+                case 'financial_analytics':
+                    await FinancialAnalytics.loadFinancialAnalytics();
                     break;
                 case 'users':
                     await Users.loadUsers();

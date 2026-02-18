@@ -1083,5 +1083,133 @@ const UI = {
             console.error('Error running automation:', error);
             throw error;
         }
+    },
+
+    // ==================== FINANCIAL ANALYTICS ====================
+
+    /**
+     * Get all scenarios
+     */
+    getScenarios: async () => {
+        const cacheKey = 'scenarios';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getScenarios');
+            const data = response?.data || [];
+            if (data) {
+                Storage.set(cacheKey, data, 300); // Cache for 5 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting scenarios:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Save new scenario
+     */
+    saveScenario: async (scenarioData) => {
+        try {
+            const response = await API.call('saveScenario', scenarioData);
+            if (response && response.success) {
+                Storage.remove('scenarios'); // Invalidate cache
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to save scenario');
+        } catch (error) {
+            console.error('Error saving scenario:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get KPI settings
+     */
+    getKPISettings: async () => {
+        const cacheKey = 'kpi_settings';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getKPISettings');
+            const data = response?.data || [];
+            if (data) {
+                Storage.set(cacheKey, data, 600); // Cache for 10 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting KPI settings:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Update KPI setting
+     */
+    updateKPISetting: async (kpiId, setting) => {
+        try {
+            const response = await API.call('updateKPISetting', { id: kpiId, ...setting });
+            if (response && response.success) {
+                Storage.remove('kpi_settings'); // Invalidate cache
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to update KPI');
+        } catch (error) {
+            console.error('Error updating KPI:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get benchmark data
+     */
+    getBenchmarkData: async () => {
+        const cacheKey = 'benchmark_data';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getBenchmarkData');
+            const data = response?.data || {};
+            if (data) {
+                Storage.set(cacheKey, data, 600); // Cache for 10 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting benchmark data:', error);
+            return {};
+        }
+    },
+
+    /**
+     * Get debt paydown analysis
+     */
+    getDebtPaydownAnalysis: async (mortgageIds) => {
+        try {
+            const response = await API.call('getDebtPaydownAnalysis', { mortgageIds });
+            return response?.data || null;
+        } catch (error) {
+            console.error('Error getting debt paydown analysis:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Save debt analysis
+     */
+    saveDebtAnalysis: async (analysisData) => {
+        try {
+            const response = await API.call('saveDebtAnalysis', analysisData);
+            if (response && response.success) {
+                return response.data;
+            }
+            throw new Error(response?.error || 'Failed to save debt analysis');
+        } catch (error) {
+            console.error('Error saving debt analysis:', error);
+            throw error;
+        }
     }
 };
