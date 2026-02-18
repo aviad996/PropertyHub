@@ -365,6 +365,58 @@
                     <div id="expenses-list" class="expenses-list">
                         <p class="loading">Loading expenses...</p>
                     </div>
+
+                    <!-- Expense Form Modal -->
+                    <div id="expense-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add Expense</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="expense-form" class="form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Property *</label>
+                                        <select name="property_id" id="expense-property-select" required>
+                                            <option value="">Select property...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category *</label>
+                                        <select name="category" required>
+                                            <option value="">Select category...</option>
+                                            <option value="closing_cost">Closing Cost</option>
+                                            <option value="taxes">Taxes</option>
+                                            <option value="insurance">Insurance</option>
+                                            <option value="maintenance">Maintenance</option>
+                                            <option value="hoa">HOA</option>
+                                            <option value="utilities">Utilities</option>
+                                            <option value="management">Management</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Amount *</label>
+                                        <input type="number" name="amount" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date *</label>
+                                        <input type="date" name="date" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" name="description" placeholder="e.g. Annual property tax payment">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Expense</button>
+                                    <button type="button" class="btn-secondary" id="cancel-expense">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Utilities View -->
@@ -1115,6 +1167,7 @@
     <script src="js/modules/dashboard.js"></script>
     <script src="js/modules/properties.js"></script>
     <script src="js/modules/mortgages.js"></script>
+    <script src="js/modules/expenses.js"></script>
     <script src="js/modules/utilities.js"></script>
     <script src="js/modules/contacts.js"></script>
     <script src="js/modules/tenants.js"></script>

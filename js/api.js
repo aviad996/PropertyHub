@@ -326,7 +326,31 @@ const API = {
             Storage.remove('portfolio_metrics');
             return response.data;
         }
+        // Demo mode returns data directly
+        if (response && response.id) return response;
         throw new Error(response?.error || 'Failed to add expense');
+    },
+
+    /**
+     * Update expense
+     */
+    updateExpense: async (expenseId, expenseData) => {
+        const response = await API.call('updateExpense', { ...expenseData, id: expenseId });
+        Storage.remove('expenses');
+        Storage.remove('portfolio_metrics');
+        if (response && (response.success || response.data)) return response.data || response;
+        throw new Error(response?.error || 'Failed to update expense');
+    },
+
+    /**
+     * Delete expense
+     */
+    deleteExpense: async (expenseId) => {
+        const response = await API.call('deleteExpense', { id: expenseId });
+        Storage.remove('expenses');
+        Storage.remove('portfolio_metrics');
+        if (response && response.success) return true;
+        throw new Error(response?.error || 'Failed to delete expense');
     },
 
     /**

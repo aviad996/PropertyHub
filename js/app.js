@@ -180,6 +180,7 @@ const App = {
             await Dashboard.init();
             await Properties.init();
             await Mortgages.init();
+            await Expenses.init();
             await Utilities.init();
             await Contacts.init();
             await Tenants.init();
@@ -235,7 +236,7 @@ const App = {
                     await Mortgages.loadMortgages();
                     break;
                 case 'expenses':
-                    // Load expenses when module is ready
+                    await Expenses.loadExpenses();
                     break;
                 case 'utilities':
                     await Utilities.loadUtilities();

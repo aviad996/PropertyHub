@@ -56,9 +56,14 @@ const Mortgages = {
                 const yearsRemaining = mortgage.remaining_term_months ? (mortgage.remaining_term_months / 12).toFixed(1) : 'N/A';
 
                 // Check refinance eligibility
-                const refinanceDate = new Date(mortgage.refinance_eligible_date);
-                const today = new Date();
-                const canRefi = today >= refinanceDate ? '✓ Eligible' : `In ${Math.ceil((refinanceDate - today) / (1000 * 60 * 60 * 24))} days`;
+                let canRefi = 'N/A';
+                if (mortgage.refinance_eligible_date) {
+                    const refinanceDate = new Date(mortgage.refinance_eligible_date);
+                    const today = new Date();
+                    if (!isNaN(refinanceDate.getTime())) {
+                        canRefi = today >= refinanceDate ? '✓ Eligible' : `In ${Math.ceil((refinanceDate - today) / (1000 * 60 * 60 * 24))} days`;
+                    }
+                }
 
                 return `
                     <div class="list-item" data-id="${mortgage.id}">
