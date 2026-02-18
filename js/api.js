@@ -600,8 +600,10 @@ const UI = {
             view.classList.remove('active');
         });
 
-        // Show selected view
-        const view = document.getElementById(`${viewName}-view`);
+        // Show selected view - try both underscore and hyphen variants
+        const viewId = viewName.replace(/_/g, '-');
+        const view = document.getElementById(`${viewId}-view`) ||
+                     document.getElementById(`${viewName}-view`);
         if (view) {
             view.classList.add('active');
         }
@@ -623,19 +625,37 @@ const UI = {
             'tenants': 'Tenants',
             'rent_payments': 'Rent Payments',
             'insurance': 'Insurance Policies',
-            'tasks': 'Tasks & Reminders'
+            'tasks': 'Tasks & Reminders',
+            'analytics': 'Analytics',
+            'refinance': 'Refinance Calculator',
+            'financial_decisions': 'Financial Decisions',
+            'predictive': 'Predictive Analytics',
+            'tax': 'Tax Optimization',
+            'automation': 'Automation',
+            'financial_analytics': 'Financial Analytics',
+            'kpi_monitoring': 'KPI Monitoring',
+            'scenario_analysis': 'Scenario Analysis',
+            'benchmarking': 'Benchmarking',
+            'investment_analysis': 'ROI Analysis',
+            'financial_reports': 'Financial Reports',
+            'ml_analytics': 'ML Analytics',
+            'mobile_app': 'Mobile App',
+            'users': 'User Management'
         };
-        document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
+        document.getElementById('page-title').textContent = titles[viewName] || viewName;
 
         // Update button visibility
         const addBtn = document.getElementById('add-item-btn');
         if (viewName === 'properties') {
+            addBtn.style.display = '';
             addBtn.textContent = '+ New Property';
             addBtn.dataset.action = 'add-property';
         } else if (viewName === 'mortgages') {
+            addBtn.style.display = '';
             addBtn.textContent = '+ New Mortgage';
             addBtn.dataset.action = 'add-mortgage';
         } else if (viewName === 'expenses') {
+            addBtn.style.display = '';
             addBtn.textContent = '+ New Expense';
             addBtn.dataset.action = 'add-expense';
         } else {

@@ -16,39 +16,45 @@ const App = {
     init: async () => {
         try {
             // Check configuration
-            if (!CONFIG.gasUrl || CONFIG.gasUrl.includes('YOUR_DEPLOYMENT_ID')) {
-                console.warn('⚠️  Google Apps Script URL not configured');
-                UI.showToast('Please configure GAS_DEPLOYMENT_URL in js/config.js', 'error');
-                return;
+            const isDemo = !CONFIG.gasUrl || CONFIG.gasUrl.includes('YOUR_DEPLOYMENT_ID');
+            if (isDemo) {
+                console.warn('⚠️  Google Apps Script URL not configured - running in demo mode');
             }
 
-            // Initialize users module first (loads current user)
-            await Users.init();
-
-            // Load user email
-            const userEmail = await API.getUserEmail();
-            document.getElementById('user-email').textContent = userEmail;
-
-            // Initialize permissions after users module
-            await Permissions.init();
-
-            // Setup navigation
+            // Setup navigation always (even without GAS)
             App.setupNavigation();
 
             // Setup sync button
             App.setupSync();
 
-            // Load initial data
-            await App.loadAllData();
+            if (!isDemo) {
+                // Initialize users module first (loads current user)
+                await Users.init();
 
-            // Setup periodic sync
-            App.setupPeriodicSync();
+                // Load user email
+                const userEmail = await API.getUserEmail();
+                document.getElementById('user-email').textContent = userEmail;
 
-            console.log('PropertyHub initialized successfully');
-            UI.showToast('PropertyHub loaded successfully', 'success');
+                // Initialize permissions after users module
+                await Permissions.init();
+
+                // Load initial data
+                await App.loadAllData();
+
+                // Setup periodic sync
+                App.setupPeriodicSync();
+
+                console.log('PropertyHub initialized successfully');
+                UI.showToast('PropertyHub loaded successfully', 'success');
+            } else {
+                // Demo mode - initialize modules without API calls
+                await App.loadAllData();
+                document.getElementById('user-email').textContent = 'demo@propertyhub.app';
+                UI.showToast('Running in demo mode - configure GAS URL in js/config.js', 'warning');
+            }
         } catch (error) {
             console.error('Error initializing app:', error);
-            UI.showToast('Error initializing app', 'error');
+            UI.showToast('Error initializing app: ' + error.message, 'error');
         }
     },
 
