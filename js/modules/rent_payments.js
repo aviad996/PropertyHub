@@ -47,8 +47,9 @@ const RentPayments = {
                 let lateCount = 0;
 
                 const paymentRows = monthPayments.map(payment => {
-                    const tenant = tenants.find(t => t.id === payment.tenant_id);
-                    const property = properties.find(p => p.id === payment.property_id);
+                    const tenant = tenants.find(t => String(t.id) === String(payment.tenant_id));
+                    const propertyId = payment.property_id || (tenant ? tenant.property_id : null);
+                    const property = propertyId ? properties.find(p => String(p.id) === String(propertyId)) : null;
                     const tenantName = tenant ? tenant.name : 'Unknown';
                     const propertyAddress = property ? property.address : 'Unknown';
 
@@ -73,7 +74,7 @@ const RentPayments = {
                         <tr data-id="${payment.id}">
                             <td>${tenantName}</td>
                             <td>${propertyAddress}</td>
-                            <td>$${Formatting.currency(payment.amount)}</td>
+                            <td>${Formatting.currency(payment.amount)}</td>
                             <td class="${statusClass}"><span class="status-badge">${statusBadge}</span></td>
                             <td>${payment.paid_date ? Formatting.date(payment.paid_date) : '-'}</td>
                             <td class="payment-actions">
@@ -87,11 +88,11 @@ const RentPayments = {
                 return `
                     <div class="rent-month-section">
                         <div class="month-header">
-                            <h3>${new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                            <h3>${new Date(month + '-15').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
                             <div class="month-stats">
-                                <span class="stat">Expected: $${Formatting.currency(totalExpected)}</span>
-                                <span class="stat received">Received: $${Formatting.currency(totalReceived)}</span>
-                                ${totalOutstanding > 0 ? `<span class="stat outstanding">Outstanding: $${Formatting.currency(totalOutstanding)}</span>` : ''}
+                                <span class="stat">Expected: ${Formatting.currency(totalExpected)}</span>
+                                <span class="stat received">Received: ${Formatting.currency(totalReceived)}</span>
+                                ${totalOutstanding > 0 ? `<span class="stat outstanding">Outstanding: ${Formatting.currency(totalOutstanding)}</span>` : ''}
                                 ${lateCount > 0 ? `<span class="stat late">⚠️ ${lateCount} Late</span>` : ''}
                             </div>
                         </div>
@@ -166,7 +167,7 @@ const RentPayments = {
             if (e.target.value) {
                 try {
                     const tenants = await API.getTenants();
-                    const tenant = tenants.find(t => t.id === e.target.value);
+                    const tenant = tenants.find(t => String(t.id) === String(e.target.value));
                     if (tenant && !document.getElementById('payment-amount').value) {
                         document.getElementById('payment-amount').value = tenant.monthly_rent || '';
                     }
@@ -183,7 +184,7 @@ const RentPayments = {
     populateTenantSelect: async (propertyId) => {
         try {
             const tenants = await API.getTenants();
-            const propertyTenants = tenants.filter(t => t.property_id === propertyId);
+            const propertyTenants = tenants.filter(t => String(t.property_id) === String(propertyId));
             const select = document.getElementById('payment-tenant-select');
 
             if (!select) return;
@@ -204,7 +205,7 @@ const RentPayments = {
     editPayment: async (paymentId) => {
         try {
             const payments = await API.getRentPayments();
-            const payment = payments.find(p => p.id === paymentId);
+            const payment = payments.find(p => String(p.id) === String(paymentId));
 
             if (!payment) return;
 
@@ -261,7 +262,7 @@ const RentPayments = {
 
             // Get tenant to get property_id
             const tenants = await API.getTenants();
-            const tenant = tenants.find(t => t.id === tenantId);
+            const tenant = tenants.find(t => String(t.id) === String(tenantId));
             const propertyId = tenant?.property_id || '';
 
             const data = {

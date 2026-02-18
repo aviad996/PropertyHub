@@ -71,7 +71,7 @@ const Insurance = {
             };
 
             const html = Object.entries(grouped).map(([propertyId, types]) => {
-                const property = properties.find(p => p.id === propertyId);
+                const property = properties.find(p => String(p.id) === String(propertyId));
                 const propertyAddress = property ? property.address : 'Unknown Property';
 
                 let totalPremium = 0;
@@ -84,7 +84,7 @@ const Insurance = {
                     <div class="insurance-property">
                         <div class="property-header">
                             <h3>📍 ${propertyAddress}</h3>
-                            <div class="property-premium">Total Annual Premium: $${Formatting.currency(totalPremium)}</div>
+                            <div class="property-premium">Total Annual Premium: ${Formatting.currency(totalPremium)}</div>
                         </div>
 
                         <div class="policies-grid">
@@ -116,8 +116,8 @@ const Insurance = {
                                             </div>
                                             <div class="policy-details">
                                                 ${policy.policy_number ? `<div class="detail">Policy #: ${policy.policy_number}</div>` : ''}
-                                                ${policy.coverage_amount ? `<div class="detail">Coverage: $${Formatting.currency(policy.coverage_amount)}</div>` : ''}
-                                                <div class="detail">Premium: $${Formatting.currency(policy.annual_premium || 0)}/year</div>
+                                                ${policy.coverage_amount ? `<div class="detail">Coverage: ${Formatting.currency(policy.coverage_amount)}</div>` : ''}
+                                                <div class="detail">Premium: ${Formatting.currency(policy.annual_premium || 0)}/year</div>
                                                 <div class="detail ${expiryStatus}">${expiryLabel}</div>
                                                 <div class="detail">Expires: ${Formatting.date(policy.expiry_date)}</div>
                                             </div>
@@ -184,7 +184,7 @@ const Insurance = {
     editInsurance: async (policyId) => {
         try {
             const policies = await API.getInsurance();
-            const policy = policies.find(p => p.id === policyId);
+            const policy = policies.find(p => String(p.id) === String(policyId));
 
             if (!policy) return;
 

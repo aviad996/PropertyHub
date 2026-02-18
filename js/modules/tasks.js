@@ -72,7 +72,7 @@ const Tasks = {
 
             const renderTasks = (taskList, isPending) => {
                 return taskList.map(task => {
-                    const property = properties.find(p => p.id === task.property_id);
+                    const property = properties.find(p => String(p.id) === String(task.property_id));
                     const propertyAddress = property ? property.address : 'Unknown Property';
                     const dueDate = new Date(task.due_date);
                     const today = new Date();
@@ -207,7 +207,7 @@ const Tasks = {
     editTask: async (taskId) => {
         try {
             const tasks = await API.getTasks();
-            const task = tasks.find(t => t.id === taskId);
+            const task = tasks.find(t => String(t.id) === String(taskId));
 
             if (!task) return;
 
@@ -277,7 +277,7 @@ const Tasks = {
     completeTask: async (taskId) => {
         try {
             const tasks = await API.getTasks();
-            const task = tasks.find(t => t.id === taskId);
+            const task = tasks.find(t => String(t.id) === String(taskId));
 
             if (!task) return;
 

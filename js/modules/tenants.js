@@ -53,7 +53,7 @@ const Tenants = {
             });
 
             const html = Object.entries(grouped).map(([propertyId, propertyTenants]) => {
-                const property = properties.find(p => p.id === propertyId);
+                const property = properties.find(p => String(p.id) === String(propertyId));
                 const propertyAddress = property ? property.address : 'Unknown Property';
 
                 return `
@@ -77,9 +77,9 @@ const Tenants = {
                                         <div class="tenant-details">
                                             <div class="detail">📞 ${tenant.phone || 'N/A'}</div>
                                             <div class="detail">✉️ ${tenant.email || 'N/A'}</div>
-                                            <div class="detail">💰 $${Formatting.currency(tenant.monthly_rent)}/month</div>
+                                            <div class="detail">💰 ${Formatting.currency(tenant.monthly_rent)}/month</div>
                                             <div class="detail">📅 ${Formatting.date(tenant.lease_start_date)} - ${Formatting.date(tenant.lease_end_date)}</div>
-                                            ${tenant.security_deposit ? `<div class="detail">🔒 Deposit: $${Formatting.currency(tenant.security_deposit)}</div>` : ''}
+                                            ${tenant.security_deposit ? `<div class="detail">🔒 Deposit: ${Formatting.currency(tenant.security_deposit)}</div>` : ''}
                                         </div>
                                         ${statusBadge}
                                         <div class="tenant-actions">
@@ -144,7 +144,7 @@ const Tenants = {
     editTenant: async (tenantId) => {
         try {
             const tenants = await API.getTenants();
-            const tenant = tenants.find(t => t.id === tenantId);
+            const tenant = tenants.find(t => String(t.id) === String(tenantId));
 
             if (!tenant) return;
 
