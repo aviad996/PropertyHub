@@ -114,6 +114,8 @@ const App = {
             await Insurance.init();
             await Tasks.init();
             await Analytics.init();
+            await Refinance.init();
+            await FinancialDecisions.init();
         } catch (error) {
             console.error('Error loading data:', error);
             throw error;
@@ -159,6 +161,12 @@ const App = {
                     break;
                 case 'analytics':
                     await Analytics.loadAnalytics();
+                    break;
+                case 'refinance':
+                    await Refinance.loadRefinanceCalculator();
+                    break;
+                case 'financial_decisions':
+                    await FinancialDecisions.loadFinancialDecisions();
                     break;
             }
         } catch (error) {

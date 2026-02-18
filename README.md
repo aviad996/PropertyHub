@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -54,6 +54,16 @@ A centralized web application for managing and tracking residential real estate 
 - **Performance Ranking**: Top and bottom performing properties by ROI, equity, or cash flow
 - **CSV Export**: Download analytics data for external analysis or accounting software
 - **Print-Friendly Reports**: Optimized report generation for printing and distribution
+
+### Phase 6 - Refinance Calculator & Financial Analysis
+- **Refinance Calculator**: Analyze refinancing scenarios with break-even analysis
+- **Scenario Modeling**: Compare multiple refinance options side-by-side
+- **Amortization Schedules**: Full payment breakdown for each scenario
+- **Financial Calculations**: IRR, NPV, and total interest savings
+- **Decision Tracking**: Record refinance, sale, repair, and hold decisions
+- **Outcome Analytics**: Track projected vs. actual decision outcomes
+- **Decision History**: Learn from past financial decisions
+- **CSV Export**: Export refinance analyses and decision logs
 
 ## Tech Stack
 
@@ -191,15 +201,18 @@ PropertyHub/
 - [x] Tenant management and rent tracking (Phase 3)
 - [x] Insurance policy tracking and task management (Phase 4)
 - [x] Advanced analytics, reports, and tax optimization (Phase 5)
+- [x] Refinance calculator with break-even analysis (Phase 6)
+- [x] Financial decision tracking and analytics (Phase 6)
+- [x] IRR and NPV calculations (Phase 6)
 
 ### Coming Soon 🚀
-- Strategic decision logging with scenario modeling (Phase 5.5)
-- IRR calculations and advanced financial metrics (Phase 5.5)
-- Refinance calculator with payback period analysis (Phase 6)
-- Multi-user roles and advanced features (Phase 6)
+- Strategic decision logging with scenario modeling (Phase 6.5)
+- Multi-user roles and advanced features (Phase 7)
 - Recurring tasks and automation (Phase 4.5 enhancement)
 - Task templates and maintenance checklists (Phase 4.5 enhancement)
-- Predictive analytics and cash flow forecasting (Phase 6)
+- Predictive analytics and cash flow forecasting (Phase 7)
+- 1031 exchange planning and analysis (Phase 7)
+- Automated refinance recommendations (Phase 6.5)
 
 ## Support
 

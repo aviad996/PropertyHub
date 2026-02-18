@@ -337,5 +337,174 @@ const Calculations = {
     calculatePaybackPeriod: (investment, annualCashFlow) => {
         if (annualCashFlow <= 0) return Infinity;
         return (investment / annualCashFlow).toFixed(1);
+    },
+
+    /**
+     * Calculate complete amortization schedule for a loan
+     * Returns array of payments showing principal, interest, balance progression
+     */
+    generateAmortizationSchedule: (principal, annualRate, months) => {
+        if (!principal || !annualRate || !months) return [];
+
+        const monthlyRate = annualRate / 100 / 12;
+        const monthlyPayment = Calculations.calculateMonthlyPayment(principal, monthlyRate, months);
+        const schedule = [];
+
+        let balance = principal;
+
+        for (let month = 1; month <= months; month++) {
+            const interestPayment = balance * monthlyRate;
+            const principalPayment = monthlyPayment - interestPayment;
+            balance -= principalPayment;
+
+            schedule.push({
+                month: month,
+                payment: monthlyPayment.toFixed(2),
+                principal: principalPayment.toFixed(2),
+                interest: interestPayment.toFixed(2),
+                balance: Math.max(0, balance).toFixed(2)
+            });
+        }
+
+        return schedule;
+    },
+
+    /**
+     * Calculate IRR (Internal Rate of Return) using Newton-Raphson method
+     * cashFlows: array of annual cash flows (first is negative investment)
+     * Returns percentage IRR
+     */
+    calculateIRR: (cashFlows) => {
+        if (!cashFlows || cashFlows.length === 0) return 0;
+
+        // Initial guess for IRR (10%)
+        let rate = 0.1;
+        const maxIterations = 100;
+        const tolerance = 0.0001;
+
+        for (let i = 0; i < maxIterations; i++) {
+            // Calculate NPV at current rate
+            let npv = 0;
+            let npvDerivative = 0;
+
+            for (let t = 0; t < cashFlows.length; t++) {
+                npv += cashFlows[t] / Math.pow(1 + rate, t);
+                if (t > 0) {
+                    npvDerivative -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
+                }
+            }
+
+            // Newton-Raphson iteration
+            const newRate = rate - npv / npvDerivative;
+
+            if (Math.abs(newRate - rate) < tolerance) {
+                return (rate * 100).toFixed(2);
+            }
+
+            rate = newRate;
+        }
+
+        return (rate * 100).toFixed(2);
+    },
+
+    /**
+     * Calculate NPV (Net Present Value) at given discount rate
+     * cashFlows: array of annual cash flows
+     * discountRate: annual discount rate as decimal (0.05 for 5%)
+     */
+    calculateNPV: (cashFlows, discountRate) => {
+        if (!cashFlows || cashFlows.length === 0) return 0;
+
+        let npv = 0;
+        for (let t = 0; t < cashFlows.length; t++) {
+            npv += cashFlows[t] / Math.pow(1 + discountRate, t);
+        }
+
+        return npv.toFixed(2);
+    },
+
+    /**
+     * Generate refinance comparison scenarios
+     * currentMortgage: existing mortgage details
+     * newRateOptions: array of new rates to test
+     * Returns array of scenarios with metrics
+     */
+    generateRefinanceScenarios: (currentMortgage, newRateOptions) => {
+        if (!currentMortgage || !newRateOptions) return [];
+
+        const scenarios = [];
+        const currentMonthlyRate = (currentMortgage.interest_rate || 0) / 100 / 12;
+        const currentPayment = Calculations.calculateMonthlyPayment(
+            currentMortgage.current_balance || currentMortgage.original_balance,
+            currentMonthlyRate,
+            currentMortgage.remaining_term_months || (currentMortgage.term_months || 360)
+        );
+
+        // Add "Keep Current" scenario
+        scenarios.push({
+            name: 'Keep Current Loan',
+            rate: currentMortgage.interest_rate,
+            term: currentMortgage.remaining_term_months || (currentMortgage.term_months || 360),
+            monthlyPayment: currentPayment.toFixed(2),
+            closingCosts: 0,
+            breakEven: 'N/A',
+            monthlySavings: 0,
+            recommendation: 'Baseline'
+        });
+
+        // Generate scenarios for each new rate
+        newRateOptions.forEach(option => {
+            const newMonthlyRate = option.rate / 100 / 12;
+            const newPayment = Calculations.calculateMonthlyPayment(
+                currentMortgage.current_balance || currentMortgage.original_balance,
+                newMonthlyRate,
+                option.term || (currentMortgage.remaining_term_months || 360)
+            );
+
+            const monthlySavings = currentPayment - newPayment;
+            const breakEvenMonths = monthlySavings > 0 ? Math.ceil((option.closingCosts || 0) / monthlySavings) : Infinity;
+            const remainingMonths = currentMortgage.remaining_term_months || (currentMortgage.term_months || 360);
+            const worthIt = breakEvenMonths < remainingMonths;
+
+            scenarios.push({
+                name: `${option.rate}% for ${option.term || 30} years`,
+                rate: option.rate,
+                term: option.term || 30,
+                monthlyPayment: newPayment.toFixed(2),
+                closingCosts: (option.closingCosts || 0).toFixed(2),
+                breakEven: breakEvenMonths === Infinity ? 'Never' : `${breakEvenMonths} months`,
+                monthlySavings: monthlySavings.toFixed(2),
+                totalSavings: ((monthlySavings * remainingMonths) - (option.closingCosts || 0)).toFixed(2),
+                recommendation: worthIt ? 'Good' : (monthlySavings > 0 ? 'Marginal' : 'Not Recommended')
+            });
+        });
+
+        return scenarios;
+    },
+
+    /**
+     * Calculate total interest paid for loan term
+     */
+    calculateTotalInterest: (monthlyPayment, months) => {
+        return (monthlyPayment * months).toFixed(2);
+    },
+
+    /**
+     * Calculate weighted average interest rate across multiple mortgages
+     */
+    calculateWeightedAverageRate: (mortgages) => {
+        if (!mortgages || mortgages.length === 0) return 0;
+
+        let totalBalance = 0;
+        let weightedRate = 0;
+
+        mortgages.forEach(mort => {
+            const balance = parseFloat(mort.current_balance) || 0;
+            totalBalance += balance;
+            weightedRate += balance * (parseFloat(mort.interest_rate) || 0);
+        });
+
+        if (totalBalance === 0) return 0;
+        return (weightedRate / totalBalance).toFixed(2);
     }
 };

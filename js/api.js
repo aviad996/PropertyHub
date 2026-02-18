@@ -529,6 +529,49 @@ const API = {
             return response.email;
         }
         return 'Unknown User';
+    },
+
+    /**
+     * Get all financial decisions
+     */
+    getFinancialDecisions: async () => {
+        // For now, use localStorage as backend doesn't have this yet
+        const stored = Storage.get('financial_decisions');
+        return stored ? JSON.parse(stored) : [];
+    },
+
+    /**
+     * Add financial decision
+     */
+    addFinancialDecision: async (decisionData) => {
+        const decisions = await API.getFinancialDecisions();
+        decisions.push(decisionData);
+        Storage.set('financial_decisions', JSON.stringify(decisions));
+        return decisionData;
+    },
+
+    /**
+     * Update financial decision
+     */
+    updateFinancialDecision: async (decisionId, decisionData) => {
+        const decisions = await API.getFinancialDecisions();
+        const index = decisions.findIndex(d => d.id === decisionId);
+        if (index !== -1) {
+            decisions[index] = { ...decisions[index], ...decisionData };
+            Storage.set('financial_decisions', JSON.stringify(decisions));
+            return decisions[index];
+        }
+        throw new Error('Decision not found');
+    },
+
+    /**
+     * Delete financial decision
+     */
+    deleteFinancialDecision: async (decisionId) => {
+        const decisions = await API.getFinancialDecisions();
+        const filtered = decisions.filter(d => d.id !== decisionId);
+        Storage.set('financial_decisions', JSON.stringify(filtered));
+        return true;
     }
 };
 

@@ -1867,3 +1867,467 @@ html, body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Refinance Calculator Styles */
+.refinance-calculator {
+    display: grid;
+    gap: 2rem;
+}
+
+.calculator-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.calculator-section h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+}
+
+.mortgage-selector select,
+.scenario-rate,
+.scenario-term,
+.scenario-costs {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.mortgage-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--hover-bg);
+    border-radius: 4px;
+}
+
+.info-item .label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.info-item .value {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.scenarios-input {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.scenario-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: flex-end;
+    padding: 1rem;
+    background: var(--hover-bg);
+    border-radius: 4px;
+}
+
+.scenario-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.scenario-field label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.remove-scenario-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.remove-scenario-btn:hover {
+    background: darkred;
+}
+
+.scenario-comparison {
+    margin: 1.5rem 0;
+}
+
+.results-insights {
+    background: var(--hover-bg);
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin: 1.5rem 0;
+}
+
+.results-insights h5 {
+    margin: 0 0 1rem 0;
+}
+
+.results-insights ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.results-insights li {
+    margin-bottom: 0.5rem;
+}
+
+.amortization-section {
+    margin-top: 2rem;
+}
+
+.amortization-section h5 {
+    margin-bottom: 1rem;
+}
+
+.amortization-preview {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.small-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.small-table th,
+.small-table td {
+    padding: 0.75rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.small-table th {
+    background: var(--hover-bg);
+    font-weight: 600;
+    text-align: right;
+}
+
+.small-table td:first-child,
+.small-table th:first-child {
+    text-align: left;
+}
+
+.recommendation-good {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.recommendation-marginal {
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.recommendation-poor {
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.badge-good {
+    background: var(--success-color);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.badge-marginal {
+    background: var(--warning-color);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.badge-poor {
+    background: var(--danger-color);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.calculator-controls {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+/* Financial Decisions Styles */
+.decisions-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.section-header h4 {
+    margin: 0;
+}
+
+.decisions-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.decision-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+}
+
+.decision-header {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    grid-column: 1 / -1;
+}
+
+.decision-type {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-refinance {
+    background: var(--info-color);
+    color: white;
+}
+
+.badge-raise_rent {
+    background: var(--success-color);
+    color: white;
+}
+
+.badge-repair {
+    background: var(--warning-color);
+    color: white;
+}
+
+.badge-sell {
+    background: var(--danger-color);
+    color: white;
+}
+
+.badge-hold {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.badge-pending {
+    background: var(--warning-color);
+    color: white;
+}
+
+.badge-in_progress {
+    background: var(--info-color);
+    color: white;
+}
+
+.badge-completed {
+    background: var(--success-color);
+    color: white;
+}
+
+.decision-content {
+    grid-column: 1 / -1;
+}
+
+.decision-property {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.decision-date {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.decision-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--hover-bg);
+    border-radius: 4px;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.metric .value {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.decision-projection,
+.decision-actual {
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+}
+
+.decision-projection {
+    background: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid var(--info-color);
+}
+
+.decision-actual.positive {
+    background: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.decision-actual.partial {
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid var(--warning-color);
+}
+
+.decision-actual.negative {
+    background: rgba(244, 67, 54, 0.1);
+    border-left: 4px solid var(--danger-color);
+}
+
+.decision-notes {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--hover-bg);
+    border-radius: 4px;
+    border-left: 3px solid var(--border-color);
+}
+
+.decision-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.edit-decision-btn,
+.delete-decision-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+}
+
+.edit-decision-btn:hover {
+    color: var(--primary-color);
+}
+
+.delete-decision-btn:hover {
+    color: var(--danger-color);
+}
+
+.decision-analytics {
+    margin-top: 2rem;
+}
+
+.decision-analytics h4 {
+    margin-bottom: 1.5rem;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.analytics-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.analytics-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.analytics-item .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.analytics-item .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.decision-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.decision-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .scenario-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .scenario-row .remove-scenario-btn {
+        width: 100%;
+    }
+
+    .decision-item {
+        grid-template-columns: 1fr;
+    }
+
+    .decision-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+
+    .analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
