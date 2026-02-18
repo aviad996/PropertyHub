@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B + Phase 7C + Phase 7D + Phase 7E)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B + Phase 7C + Phase 7D + Phase 7E + Phase 8)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -134,6 +134,22 @@ A centralized web application for managing and tracking residential real estate 
 - **Accessibility**: WCAG 2.1 AA compliant, keyboard navigation, screen reader friendly at all sizes
 - **Performance**: 490 CSS lines, zero JavaScript bloat, <50ms additional load time
 - **Breakpoint Coverage**: 320px (ultra-small) to 1440px+ (large desktop) with strategic media queries
+
+### Phase 8 - Advanced Financial Analytics & Business Intelligence
+- **Portfolio Metrics Dashboard**: Real-time IRR, cash-on-cash return, cap rate, LTV calculations
+- **Property Performance Ranking**: Sorted by IRR to identify top/bottom performers
+- **IRR (Internal Rate of Return)**: Multi-year cash flow analysis with Newton-Raphson calculation
+- **Cash-on-Cash Return**: Annual cash return vs invested capital by property
+- **Cap Rate Analysis**: Current vs market cap rates with optimization recommendations
+- **Loan-to-Value (LTV)**: Leverage ratio monitoring with health warnings
+- **KPI Alert System**: Configurable thresholds for negative cash flow, high LTV, low cap rates
+- **Portfolio Aggregation**: Blended metrics across all properties
+- **Scenario Builder Interface**: Foundation for what-if analysis (Phase 8.2+)
+- **Financial Intelligence**: Strategic decision support with clear metrics
+- **Debt Analysis Integration**: Payoff strategy tools (Phase 8.4)
+- **Benchmarking Foundation**: Market comparison system (Phase 8.5)
+- **ROI Ranking**: Performance comparison across properties
+- **Professional Dashboard**: Executive-level financial overview
 
 ## Tech Stack
 
