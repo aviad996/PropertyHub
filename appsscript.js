@@ -1,10 +1,18 @@
-// PropertyHub - Google Apps Script Backend
+// PropertyHub - Google Apps Script Backend (ENHANCED)
 // Copy this entire file into your Google Apps Script editor
 
 const SHEET_NAMES = {
     PROPERTIES: 'Properties',
     MORTGAGES: 'Mortgages',
+    TENANTS: 'Tenants',
+    RENT_PAYMENTS: 'Rent Payments',
     EXPENSES: 'Expenses',
+    INSURANCE: 'Insurance',
+    TASKS: 'Tasks',
+    DECISIONS: 'Decisions',
+    CONTACTS: 'Contacts',
+    TENANT_CHARGES: 'Tenant Charges',
+    TRIGGERS: 'Triggers',
     AUDIT: 'Audit',
     CONFIG: 'Config'
 };
@@ -54,6 +62,33 @@ function doGet(e) {
             case 'addExpense':
                 result = addExpense(e.parameter);
                 break;
+            case 'updateExpense':
+                result = updateExpense(e.parameter);
+                break;
+
+            case 'getContacts':
+                result = getContacts();
+                break;
+            case 'addContact':
+                result = addContact(e.parameter);
+                break;
+            case 'updateContact':
+                result = updateContact(e.parameter);
+                break;
+            case 'deleteContact':
+                result = deleteContact(e.parameter.id);
+                break;
+
+            case 'getTenantCharges':
+                result = getTenantCharges();
+                break;
+            case 'addTenantCharge':
+                result = addTenantCharge(e.parameter);
+                break;
+
+            case 'getTriggers':
+                result = getTriggers();
+                break;
 
             case 'getPortfolioMetrics':
                 result = getPortfolioMetrics();
@@ -84,10 +119,16 @@ function doGet(e) {
 function initializeSheets() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // Create Properties sheet
+    // Create Properties sheet (ENHANCED)
     createSheetIfNotExists(ss, SHEET_NAMES.PROPERTIES, [
         'id', 'address', 'city', 'state', 'zip', 'type',
-        'purchase_price', 'purchase_date', 'current_value', 'created_date'
+        'purchase_price', 'purchase_date', 'current_value',
+        'market_rent', 'equity_percentage', 'property_condition',
+        'electricity_provider', 'electricity_account_num', 'electricity_responsibility',
+        'water_provider', 'water_account_num', 'water_responsibility',
+        'gas_provider', 'gas_account_num', 'gas_responsibility',
+        'documents_folder_id',
+        'created_date'
     ]);
 
     // Create Mortgages sheet
@@ -97,9 +138,57 @@ function initializeSheets() {
         'refinance_eligible_date', 'last_payment_date', 'created_date'
     ]);
 
-    // Create Expenses sheet
+    // Create Tenants sheet
+    createSheetIfNotExists(ss, SHEET_NAMES.TENANTS, [
+        'id', 'property_id', 'name', 'email', 'phone',
+        'lease_start_date', 'lease_end_date', 'monthly_rent', 'security_deposit',
+        'status', 'created_date'
+    ]);
+
+    // Create Rent Payments sheet
+    createSheetIfNotExists(ss, SHEET_NAMES.RENT_PAYMENTS, [
+        'id', 'tenant_id', 'property_id', 'month', 'amount', 'paid_date', 'status', 'created_date'
+    ]);
+
+    // Create Expenses sheet (ENHANCED)
     createSheetIfNotExists(ss, SHEET_NAMES.EXPENSES, [
-        'id', 'property_id', 'category', 'amount', 'date', 'description', 'created_date'
+        'id', 'property_id', 'category', 'amount', 'date', 'description',
+        'tenant_charge_id', 'should_bill_tenant', 'created_date'
+    ]);
+
+    // Create Insurance sheet
+    createSheetIfNotExists(ss, SHEET_NAMES.INSURANCE, [
+        'id', 'property_id', 'policy_type', 'provider', 'policy_number',
+        'coverage_amount', 'expiry_date', 'annual_premium', 'created_date'
+    ]);
+
+    // Create Tasks sheet
+    createSheetIfNotExists(ss, SHEET_NAMES.TASKS, [
+        'id', 'property_id', 'title', 'due_date', 'category',
+        'status', 'assigned_to', 'created_date'
+    ]);
+
+    // Create Decisions sheet
+    createSheetIfNotExists(ss, SHEET_NAMES.DECISIONS, [
+        'id', 'property_id', 'decision_type', 'decision_date', 'notes', 'status', 'created_date'
+    ]);
+
+    // Create Contacts sheet (NEW)
+    createSheetIfNotExists(ss, SHEET_NAMES.CONTACTS, [
+        'id', 'property_id', 'contact_type', 'name', 'phone', 'email',
+        'address', 'service_type', 'notes', 'created_date'
+    ]);
+
+    // Create Tenant Charges sheet (NEW)
+    createSheetIfNotExists(ss, SHEET_NAMES.TENANT_CHARGES, [
+        'id', 'tenant_id', 'expense_id', 'category', 'amount', 'date',
+        'status', 'description', 'created_date'
+    ]);
+
+    // Create Triggers sheet (NEW)
+    createSheetIfNotExists(ss, SHEET_NAMES.TRIGGERS, [
+        'id', 'property_id', 'trigger_type', 'due_date', 'status',
+        'notification_sent_date', 'description', 'assigned_to', 'created_date'
     ]);
 
     // Create Audit sheet
@@ -119,6 +208,26 @@ function createSheetIfNotExists(ss, sheetName, headers) {
     }
 }
 
+// ====== UTILITY FUNCTIONS ======
+
+function generateUUID() {
+    const timestamp = new Date().getTime().toString(36);
+    const random = Math.random().toString(36).substring(2, 9);
+    return timestamp + random;
+}
+
+function createPropertyFolder(propertyAddress) {
+    try {
+        const parentFolder = DriveApp.getRootFolder();
+        const folderName = `PropertyHub - ${propertyAddress} - ${new Date().toISOString().split('T')[0]}`;
+        const folder = parentFolder.createFolder(folderName);
+        return folder.getId();
+    } catch (e) {
+        Logger.log('Error creating folder: ' + e);
+        return '';
+    }
+}
+
 // ====== PROPERTIES OPERATIONS ======
 
 function getProperties() {
@@ -133,14 +242,15 @@ function getProperties() {
             obj[header] = row[index];
         });
         return obj;
-    }).filter(p => p.id); // Filter out empty rows
+    }).filter(p => p.id);
 
     return { success: true, data: properties };
 }
 
 function addProperty(params) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.PROPERTIES);
-    const id = 'prop_' + Date.now();
+    const id = generateUUID();
+    const folderID = createPropertyFolder(params.address);
 
     sheet.appendRow([
         id,
@@ -152,11 +262,24 @@ function addProperty(params) {
         parseFloat(params.purchase_price) || 0,
         params.purchase_date || '',
         parseFloat(params.current_value) || 0,
+        parseFloat(params.market_rent) || 0,
+        parseFloat(params.equity_percentage) || 100,
+        parseInt(params.property_condition) || 3,
+        params.electricity_provider || '',
+        params.electricity_account_num || '',
+        params.electricity_responsibility || 'Owner',
+        params.water_provider || '',
+        params.water_account_num || '',
+        params.water_responsibility || 'Owner',
+        params.gas_provider || '',
+        params.gas_account_num || '',
+        params.gas_responsibility || 'Owner',
+        folderID,
         new Date()
     ]);
 
     logAudit('CREATE', id, 'Added property: ' + params.address);
-    return { success: true, data: { id: id } };
+    return { success: true, data: { id: id, folderID: folderID } };
 }
 
 function updateProperty(params) {
@@ -175,7 +298,20 @@ function updateProperty(params) {
                 parseFloat(params.purchase_price) || data[i][6],
                 params.purchase_date || data[i][7],
                 parseFloat(params.current_value) || data[i][8],
-                data[i][9]
+                parseFloat(params.market_rent) || data[i][9],
+                parseFloat(params.equity_percentage) || data[i][10],
+                parseInt(params.property_condition) || data[i][11],
+                params.electricity_provider || data[i][12],
+                params.electricity_account_num || data[i][13],
+                params.electricity_responsibility || data[i][14],
+                params.water_provider || data[i][15],
+                params.water_account_num || data[i][16],
+                params.water_responsibility || data[i][17],
+                params.gas_provider || data[i][18],
+                params.gas_account_num || data[i][19],
+                params.gas_responsibility || data[i][20],
+                data[i][21],
+                data[i][22]
             ]]);
 
             logAudit('UPDATE', params.id, 'Updated property');
@@ -214,7 +350,6 @@ function getMortgages() {
         headers.forEach((header, index) => {
             obj[header] = row[index];
         });
-        // Convert to numbers
         obj.original_balance = parseFloat(obj.original_balance) || 0;
         obj.current_balance = parseFloat(obj.current_balance) || 0;
         obj.interest_rate = parseFloat(obj.interest_rate) || 0;
@@ -229,7 +364,7 @@ function getMortgages() {
 
 function addMortgage(params) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.MORTGAGES);
-    const id = 'mort_' + Date.now();
+    const id = generateUUID();
 
     sheet.appendRow([
         id,
@@ -294,7 +429,7 @@ function deleteMortgage(mortgageId) {
     return { error: 'Mortgage not found' };
 }
 
-// ====== EXPENSES OPERATIONS ======
+// ====== EXPENSES OPERATIONS (ENHANCED) ======
 
 function getExpenses() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.EXPENSES);
@@ -316,7 +451,7 @@ function getExpenses() {
 
 function addExpense(params) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.EXPENSES);
-    const id = 'exp_' + Date.now();
+    const id = generateUUID();
 
     sheet.appendRow([
         id,
@@ -325,11 +460,248 @@ function addExpense(params) {
         parseFloat(params.amount) || 0,
         params.date || new Date().toISOString().split('T')[0],
         params.description || '',
+        params.tenant_charge_id || '',
+        params.should_bill_tenant || false,
         new Date()
     ]);
 
+    // If should_bill_tenant is true and there's a tenant_id, create tenant charge
+    if (params.should_bill_tenant && params.tenant_id) {
+        addTenantCharge({
+            tenant_id: params.tenant_id,
+            expense_id: id,
+            category: params.category,
+            amount: params.amount,
+            date: params.date,
+            description: params.description
+        });
+    }
+
     logAudit('CREATE', id, 'Added expense');
     return { success: true, data: { id: id } };
+}
+
+function updateExpense(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.EXPENSES);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === params.id) {
+            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
+                params.property_id || data[i][1],
+                params.category || data[i][2],
+                parseFloat(params.amount) || data[i][3],
+                params.date || data[i][4],
+                params.description || data[i][5],
+                params.tenant_charge_id || data[i][6],
+                params.should_bill_tenant || data[i][7],
+                data[i][8]
+            ]]);
+
+            logAudit('UPDATE', params.id, 'Updated expense');
+            return { success: true, data: { id: params.id } };
+        }
+    }
+
+    return { error: 'Expense not found' };
+}
+
+// ====== CONTACTS OPERATIONS (NEW) ======
+
+function getContacts() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const contacts = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        return obj;
+    }).filter(c => c.id);
+
+    return { success: true, data: contacts };
+}
+
+function addContact(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTS);
+    const id = generateUUID();
+
+    sheet.appendRow([
+        id,
+        params.property_id || '',
+        params.contact_type || 'other',
+        params.name || '',
+        params.phone || '',
+        params.email || '',
+        params.address || '',
+        params.service_type || '',
+        params.notes || '',
+        new Date()
+    ]);
+
+    logAudit('CREATE', id, 'Added contact: ' + params.name);
+    return { success: true, data: { id: id } };
+}
+
+function updateContact(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === params.id) {
+            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
+                params.property_id || data[i][1],
+                params.contact_type || data[i][2],
+                params.name || data[i][3],
+                params.phone || data[i][4],
+                params.email || data[i][5],
+                params.address || data[i][6],
+                params.service_type || data[i][7],
+                params.notes || data[i][8],
+                data[i][9]
+            ]]);
+
+            logAudit('UPDATE', params.id, 'Updated contact');
+            return { success: true, data: { id: params.id } };
+        }
+    }
+
+    return { error: 'Contact not found' };
+}
+
+function deleteContact(contactId) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTS);
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === contactId) {
+            sheet.deleteRow(i + 1);
+            logAudit('DELETE', contactId, 'Deleted contact');
+            return { success: true };
+        }
+    }
+
+    return { error: 'Contact not found' };
+}
+
+// ====== TENANT CHARGES OPERATIONS (NEW) ======
+
+function getTenantCharges() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANT_CHARGES);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const charges = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        obj.amount = parseFloat(obj.amount) || 0;
+        return obj;
+    }).filter(c => c.id);
+
+    return { success: true, data: charges };
+}
+
+function addTenantCharge(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TENANT_CHARGES);
+    const id = generateUUID();
+
+    sheet.appendRow([
+        id,
+        params.tenant_id || '',
+        params.expense_id || '',
+        params.category || 'other',
+        parseFloat(params.amount) || 0,
+        params.date || new Date().toISOString().split('T')[0],
+        params.status || 'pending',
+        params.description || '',
+        new Date()
+    ]);
+
+    logAudit('CREATE', id, 'Added tenant charge');
+    return { success: true, data: { id: id } };
+}
+
+// ====== TRIGGERS OPERATIONS (NEW) ======
+
+function getTriggers() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TRIGGERS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const triggers = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        return obj;
+    }).filter(t => t.id);
+
+    return { success: true, data: triggers };
+}
+
+// ====== DAILY TRIGGER CHECK (Run at 11 PM) ======
+
+function checkTriggers() {
+    const alerts = [];
+    const userEmail = Session.getActiveUser().getEmail();
+
+    // Get all data
+    const properties = getProperties().data || [];
+    const mortgages = getMortgages().data || [];
+    const expenses = getExpenses().data || [];
+
+    // Check for pending triggers
+    const triggerSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.TRIGGERS);
+    const triggerData = triggerSheet.getDataRange().getValues();
+
+    for (let i = 1; i < triggerData.length; i++) {
+        const trigger = triggerData[i];
+        if (trigger[4] === 'pending') { // status column
+            const dueDate = new Date(trigger[3]); // due_date column
+            const today = new Date();
+            const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+            if (daysUntilDue <= 0) {
+                alerts.push(`⚠️ ${trigger[2]}: ${trigger[6]}`); // trigger_type and description
+            }
+        }
+    }
+
+    // Send email if there are alerts
+    if (alerts.length > 0) {
+        sendDailyNotificationEmail(userEmail, alerts);
+    }
+
+    Logger.log(`Triggers checked. Found ${alerts.length} pending issues.`);
+}
+
+function sendDailyNotificationEmail(userEmail, alerts) {
+    const subject = `PropertyHub Daily Alert - ${new Date().toLocaleDateString()}`;
+    const body = `
+PropertyHub Daily Notification
+=============================
+
+You have ${alerts.length} pending issue(s):
+
+${alerts.map((a, i) => `${i + 1}. ${a}`).join('\n')}
+
+Please log into PropertyHub to take action.
+
+---
+PropertyHub System
+`;
+
+    MailApp.sendEmail(userEmail, subject, body);
+    Logger.log('Daily notification email sent to: ' + userEmail);
 }
 
 // ====== PORTFOLIO METRICS ======
@@ -343,7 +715,6 @@ function getPortfolioMetrics() {
     let totalDebt = 0;
     let monthlyIncome = 0;
 
-    // Calculate total value and debt
     properties.forEach(prop => {
         totalValue += parseFloat(prop.current_value) || 0;
     });
@@ -352,10 +723,6 @@ function getPortfolioMetrics() {
         totalDebt += parseFloat(mort.current_balance) || 0;
     });
 
-    // Calculate monthly income (placeholder - would need tenant data)
-    monthlyIncome = 0;
-
-    // Calculate monthly expenses
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();

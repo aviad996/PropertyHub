@@ -107,6 +107,8 @@ const App = {
             await Dashboard.init();
             await Properties.init();
             await Mortgages.init();
+            await Utilities.init();
+            await Contacts.init();
         } catch (error) {
             console.error('Error loading data:', error);
             throw error;
@@ -131,6 +133,12 @@ const App = {
                     break;
                 case 'expenses':
                     // Load expenses when module is ready
+                    break;
+                case 'utilities':
+                    await Utilities.loadUtilities();
+                    break;
+                case 'contacts':
+                    await Contacts.loadContacts();
                     break;
             }
         } catch (error) {

@@ -201,6 +201,102 @@ const API = {
     },
 
     /**
+     * Get all contacts
+     */
+    getContacts: async () => {
+        const cached = Storage.getCache('contacts');
+        if (cached) return cached;
+
+        const response = await API.call('getContacts');
+        if (response && response.data) {
+            Storage.cache('contacts', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add contact
+     */
+    addContact: async (contactData) => {
+        const response = await API.call('addContact', contactData);
+        if (response && response.success) {
+            Storage.remove('contacts');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add contact');
+    },
+
+    /**
+     * Update contact
+     */
+    updateContact: async (contactId, contactData) => {
+        const response = await API.call('updateContact', {
+            id: contactId,
+            ...contactData
+        });
+        if (response && response.success) {
+            Storage.remove('contacts');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update contact');
+    },
+
+    /**
+     * Delete contact
+     */
+    deleteContact: async (contactId) => {
+        const response = await API.call('deleteContact', { id: contactId });
+        if (response && response.success) {
+            Storage.remove('contacts');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete contact');
+    },
+
+    /**
+     * Get tenant charges
+     */
+    getTenantCharges: async () => {
+        const cached = Storage.getCache('tenant_charges');
+        if (cached) return cached;
+
+        const response = await API.call('getTenantCharges');
+        if (response && response.data) {
+            Storage.cache('tenant_charges', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add tenant charge
+     */
+    addTenantCharge: async (chargeData) => {
+        const response = await API.call('addTenantCharge', chargeData);
+        if (response && response.success) {
+            Storage.remove('tenant_charges');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add tenant charge');
+    },
+
+    /**
+     * Get triggers
+     */
+    getTriggers: async () => {
+        const cached = Storage.getCache('triggers');
+        if (cached) return cached;
+
+        const response = await API.call('getTriggers');
+        if (response && response.data) {
+            Storage.cache('triggers', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
      * Get auth user email
      */
     getUserEmail: async () => {
