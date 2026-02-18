@@ -122,6 +122,7 @@ const App = {
             await Analytics.init();
             await Refinance.init();
             await FinancialDecisions.init();
+            await PredictiveAnalytics.init();
 
             // Initialize users module if owner
             if (Users.isOwner()) {
@@ -185,6 +186,9 @@ const App = {
                     break;
                 case 'financial_decisions':
                     await FinancialDecisions.loadFinancialDecisions();
+                    break;
+                case 'predictive':
+                    await PredictiveAnalytics.loadPredictiveAnalytics();
                     break;
                 case 'users':
                     await Users.loadUsers();

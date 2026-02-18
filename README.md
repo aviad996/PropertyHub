@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -78,6 +78,18 @@ A centralized web application for managing and tracking residential real estate 
 - **Session Management**: View and terminate active user sessions
 - **Permission Enforcement**: Client-side UI filtering + server-side validation
 - **Data Isolation**: Users see only data they have permission to access
+
+### Phase 7B - Predictive Analytics & Forecasting
+- **Cash Flow Forecasting**: Project monthly cash flow 12-60 months using exponential smoothing
+- **Expense Forecasting**: Predict expenses by category with seasonal adjustment
+- **Property Appreciation**: Calculate and project future property values
+- **Time-Series Analysis**: Linear regression trend detection and analysis
+- **Confidence Metrics**: Declining confidence over longer forecast horizons
+- **Comprehensive Analysis**: Combined forecast view with all three models
+- **Seasonal Adjustment**: Automatic detection of seasonal patterns (±5% monthly variation)
+- **Recommendation Engine**: Actionable insights based on forecast trends
+- **Multiple Forecast Horizons**: 12/24/36/60 month forecasts or 1-5 year appreciation
+- **Export to CSV**: Share forecasts with accountants and partners
 
 ## Tech Stack
 

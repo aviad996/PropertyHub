@@ -792,5 +792,82 @@ const UI = {
             console.error('Error ending session:', error);
             throw error;
         }
+    },
+
+    // ==================== FORECASTING ====================
+
+    /**
+     * Get forecast data (cached)
+     */
+    getForecastData: async (forecastType = 'comprehensive', months = 12) => {
+        const cacheKey = `forecast_${forecastType}_${months}`;
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getForecastData', { forecastType, months });
+            const data = response?.data || null;
+            if (data) {
+                Storage.set(cacheKey, data, 300); // Cache for 5 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting forecast data:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Get expense forecast
+     */
+    getExpenseForecast: async (months = 12) => {
+        return API.getForecastData('expenses', months);
+    },
+
+    /**
+     * Get cash flow forecast
+     */
+    getCashFlowForecast: async (months = 12) => {
+        return API.getForecastData('cash-flow', months);
+    },
+
+    /**
+     * Get appreciation forecast
+     */
+    getAppreciationForecast: async (years = 5) => {
+        return API.getForecastData('appreciation', years * 12);
+    },
+
+    /**
+     * Save forecast preferences
+     */
+    saveForecastPreferences: async (preferences) => {
+        try {
+            const response = await API.call('saveForecastPreferences', preferences);
+            Storage.remove('forecast_preferences'); // Invalidate cache
+            return response?.success || false;
+        } catch (error) {
+            console.error('Error saving forecast preferences:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get forecast adjustment history
+     */
+    getForecastAdjustments: async () => {
+        const cacheKey = 'forecast_adjustments';
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getForecastAdjustments');
+            const data = response?.data || [];
+            Storage.set(cacheKey, data, 300);
+            return data;
+        } catch (error) {
+            console.error('Error getting forecast adjustments:', error);
+            return [];
+        }
     }
 };
