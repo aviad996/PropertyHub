@@ -869,5 +869,107 @@ const UI = {
             console.error('Error getting forecast adjustments:', error);
             return [];
         }
+    },
+
+    // ==================== TAX OPTIMIZATION ====================
+
+    /**
+     * Get tax deduction summary
+     */
+    getTaxDeductions: async (taxYear) => {
+        const cacheKey = `tax_deductions_${taxYear}`;
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getTaxDeductions', { taxYear });
+            const data = response?.data || null;
+            if (data) {
+                Storage.set(cacheKey, data, 600); // Cache for 10 minutes
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting tax deductions:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Get depreciation schedule
+     */
+    getDepreciationSchedule: async (propertyId, method = 'MACRS') => {
+        const cacheKey = `depreciation_${propertyId}_${method}`;
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getDepreciationSchedule', { propertyId, method });
+            const data = response?.data || [];
+            if (data) {
+                Storage.set(cacheKey, data, 600);
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting depreciation schedule:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Get cost segregation analysis
+     */
+    getCostSegregation: async (propertyId) => {
+        const cacheKey = `cost_segregation_${propertyId}`;
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getCostSegregation', { propertyId });
+            const data = response?.data || null;
+            if (data) {
+                Storage.set(cacheKey, data, 600);
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting cost segregation:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Save tax preferences
+     */
+    saveTaxPreferences: async (preferences) => {
+        try {
+            const response = await API.call('saveTaxPreferences', preferences);
+            // Invalidate all tax-related caches
+            Storage.remove('tax_deductions');
+            Storage.remove('depreciation_schedule');
+            return response?.success || false;
+        } catch (error) {
+            console.error('Error saving tax preferences:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get tax report (compiled from multiple sources)
+     */
+    getTaxReport: async (taxYear) => {
+        const cacheKey = `tax_report_${taxYear}`;
+        const cached = Storage.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await API.call('getTaxReport', { taxYear });
+            const data = response?.data || null;
+            if (data) {
+                Storage.set(cacheKey, data, 600);
+            }
+            return data;
+        } catch (error) {
+            console.error('Error getting tax report:', error);
+            return null;
+        }
     }
 };

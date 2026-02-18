@@ -2892,6 +2892,358 @@ html, body {
     color: var(--text-secondary);
 }
 
+/* Tax Optimization */
+.tax-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tax-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tax-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.tax-controls .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tax-controls label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.tax-controls select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.tax-results {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tax-section {
+    background-color: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.tax-section h4 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.tax-section h5 {
+    margin: 20px 0 15px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.tax-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.tax-property-card {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.tax-property-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tax-property-card .card-header strong {
+    color: var(--text-primary);
+}
+
+.tax-property-card .card-header button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.tax-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tax-metrics .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tax-metrics .label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.tax-metrics .value {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.total-deductions {
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-deductions strong {
+    color: var(--text-primary);
+}
+
+.deduction-amount {
+    color: var(--success-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.opportunities-list {
+    display: grid;
+    gap: 15px;
+}
+
+.opportunity-card {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+    display: flex;
+    gap: 15px;
+}
+
+.opportunity-icon {
+    font-size: 1.5rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.opportunity-content {
+    flex: 1;
+}
+
+.opportunity-content strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.opportunity-content p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.opportunity-savings {
+    display: block;
+    color: var(--success-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.comprehensive-report {
+    gap: 20px;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.report-summary .summary-card {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.summary-card .label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.summary-card .value {
+    display: block;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.report-calculation {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+}
+
+.calculation-table {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.calc-row .label {
+    color: var(--text-secondary);
+}
+
+.calc-row .value {
+    font-weight: 500;
+    text-align: right;
+}
+
+.calc-row.total {
+    border-bottom: 2px solid var(--primary-color);
+    background-color: var(--bg-secondary);
+    padding: 12px;
+}
+
+.calc-row.total .label {
+    color: var(--primary-color);
+}
+
+.calc-row.total .value {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.tax-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+.tax-report-table thead {
+    background-color: var(--bg-primary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.tax-report-table th {
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tax-report-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.tax-report-table tbody tr:hover {
+    background-color: var(--bg-primary);
+}
+
+.report-forms {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+}
+
+.forms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-item {
+    padding: 12px;
+    border-left: 3px solid var(--primary-color);
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.form-item strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.form-item p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.report-recommendations {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommendation-card {
+    padding: 12px;
+    border-left: 3px solid var(--success-color);
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.recommendation-card strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.recommendation-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .user-card {

@@ -2,7 +2,7 @@
 
 A centralized web application for managing and tracking residential real estate investments. Combines investment metrics, daily operations, strategic planning, and comprehensive analytics in one place.
 
-## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B)
+## Features (MVP + Phase 2.5 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7A + Phase 7B + Phase 7C)
 
 ### Core Features
 - **Dashboard**: Portfolio overview with key metrics (total equity, income, debt, cash flow)
@@ -90,6 +90,20 @@ A centralized web application for managing and tracking residential real estate 
 - **Recommendation Engine**: Actionable insights based on forecast trends
 - **Multiple Forecast Horizons**: 12/24/36/60 month forecasts or 1-5 year appreciation
 - **Export to CSV**: Share forecasts with accountants and partners
+
+### Phase 7C - Advanced Tax Optimization & Deduction Tracking
+- **Depreciation Calculator**: Residential property 27.5-year straight-line with 80/20 building/land split
+- **Tax Deduction Summary**: Property-by-property operating expenses, interest, and depreciation
+- **NOI Calculation**: Automated net operating income with all deductions
+- **Taxable Income Reporting**: Shows passive activity losses and deduction impact
+- **Tax Opportunities Engine**: Identifies cost segregation, bonus depreciation, 1031 exchanges
+- **Cost Segregation Analysis**: Separate building components for accelerated depreciation
+- **Bonus Depreciation Tracking**: Qualified property improvements with 100% deduction option
+- **Comprehensive Tax Report**: Professional format with IRS forms (Schedule E, Form 4562, Form 8582)
+- **Tax Year Selector**: Review multiple years for tax planning
+- **Depreciation Methods**: MACRS (standard), Straight Line, and Accelerated options
+- **CSV Export**: Download tax report for CPA submission
+- **Actionable Recommendations**: Cost-benefit analysis for tax strategies
 
 ## Tech Stack
 
