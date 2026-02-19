@@ -19,6 +19,9 @@
 
     --border-color: #e5e7eb;
     --border-light: #f3f4f6;
+    --input-bg: #ffffff;
+    --input-border: #e5e7eb;
+    --input-text: #111827;
 
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -41,6 +44,9 @@
         --text-tertiary: #9ca3af;
         --border-color: #374151;
         --border-light: #1f2937;
+        --input-bg: #0f172a;
+        --input-border: #64748b;
+        --input-text: #ffffff;
     }
 }
 
@@ -671,11 +677,11 @@ html, body {
 .form-group select,
 .form-group textarea {
     padding: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     font-size: 14px;
-    color: var(--text-primary);
-    background-color: var(--bg-secondary);
+    color: var(--input-text);
+    background-color: var(--input-bg);
     transition: var(--transition);
 }
 
@@ -3871,7 +3877,7 @@ html, body {
         padding: 12px 12px;
         height: 44px;
         font-size: 16px;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--input-border);
         border-radius: 6px;
     }
 
@@ -5454,11 +5460,11 @@ html, body {
 .form-group textarea,
 .form-group select {
     padding: 10px 12px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     font-size: 14px;
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
+    background-color: var(--input-bg);
+    color: var(--input-text);
     font-family: inherit;
 }
 
@@ -8115,5 +8121,68 @@ html, body {
 
     .btn-secondary-mobile:hover {
         background: var(--bg-tertiary);
+    }
+}
+
+/* ===================================================
+   DARK MODE FORM OVERRIDES (must be last for cascade)
+   =================================================== */
+@media (prefers-color-scheme: dark) {
+    /* Form inputs: black background, white text, visible borders */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border: 1.5px solid #64748b !important;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    /* Labels: pure white */
+    .form-group label {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    /* Modal: slightly lighter dark background for contrast */
+    .modal-content {
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #475569 !important;
+    }
+
+    .modal-header h3 {
+        color: #ffffff !important;
+    }
+
+    /* Section titles in forms */
+    .form-section-title {
+        color: #60a5fa !important;
+        border-bottom-color: #475569 !important;
+    }
+
+    /* Toggle labels */
+    .toggle-label {
+        color: #ffffff !important;
+    }
+
+    /* Select dropdown options */
+    .form-group select option {
+        background-color: #0f172a;
+        color: #ffffff;
     }
 }
