@@ -62,6 +62,14 @@ const Properties = {
                                 <div class="detail-item">
                                     <span class="detail-label">Closing Costs:</span> ${Formatting.currency(prop.closing_costs)}
                                 </div>` : ''}
+                                ${prop.rehab_costs ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">Rehab Costs:</span> ${Formatting.currency(prop.rehab_costs)}
+                                </div>` : ''}
+                                ${prop.holding_costs ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">Holding Costs:</span> ${Formatting.currency(prop.holding_costs)}
+                                </div>` : ''}
                                 <div class="detail-item">
                                     <span class="detail-label">Current Value:</span> ${Formatting.currency(prop.current_value)}
                                 </div>
@@ -88,6 +96,18 @@ const Properties = {
                                 <div class="detail-item">
                                     <span class="detail-label">HOA:</span> ${Formatting.currency(prop.monthly_hoa)}/mo
                                 </div>` : ''}
+                                ${(() => {
+                                    const pp = parseFloat(prop.purchase_price) || 0;
+                                    const cc = parseFloat(prop.closing_costs) || 0;
+                                    const rc = parseFloat(prop.rehab_costs) || 0;
+                                    const hc = parseFloat(prop.holding_costs) || 0;
+                                    const loan = parseFloat(mortgage?.original_balance || mortgage?.current_balance) || 0;
+                                    const totalInvested = pp + cc + rc + hc - loan;
+                                    return totalInvested > 0 ? `
+                                <div class="detail-item" style="font-weight:600;color:var(--primary-color)">
+                                    <span class="detail-label">Cash Invested:</span> ${Formatting.currency(totalInvested)}
+                                </div>` : '';
+                                })()}
                             </div>
                         </div>
                         <div class="list-item-actions">
@@ -207,6 +227,54 @@ const Properties = {
             }
         });
 
+        // === Closing Costs Breakdown Toggle ===
+        document.getElementById('toggle-closing-breakdown')?.addEventListener('click', () => {
+            const breakdown = document.getElementById('closing-costs-breakdown');
+            const btn = document.getElementById('toggle-closing-breakdown');
+            const totalEl = document.getElementById('closing-costs-total');
+            if (breakdown) {
+                const isVisible = breakdown.style.display !== 'none';
+                breakdown.style.display = isVisible ? 'none' : 'block';
+                btn.textContent = isVisible ? '+ Itemize' : '− Hide Breakdown';
+                if (!isVisible) {
+                    // Showing breakdown — make total readonly (auto-summed)
+                    if (totalEl) totalEl.readOnly = true;
+                    Properties.updateClosingCostsTotal();
+                } else {
+                    // Hiding breakdown — make total editable again
+                    if (totalEl) totalEl.readOnly = false;
+                }
+            }
+        });
+
+        // Auto-sum closing costs breakdown fields → total
+        document.querySelectorAll('.cc-field').forEach(field => {
+            field.addEventListener('input', () => {
+                Properties.updateClosingCostsTotal();
+                Properties.updateCashInvested();
+            });
+        });
+
+        // Closing costs total manual entry → update cash invested
+        document.getElementById('closing-costs-total')?.addEventListener('input', () => {
+            Properties.updateCashInvested();
+        });
+
+        // Rehab & holding costs → update cash invested
+        document.querySelectorAll('.cash-invested-field').forEach(field => {
+            field.addEventListener('input', () => {
+                Properties.updateCashInvested();
+            });
+        });
+
+        // Purchase price & mortgage amount → update cash invested
+        document.querySelector('[name="purchase_price"]')?.addEventListener('input', () => {
+            Properties.updateCashInvested();
+        });
+        document.querySelector('[name="mortgage_amount"]')?.addEventListener('input', () => {
+            Properties.updateCashInvested();
+        });
+
         // === Import from Closing Document ===
         document.getElementById('import-closing-btn')?.addEventListener('click', () => {
             Properties.showImportModal();
@@ -263,6 +331,46 @@ const Properties = {
     },
 
     /**
+     * Auto-sum all cc_* breakdown fields → closing_costs total
+     */
+    updateClosingCostsTotal: () => {
+        const form = document.getElementById('property-form');
+        if (!form) return;
+        const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
+        const total = ccFields.reduce((sum, f) => {
+            const el = form.querySelector(`[name="${f}"]`);
+            return sum + (parseFloat(el?.value) || 0);
+        }, 0);
+        const totalEl = document.getElementById('closing-costs-total');
+        if (totalEl) {
+            totalEl.value = total > 0 ? total.toFixed(2) : '';
+        }
+    },
+
+    /**
+     * Auto-calculate Total Cash Invested = Purchase + Closing + Rehab + Holding - Loan
+     */
+    updateCashInvested: () => {
+        const form = document.getElementById('property-form');
+        if (!form) return;
+        const purchase = parseFloat(form.querySelector('[name="purchase_price"]')?.value) || 0;
+        const closing = parseFloat(form.querySelector('[name="closing_costs"]')?.value) || 0;
+        const rehab = parseFloat(form.querySelector('[name="rehab_costs"]')?.value) || 0;
+        const holding = parseFloat(form.querySelector('[name="holding_costs"]')?.value) || 0;
+        const hasMortgage = document.getElementById('has-mortgage')?.checked;
+        const loan = hasMortgage ? (parseFloat(form.querySelector('[name="mortgage_amount"]')?.value) || 0) : 0;
+        const cashInvested = purchase + closing + rehab + holding - loan;
+        const display = document.getElementById('cash-to-close-display');
+        if (display) {
+            display.value = cashInvested > 0 ? cashInvested.toFixed(2) : '';
+        }
+        const hint = document.getElementById('cash-invested-hint');
+        if (hint && purchase > 0) {
+            hint.textContent = `${Formatting.currency(purchase)} + ${Formatting.currency(closing)} + ${Formatting.currency(rehab)} + ${Formatting.currency(holding)} − ${Formatting.currency(loan)}`;
+        }
+    },
+
+    /**
      * Reset form to clean state
      */
     resetForm: () => {
@@ -278,6 +386,18 @@ const Properties = {
 
         const hasMortgage = document.getElementById('has-mortgage');
         if (hasMortgage) hasMortgage.checked = false;
+
+        // Reset closing costs breakdown
+        const closingBreakdown = document.getElementById('closing-costs-breakdown');
+        if (closingBreakdown) closingBreakdown.style.display = 'none';
+        const breakdownBtn = document.getElementById('toggle-closing-breakdown');
+        if (breakdownBtn) breakdownBtn.textContent = '+ Itemize';
+        const closingTotal = document.getElementById('closing-costs-total');
+        if (closingTotal) closingTotal.readOnly = false;
+
+        // Reset cash invested hint
+        const cashHint = document.getElementById('cash-invested-hint');
+        if (cashHint) cashHint.textContent = 'Purchase + Closing + Rehab + Holding − Loan';
 
         // Clear hints
         const taxHint = document.getElementById('prop-monthly-taxes-hint');
@@ -312,6 +432,31 @@ const Properties = {
             form.querySelector('[name="purchase_date"]').value = rawDate ? rawDate.substring(0, 10) : '';
             form.querySelector('[name="current_value"]').value = property.current_value || '';
             form.querySelector('[name="closing_costs"]').value = property.closing_costs || '';
+
+            // Closing costs breakdown fields
+            const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
+            let hasBreakdown = false;
+            ccFields.forEach(f => {
+                const el = form.querySelector(`[name="${f}"]`);
+                if (el && property[f]) {
+                    el.value = property[f];
+                    hasBreakdown = true;
+                }
+            });
+            // If breakdown fields exist, show the breakdown section
+            if (hasBreakdown) {
+                const breakdown = document.getElementById('closing-costs-breakdown');
+                if (breakdown) breakdown.style.display = 'block';
+                const btn = document.getElementById('toggle-closing-breakdown');
+                if (btn) btn.textContent = '− Hide Breakdown';
+                // Make total readonly when breakdown is shown
+                const totalEl = document.getElementById('closing-costs-total');
+                if (totalEl) totalEl.readOnly = true;
+            }
+
+            // Rehab & holding costs
+            form.querySelector('[name="rehab_costs"]').value = property.rehab_costs || '';
+            form.querySelector('[name="holding_costs"]').value = property.holding_costs || '';
 
             // Type & units
             const propType = property.type || 'single_family';
@@ -362,6 +507,9 @@ const Properties = {
                 form.querySelector('[name="mortgage_payment"]').value = mortgage.monthly_payment || '';
                 form.querySelector('[name="mortgage_escrow"]').value = mortgage.escrow_payment || '';
             }
+
+            // Recalculate cash invested with loaded data
+            Properties.updateCashInvested();
 
             document.querySelector('#property-modal .modal-header h3').textContent = 'Edit Property';
             UI.modal.show('property-modal');

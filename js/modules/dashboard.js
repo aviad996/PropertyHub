@@ -41,14 +41,17 @@ const Dashboard = {
             // Cash Flow: rent - total mortgage payments (which already include escrow for taxes & insurance)
             const cashFlow = monthlyRent - monthlyMortgages;
 
-            // Total Cash Invested: sum of (purchase_price - loan_amount + closing_costs) per property
+            // Total Cash Invested: Purchase + Closing + Rehab + Holding - Loan per property
             let totalCashInvested = 0;
             (properties || []).forEach(prop => {
                 const mortgage = (mortgages || []).find(m => String(m.property_id) === String(prop.id));
                 const loanAmount = parseFloat(mortgage?.original_balance || mortgage?.loan_amount) || 0;
                 const purchasePrice = parseFloat(prop.purchase_price) || 0;
-                const downPayment = purchasePrice - loanAmount;
-                totalCashInvested += downPayment > 0 ? downPayment : 0;
+                const closingCosts = parseFloat(prop.closing_costs) || 0;
+                const rehabCosts = parseFloat(prop.rehab_costs) || 0;
+                const holdingCosts = parseFloat(prop.holding_costs) || 0;
+                const cashInvested = purchasePrice + closingCosts + rehabCosts + holdingCosts - loanAmount;
+                totalCashInvested += cashInvested > 0 ? cashInvested : 0;
             });
 
             // Portfolio Cap Rate: Annual NOI / Total Purchase Price
@@ -116,13 +119,13 @@ const Dashboard = {
                 const mortgageEscrow = parseFloat(mortgage?.escrow_payment) || 0;
                 const mortgageTotal = mortgagePI + mortgageEscrow;
 
-                // Cash to Close: down payment + closing expenses
+                // Cash Invested: Purchase + Closing + Rehab + Holding - Loan
                 const purchasePrice = parseFloat(prop.purchase_price) || 0;
                 const loanAmount = parseFloat(mortgage?.original_balance || mortgage?.loan_amount) || 0;
-                const downPayment = purchasePrice - loanAmount;
-                const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(prop.id));
-                const closingCosts = propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-                const cashToClose = downPayment + closingCosts;
+                const closingCosts = parseFloat(prop.closing_costs) || 0;
+                const rehabCosts = parseFloat(prop.rehab_costs) || 0;
+                const holdingCosts = parseFloat(prop.holding_costs) || 0;
+                const cashToClose = purchasePrice + closingCosts + rehabCosts + holdingCosts - loanAmount;
 
                 // Per-property cash flow: Rent - Total Mortgage (P&I + Escrow)
                 const propCashFlow = propRent - mortgageTotal;
@@ -148,7 +151,7 @@ const Dashboard = {
                             <div class="property-card-detail">Payment: ${Formatting.currency(mortgageTotal)}/mo${mortgageEscrow > 0 ? ` <span style="font-size:11px;color:var(--text-secondary)">(P&I ${Formatting.currency(mortgagePI)} + Esc ${Formatting.currency(mortgageEscrow)})</span>` : ''}</div>
                         ` : ''}
                         <div class="property-card-detail">Rent: ${propRent > 0 ? Formatting.currency(propRent) + '/mo' : 'N/A'} · <span class="${occupancyClass}">${occupancyText}</span></div>
-                        <div class="property-card-detail" style="font-size:12px;color:var(--text-secondary)">Cash to Close: ${Formatting.currency(cashToClose)}</div>
+                        <div class="property-card-detail" style="font-size:12px;color:var(--text-secondary)">Cash Invested: ${Formatting.currency(cashToClose)}</div>
                         <div class="property-card-detail" style="font-size:12px;color:var(--text-secondary)">Cap Rate: ${propCapRate > 0 ? propCapRate.toFixed(1) + '%' : 'N/A'} · CoC: ${cocReturn !== 0 ? cocReturn.toFixed(1) + '%' : 'N/A'}</div>
                         <div class="property-card-detail cash-flow-label">
                             Cash Flow: <span class="${cashFlowClass}">${Formatting.currency(propCashFlow)}/mo</span>
