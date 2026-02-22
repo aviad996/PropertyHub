@@ -29,6 +29,9 @@ const App = {
             // Setup navigation always (even without GAS)
             App.setupNavigation();
 
+            // Set initial view state (header button text/visibility)
+            UI.switchView('dashboard');
+
             // Setup sync button
             App.setupSync();
 
