@@ -18,14 +18,47 @@ const Tenants = {
     populatePropertySelect: async () => {
         try {
             const properties = await API.getProperties();
+            Tenants._properties = properties; // cache for unit lookup
             const select = document.getElementById('tenant-property-select');
 
             if (!select) return;
 
-            const options = properties.map(p => `<option value="${p.id}">${p.address}</option>`).join('');
+            const options = properties.map(p => {
+                const units = parseInt(p.units) || 1;
+                const label = units > 1 ? `${p.address} (${units} units)` : p.address;
+                return `<option value="${p.id}">${label}</option>`;
+            }).join('');
             select.innerHTML = '<option value="">Select property...</option>' + options;
         } catch (error) {
             console.error('Error populating property select:', error);
+        }
+    },
+
+    /**
+     * Update unit selector based on selected property
+     */
+    updateUnitSelect: (propertyId) => {
+        const unitGroup = document.getElementById('unit-select-group');
+        const unitSelect = document.getElementById('tenant-unit-select');
+        if (!unitGroup || !unitSelect) return;
+
+        const property = (Tenants._properties || []).find(p => String(p.id) === String(propertyId));
+        const units = parseInt(property?.units) || 1;
+
+        if (units > 1) {
+            // Multi-family: show unit selector
+            unitGroup.style.display = '';
+            unitSelect.required = true;
+            let opts = '<option value="">Select unit...</option>';
+            for (let i = 1; i <= units; i++) {
+                opts += `<option value="${i}">Unit ${i}</option>`;
+            }
+            unitSelect.innerHTML = opts;
+        } else {
+            // Single-family: hide unit selector
+            unitGroup.style.display = 'none';
+            unitSelect.required = false;
+            unitSelect.value = '';
         }
     },
 
@@ -101,10 +134,12 @@ const Tenants = {
                                     }
                                 }
 
+                                const unitBadge = tenant.unit_number ? `<span style="font-size:11px;background:rgba(59,130,246,0.2);padding:2px 6px;border-radius:4px;color:#60a5fa;margin-left:6px">Unit ${tenant.unit_number}</span>` : '';
+
                                 return `
                                     <div class="tenant-card" data-id="${tenant.id}">
                                         <div class="tenant-header">
-                                            <div class="tenant-name">${tenant.name} ${section8Badge}</div>
+                                            <div class="tenant-name">${tenant.name} ${unitBadge} ${section8Badge}</div>
                                             <div class="tenant-status ${tenant.status}">${tenant.status}</div>
                                         </div>
                                         <div class="tenant-details">
@@ -157,7 +192,14 @@ const Tenants = {
             // Reset Section 8 fields
             document.getElementById('section8-fields')?.classList.add('hidden');
             document.getElementById('tenant-is-section8').checked = false;
+            // Reset unit selector
+            document.getElementById('unit-select-group').style.display = 'none';
             UI.modal.show('tenants-modal');
+        });
+
+        // Property change → update unit selector
+        document.getElementById('tenant-property-select')?.addEventListener('change', (e) => {
+            Tenants.updateUnitSelect(e.target.value);
         });
 
         // Section 8 toggle
@@ -227,6 +269,12 @@ const Tenants = {
             const form = document.getElementById('tenants-form');
 
             form.querySelector('[name="property_id"]').value = tenant.property_id || '';
+            // Update unit selector for this property, then set unit value
+            Tenants.updateUnitSelect(tenant.property_id);
+            if (tenant.unit_number) {
+                const unitSelect = document.getElementById('tenant-unit-select');
+                if (unitSelect) unitSelect.value = tenant.unit_number;
+            }
             form.querySelector('[name="name"]').value = tenant.name || '';
             form.querySelector('[name="email"]').value = tenant.email || '';
             form.querySelector('[name="phone"]').value = tenant.phone || '';
