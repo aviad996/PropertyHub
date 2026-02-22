@@ -1,5 +1,4 @@
-# Config and credentials
-config.js
+# Credentials (config.js is tracked since GAS URL is public)
 .env
 .env.local
 *.key

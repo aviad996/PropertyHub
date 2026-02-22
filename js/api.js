@@ -176,8 +176,8 @@ const API = {
 
             const response = await Promise.race([
                 fetch(fullUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
+                    method: 'GET',
+                    redirect: 'follow',
                 }),
                 new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Request timeout')), CONFIG.requestTimeout)
@@ -192,6 +192,11 @@ const API = {
             return data;
         } catch (error) {
             console.error(`API.call(${functionName}) error:`, error);
+            // Fallback to demo mode on network error
+            console.warn('Falling back to demo mode');
+            API.isDemo = true;
+            const result = API._routeCall(functionName, params);
+            if (result) return result;
             return null;
         }
     },
