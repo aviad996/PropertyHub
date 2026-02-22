@@ -35,8 +35,8 @@ const Dashboard = {
             const activeTenants = (tenants || []).filter(t => t.status === 'active');
             const monthlyRent = activeTenants.reduce((sum, t) => sum + (parseFloat(t.monthly_rent) || 0), 0);
 
-            // Monthly Mortgages: sum of monthly_payment from all mortgages
-            const monthlyMortgages = (mortgages || []).reduce((sum, m) => sum + (parseFloat(m.monthly_payment) || 0), 0);
+            // Monthly Mortgages: sum of monthly_payment + escrow_payment from all mortgages
+            const monthlyMortgages = (mortgages || []).reduce((sum, m) => sum + (parseFloat(m.monthly_payment) || 0) + (parseFloat(m.escrow_payment) || 0), 0);
 
             // Monthly Expenses: taxes + insurance + HOA (annualized / 12)
             const expensesByCategory = {};
@@ -110,11 +110,13 @@ const Dashboard = {
                 const annualExpenses = propExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
                 const monthlyExpenses = annualExpenses / 12;
 
-                // Property mortgage payment
-                const mortgagePayment = parseFloat(mortgage?.monthly_payment) || 0;
+                // Property mortgage payment (P&I + Escrow)
+                const mortgagePI = parseFloat(mortgage?.monthly_payment) || 0;
+                const mortgageEscrow = parseFloat(mortgage?.escrow_payment) || 0;
+                const mortgageTotal = mortgagePI + mortgageEscrow;
 
                 // Per-property cash flow
-                const propCashFlow = propRent - mortgagePayment - monthlyExpenses;
+                const propCashFlow = propRent - mortgageTotal - monthlyExpenses;
                 const cashFlowClass = propCashFlow >= 0 ? 'cash-flow-positive' : 'cash-flow-negative';
 
                 return `
@@ -125,7 +127,7 @@ const Dashboard = {
                         <div class="property-card-detail">Equity: ${Formatting.currency(equity)}</div>
                         ${mortgage ? `
                             <div class="property-card-detail">Debt: ${Formatting.currency(mortgage.current_balance)}</div>
-                            <div class="property-card-detail">Payment: ${Formatting.currency(mortgage.monthly_payment)}/mo</div>
+                            <div class="property-card-detail">Payment: ${Formatting.currency(mortgageTotal)}/mo${mortgageEscrow > 0 ? ` <span style="font-size:11px;color:var(--text-secondary)">(P&I ${Formatting.currency(mortgagePI)} + Escrow ${Formatting.currency(mortgageEscrow)})</span>` : ''}</div>
                         ` : ''}
                         <div class="property-card-detail">Rent: ${propRent > 0 ? Formatting.currency(propRent) + '/mo' : 'N/A'}</div>
                         <div class="property-card-detail">Status: <span class="${occupancyClass}">${occupancy}</span></div>
