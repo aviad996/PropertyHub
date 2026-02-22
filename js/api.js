@@ -192,9 +192,7 @@ const API = {
             return data;
         } catch (error) {
             console.error(`API.call(${functionName}) error:`, error);
-            // Fallback to demo mode on network error
-            console.warn('Falling back to demo mode');
-            API.isDemo = true;
+            // Try local fallback for this call only (don't set global demo mode)
             const result = API._routeCall(functionName, params);
             if (result) return result;
             return null;
