@@ -9,6 +9,9 @@ const Properties = {
     // Auto-unit counts for standard multi-unit types
     autoUnitCounts: { 'duplex': 2, 'triplex': 3, 'fourplex': 4 },
 
+    // Closing costs breakdown field names (single source of truth)
+    ccFields: ['cc_appraisal', 'cc_inspection', 'cc_title', 'cc_escrow', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_prepaid_interest', 'cc_taxes', 'cc_other'],
+
     /**
      * Initialize properties module
      */
@@ -64,7 +67,7 @@ const Properties = {
                                 </div>` : ''}
                                 ${prop.rehab_costs ? `
                                 <div class="detail-item">
-                                    <span class="detail-label">Rehab Costs:</span> ${Formatting.currency(prop.rehab_costs)}
+                                    <span class="detail-label">Rehab Costs:</span> ${Formatting.currency(prop.rehab_costs)}${prop.rehab_items ? ` (${JSON.parse(prop.rehab_items).length} items)` : ''}
                                 </div>` : ''}
                                 ${prop.holding_costs ? `
                                 <div class="detail-item">
@@ -240,8 +243,7 @@ const Properties = {
                     // Showing breakdown — make total readonly (auto-summed)
                     if (totalEl) totalEl.readOnly = true;
                     // Only auto-sum if breakdown fields have values
-                    const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
-                    const hasBreakdownValues = ccFields.some(f => {
+                    const hasBreakdownValues = Properties.ccFields.some(f => {
                         const el = document.querySelector(`[name="${f}"]`);
                         return el && parseFloat(el.value) > 0;
                     });
@@ -281,6 +283,39 @@ const Properties = {
         });
         document.querySelector('[name="mortgage_amount"]')?.addEventListener('input', () => {
             Properties.updateCashInvested();
+        });
+
+        // === Rehab Itemization Toggle ===
+        document.getElementById('toggle-rehab-breakdown')?.addEventListener('click', () => {
+            const breakdown = document.getElementById('rehab-items-breakdown');
+            const btn = document.getElementById('toggle-rehab-breakdown');
+            const totalEl = document.getElementById('rehab-costs-total');
+            if (breakdown) {
+                const isVisible = breakdown.style.display !== 'none';
+                breakdown.style.display = isVisible ? 'none' : 'block';
+                btn.textContent = isVisible ? '+ Itemize' : '− Hide Breakdown';
+                if (!isVisible) {
+                    // Showing breakdown — make total readonly
+                    if (totalEl) totalEl.readOnly = true;
+                    // If no rows exist yet, add one blank row
+                    const existingRows = document.querySelectorAll('.rehab-item-row');
+                    if (existingRows.length === 0) {
+                        Properties.addRehabItemRow();
+                    }
+                } else {
+                    // Hiding breakdown — make total editable again
+                    if (totalEl) totalEl.readOnly = false;
+                }
+            }
+        });
+
+        // Add rehab item button
+        document.getElementById('add-rehab-item-btn')?.addEventListener('click', () => {
+            Properties.addRehabItemRow();
+            // Focus the new description field
+            const rows = document.querySelectorAll('.rehab-item-row');
+            const lastRow = rows[rows.length - 1];
+            lastRow?.querySelector('.rehab-item-desc')?.focus();
         });
 
         // === Import from Closing Document ===
@@ -344,9 +379,8 @@ const Properties = {
     updateClosingCostsTotal: () => {
         const form = document.getElementById('property-form');
         if (!form) return;
-        const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
         let anyFieldHasValue = false;
-        const total = ccFields.reduce((sum, f) => {
+        const total = Properties.ccFields.reduce((sum, f) => {
             const el = form.querySelector(`[name="${f}"]`);
             const val = parseFloat(el?.value) || 0;
             if (val > 0) anyFieldHasValue = true;
@@ -383,6 +417,109 @@ const Properties = {
     },
 
     /**
+     * Add a rehab item row to the itemization section
+     */
+    addRehabItemRow: (description = '', amount = '') => {
+        const list = document.getElementById('rehab-items-list');
+        if (!list) return;
+
+        const row = document.createElement('div');
+        row.className = 'rehab-item-row';
+        row.innerHTML = `
+            <input type="text" placeholder="Description (e.g. Kitchen remodel)"
+                   class="rehab-item-desc" value="${String(description).replace(/"/g, '&quot;')}">
+            <input type="number" step="0.01" placeholder="0.00"
+                   class="rehab-item-amount" value="${amount}">
+            <button type="button" class="rehab-item-remove" title="Remove item">&times;</button>
+        `;
+
+        // Wire up the remove button
+        row.querySelector('.rehab-item-remove').addEventListener('click', () => {
+            row.remove();
+            Properties.updateRehabTotal();
+        });
+
+        // Wire up amount change to auto-sum
+        row.querySelector('.rehab-item-amount').addEventListener('input', () => {
+            Properties.updateRehabTotal();
+        });
+
+        list.appendChild(row);
+    },
+
+    /**
+     * Update rehab_costs total from all itemized rows + store JSON in hidden field
+     */
+    updateRehabTotal: () => {
+        const rows = document.querySelectorAll('.rehab-item-row');
+        const items = [];
+        let total = 0;
+
+        rows.forEach(row => {
+            const desc = row.querySelector('.rehab-item-desc')?.value?.trim() || '';
+            const amt = parseFloat(row.querySelector('.rehab-item-amount')?.value) || 0;
+            if (desc || amt > 0) {
+                items.push({ description: desc, amount: amt });
+            }
+            total += amt;
+        });
+
+        // Update the total field
+        const totalEl = document.getElementById('rehab-costs-total');
+        if (totalEl && rows.length > 0) {
+            totalEl.value = total > 0 ? total.toFixed(2) : '';
+        }
+
+        // Store items as JSON in hidden field
+        const hiddenEl = document.getElementById('rehab-items-data');
+        if (hiddenEl) {
+            hiddenEl.value = items.length > 0 ? JSON.stringify(items) : '';
+        }
+
+        // Update cash invested
+        Properties.updateCashInvested();
+    },
+
+    /**
+     * Load rehab items from a JSON array into the form
+     */
+    loadRehabItems: (itemsJson) => {
+        const list = document.getElementById('rehab-items-list');
+        if (!list) return;
+
+        // Clear existing rows
+        list.innerHTML = '';
+
+        let items = [];
+        if (typeof itemsJson === 'string' && itemsJson) {
+            try {
+                items = JSON.parse(itemsJson);
+            } catch (e) {
+                console.warn('Failed to parse rehab_items JSON:', e);
+                return;
+            }
+        } else if (Array.isArray(itemsJson)) {
+            items = itemsJson;
+        }
+
+        if (items.length === 0) return;
+
+        items.forEach(item => {
+            Properties.addRehabItemRow(item.description || '', item.amount || '');
+        });
+
+        // Show the breakdown and make total readonly
+        const breakdown = document.getElementById('rehab-items-breakdown');
+        if (breakdown) breakdown.style.display = 'block';
+        const btn = document.getElementById('toggle-rehab-breakdown');
+        if (btn) btn.textContent = '− Hide Breakdown';
+        const totalEl = document.getElementById('rehab-costs-total');
+        if (totalEl) totalEl.readOnly = true;
+
+        Properties.updateRehabTotal();
+    },
+
+    /**
      * Reset form to clean state
      */
     resetForm: () => {
@@ -406,6 +543,18 @@ const Properties = {
         if (breakdownBtn) breakdownBtn.textContent = '+ Itemize';
         const closingTotal = document.getElementById('closing-costs-total');
         if (closingTotal) closingTotal.readOnly = false;
+
+        // Reset rehab breakdown
+        const rehabBreakdown = document.getElementById('rehab-items-breakdown');
+        if (rehabBreakdown) rehabBreakdown.style.display = 'none';
+        const rehabBtn = document.getElementById('toggle-rehab-breakdown');
+        if (rehabBtn) rehabBtn.textContent = '+ Itemize';
+        const rehabTotal = document.getElementById('rehab-costs-total');
+        if (rehabTotal) rehabTotal.readOnly = false;
+        const rehabList = document.getElementById('rehab-items-list');
+        if (rehabList) rehabList.innerHTML = '';
+        const rehabData = document.getElementById('rehab-items-data');
+        if (rehabData) rehabData.value = '';
 
         // Reset cash invested hint
         const cashHint = document.getElementById('cash-invested-hint');
@@ -446,9 +595,8 @@ const Properties = {
             form.querySelector('[name="closing_costs"]').value = property.closing_costs || '';
 
             // Closing costs breakdown fields
-            const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
             let hasBreakdown = false;
-            ccFields.forEach(f => {
+            Properties.ccFields.forEach(f => {
                 const el = form.querySelector(`[name="${f}"]`);
                 if (el && property[f]) {
                     el.value = property[f];
@@ -469,6 +617,11 @@ const Properties = {
             // Rehab & holding costs
             form.querySelector('[name="rehab_costs"]').value = property.rehab_costs || '';
             form.querySelector('[name="holding_costs"]').value = property.holding_costs || '';
+
+            // Load rehab items if they exist
+            if (property.rehab_items) {
+                Properties.loadRehabItems(property.rehab_items);
+            }
 
             // Type & units
             const propType = property.type || 'single_family';
@@ -550,6 +703,17 @@ const Properties = {
             const form = document.getElementById('property-form');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
+
+            // If rehab items exist, ensure rehab_costs is the computed total
+            if (data.rehab_items && data.rehab_items.trim()) {
+                try {
+                    const items = JSON.parse(data.rehab_items);
+                    const total = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                    data.rehab_costs = total.toFixed(2);
+                } catch (e) {
+                    // If parsing fails, keep the manual rehab_costs value
+                }
+            }
 
             console.log('saveProperty data:', JSON.stringify(data));
 

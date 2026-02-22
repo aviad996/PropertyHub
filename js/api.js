@@ -16,8 +16,8 @@ const API = {
             'section8_ha_amount', 'section8_tenant_amount', 'amount_paid',
             'ha_paid', 'tenant_paid', 'recurrence_interval', 'balance_after',
             'rehab_costs', 'holding_costs', 'cash_to_close',
-            'cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey',
-            'cc_insurance', 'cc_taxes', 'cc_other',
+            'cc_appraisal', 'cc_inspection', 'cc_title', 'cc_escrow', 'cc_loan_fees', 'cc_survey',
+            'cc_insurance', 'cc_prepaid_interest', 'cc_taxes', 'cc_other',
             'closing_costs', 'annual_taxes', 'annual_insurance', 'monthly_hoa'
         ],
         _parseNumerics: (item) => {

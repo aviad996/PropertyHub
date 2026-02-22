@@ -343,8 +343,18 @@
                                             <input type="number" name="cc_appraisal" step="0.01" placeholder="0.00" class="cc-field">
                                         </div>
                                         <div class="form-group">
-                                            <label>Title & Escrow</label>
+                                            <label>Inspection</label>
+                                            <input type="number" name="cc_inspection" step="0.01" placeholder="0.00" class="cc-field">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Title</label>
                                             <input type="number" name="cc_title" step="0.01" placeholder="0.00" class="cc-field">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Escrow</label>
+                                            <input type="number" name="cc_escrow" step="0.01" placeholder="0.00" class="cc-field">
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -363,16 +373,19 @@
                                             <input type="number" name="cc_insurance" step="0.01" placeholder="0.00" class="cc-field">
                                         </div>
                                         <div class="form-group">
-                                            <label>Taxes Prepaid</label>
-                                            <input type="number" name="cc_taxes" step="0.01" placeholder="0.00" class="cc-field">
+                                            <label>Prepaid Interest</label>
+                                            <input type="number" name="cc_prepaid_interest" step="0.01" placeholder="0.00" class="cc-field">
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
+                                            <label>Taxes Prepaid</label>
+                                            <input type="number" name="cc_taxes" step="0.01" placeholder="0.00" class="cc-field">
+                                        </div>
+                                        <div class="form-group">
                                             <label>Other Closing Costs</label>
                                             <input type="number" name="cc_other" step="0.01" placeholder="0.00" class="cc-field">
                                         </div>
-                                        <div class="form-group"></div>
                                     </div>
                                 </div>
 
@@ -380,12 +393,22 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Rehab / Renovation Costs</label>
-                                        <input type="number" name="rehab_costs" step="0.01" placeholder="0.00" class="cash-invested-field">
+                                        <input type="number" name="rehab_costs" step="0.01" placeholder="0.00" class="cash-invested-field" id="rehab-costs-total">
+                                        <button type="button" class="breakdown-toggle" id="toggle-rehab-breakdown">+ Itemize</button>
                                     </div>
                                     <div class="form-group">
                                         <label>Holding Costs (until rented)</label>
                                         <input type="number" name="holding_costs" step="0.01" placeholder="0.00" class="cash-invested-field">
                                     </div>
+                                </div>
+
+                                <!-- Rehab Itemization (hidden by default) -->
+                                <div id="rehab-items-breakdown" class="costs-breakdown" style="display:none;">
+                                    <div id="rehab-items-list">
+                                        <!-- Dynamic rows inserted by JS -->
+                                    </div>
+                                    <button type="button" class="btn-add-rehab-item" id="add-rehab-item-btn">+ Add Item</button>
+                                    <input type="hidden" name="rehab_items" id="rehab-items-data">
                                 </div>
 
                                 <!-- Total Cash Invested (auto-calculated) -->
