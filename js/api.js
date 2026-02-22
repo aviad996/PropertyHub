@@ -192,9 +192,11 @@ const API = {
             return data;
         } catch (error) {
             console.error(`API.call(${functionName}) error:`, error);
-            // Try local fallback for this call only (don't set global demo mode)
-            const result = API._routeCall(functionName, params);
-            if (result) return result;
+            // Only use local fallback for read operations (get*), not writes
+            if (functionName.startsWith('get')) {
+                const result = API._routeCall(functionName, params);
+                if (result) return result;
+            }
             return null;
         }
     },
@@ -223,6 +225,9 @@ const API = {
             Storage.remove('properties'); // Clear cache
             return response.data;
         }
+        if (!response) {
+            throw new Error('Server not responding. Please check your connection and try again.');
+        }
         throw new Error(response?.error || 'Failed to add property');
     },
 
@@ -237,6 +242,9 @@ const API = {
         if (response && response.success) {
             Storage.remove('properties'); // Clear cache
             return response.data;
+        }
+        if (!response) {
+            throw new Error('Server not responding. Please check your connection and try again.');
         }
         throw new Error(response?.error || 'Failed to update property');
     },

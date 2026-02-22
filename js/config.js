@@ -13,7 +13,7 @@ const CONFIG = {
     apiKey: GAS_API_KEY,
     syncInterval: 30000, // Sync every 30 seconds
     maxRetries: 3,
-    requestTimeout: 10000, // 10 seconds
+    requestTimeout: 30000, // 30 seconds (GAS cold starts can be slow)
 };
 
 // Check if GAS URL is configured

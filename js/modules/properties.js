@@ -389,8 +389,11 @@ const Properties = {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
 
+            console.log('saveProperty data:', JSON.stringify(data));
+
             // Validate required fields
             if (!data.address || !data.city || !data.state || !data.purchase_price || !data.purchase_date || !data.current_value) {
+                console.error('Validation failed:', { address: data.address, city: data.city, state: data.state, purchase_price: data.purchase_price, purchase_date: data.purchase_date, current_value: data.current_value });
                 UI.showToast('Please fill in all required fields', 'error');
                 return;
             }
