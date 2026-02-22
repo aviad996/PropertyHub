@@ -916,8 +916,11 @@ const UI = {
         hide: (modalId) => {
             document.getElementById(modalId)?.classList.add('hidden');
         }
-    },
+    }
+};
 
+// Extended API functions (Users, Forecasting, Analytics, etc.)
+Object.assign(API, {
     /**
      * Get current user email
      */
@@ -1475,4 +1478,4 @@ const UI = {
             throw error;
         }
     }
-};
+});

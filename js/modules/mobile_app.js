@@ -57,7 +57,7 @@ const MobileApp = {
             }
             // Register service worker
             if ('serviceWorker' in navigator) {
-                const registration = await navigator.serviceWorker.register('/service-worker.js');
+                const registration = await navigator.serviceWorker.register('./service-worker.js');
                 console.log('Service Worker registered:', registration);
                 MobileApp.swRegistration = registration;
 

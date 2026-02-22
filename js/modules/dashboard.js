@@ -15,19 +15,21 @@ const Dashboard = {
      */
     loadMetrics: async () => {
         try {
-            const metrics = await API.getPortfolioMetrics();
-
-            // Row 1: Core portfolio metrics
-            document.getElementById('total-value').textContent = Formatting.currency(metrics.totalValue || 0);
-            document.getElementById('total-debt').textContent = Formatting.currency(metrics.totalDebt || 0);
-            document.getElementById('total-equity').textContent = Formatting.currency(metrics.totalEquity || 0);
-
-            // Fetch additional data
+            // Fetch all data first
             const [tenants, mortgages, properties] = await Promise.all([
                 API.getTenants().catch(() => []),
                 API.getMortgages().catch(() => []),
                 API.getProperties().catch(() => [])
             ]);
+
+            // Row 1: Core portfolio metrics (calculated from data)
+            const totalValue = (properties || []).reduce((sum, p) => sum + (parseFloat(p.current_value) || 0), 0);
+            const totalDebt = (mortgages || []).reduce((sum, m) => sum + (parseFloat(m.current_balance) || 0), 0);
+            const totalEquity = totalValue - totalDebt;
+
+            document.getElementById('total-value').textContent = Formatting.currency(totalValue);
+            document.getElementById('total-debt').textContent = Formatting.currency(totalDebt);
+            document.getElementById('total-equity').textContent = Formatting.currency(totalEquity);
 
             // Monthly Rent: sum of monthly_rent from active tenants
             const activeTenants = (tenants || []).filter(t => t.status === 'active');
