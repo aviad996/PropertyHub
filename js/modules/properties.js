@@ -314,9 +314,11 @@ const Properties = {
             form.querySelector('[name="closing_costs"]').value = property.closing_costs || '';
 
             // Type & units
-            form.querySelector('[name="type"]').value = property.type || 'single_family';
-            Properties.handleTypeChange(property.type || 'single_family');
-            if (property.units) {
+            const propType = property.type || 'single_family';
+            form.querySelector('[name="type"]').value = propType;
+            Properties.handleTypeChange(propType);
+            // Only set units if the units field is visible (multi-unit types)
+            if (property.units && Properties.multiUnitTypes.includes(propType)) {
                 form.querySelector('[name="units"]').value = property.units;
             }
 
