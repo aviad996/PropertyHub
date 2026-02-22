@@ -12,7 +12,9 @@ const API = {
             'purchase_price', 'current_value', 'original_balance', 'current_balance',
             'interest_rate', 'monthly_payment', 'remaining_term_months', 'escrow_payment',
             'monthly_rent', 'rent_amount', 'security_deposit', 'amount',
-            'coverage_amount', 'annual_premium', 'loan_amount', 'balance'
+            'coverage_amount', 'annual_premium', 'loan_amount', 'balance',
+            'section8_ha_amount', 'section8_tenant_amount', 'amount_paid',
+            'ha_paid', 'tenant_paid', 'recurrence_interval', 'balance_after'
         ],
         _parseNumerics: (item) => {
             const parsed = { ...item };
@@ -126,6 +128,10 @@ const API = {
             deleteUtility: ['utilities', 'delete'],
             getTenantCharges: ['tenant_charges', 'get'],
             addTenantCharge: ['tenant_charges', 'add'],
+            getEscrowTransactions: ['escrow_transactions', 'get'],
+            addEscrowTransaction: ['escrow_transactions', 'add'],
+            updateEscrowTransaction: ['escrow_transactions', 'update'],
+            deleteEscrowTransaction: ['escrow_transactions', 'delete'],
             getTriggers: ['triggers', 'get'],
             getPortfolioMetrics: ['metrics', 'special'],
             getUserEmail: ['email', 'special']
@@ -453,6 +459,68 @@ const API = {
             return response.data;
         }
         throw new Error(response?.error || 'Failed to add tenant charge');
+    },
+
+    /**
+     * Get escrow transactions (optionally filtered by mortgage_id)
+     */
+    getEscrowTransactions: async (mortgageId) => {
+        const cached = Storage.getCache('escrow_transactions');
+        let data;
+        if (cached) {
+            data = cached;
+        } else {
+            const response = await API.call('getEscrowTransactions');
+            if (response && response.data) {
+                Storage.cache('escrow_transactions', response.data, 60000);
+                data = response.data;
+            } else {
+                data = [];
+            }
+        }
+        if (mortgageId) {
+            return data.filter(t => String(t.mortgage_id) === String(mortgageId));
+        }
+        return data;
+    },
+
+    /**
+     * Add escrow transaction
+     */
+    addEscrowTransaction: async (transactionData) => {
+        const response = await API.call('addEscrowTransaction', transactionData);
+        if (response && response.success) {
+            Storage.remove('escrow_transactions');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add escrow transaction');
+    },
+
+    /**
+     * Update escrow transaction
+     */
+    updateEscrowTransaction: async (transactionId, transactionData) => {
+        const response = await API.call('updateEscrowTransaction', {
+            id: transactionId,
+            ...transactionData
+        });
+        if (response && response.success) {
+            Storage.remove('escrow_transactions');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update escrow transaction');
+    },
+
+    /**
+     * Delete escrow transaction
+     */
+    deleteEscrowTransaction: async (transactionId) => {
+        const response = await API.call('deleteEscrowTransaction', { id: transactionId });
+        if (response && response.success) {
+            Storage.remove('escrow_transactions');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete escrow transaction');
     },
 
     /**

@@ -30,6 +30,17 @@ const Tenants = {
     },
 
     /**
+     * Calculate remaining months until lease end
+     */
+    getRemainingMonths: (leaseEndDate) => {
+        if (!leaseEndDate) return null;
+        const today = new Date();
+        const end = new Date(leaseEndDate);
+        const months = (end.getFullYear() - today.getFullYear()) * 12 + (end.getMonth() - today.getMonth());
+        return months;
+    },
+
+    /**
      * Load and display all tenants
      */
     loadTenants: async () => {
@@ -68,19 +79,43 @@ const Tenants = {
                                     `<span class="lease-warning">⚠️ Lease ending in ${daysUntilEnd} days</span>` :
                                     '';
 
+                                // Section 8 badge
+                                const isSection8 = tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on';
+                                const section8Badge = isSection8 ?
+                                    `<span class="badge-section8">Section 8</span>` : '';
+
+                                // Section 8 breakdown
+                                const section8Detail = isSection8 && tenant.section8_ha_amount ?
+                                    `<div class="detail">🏛️ HA: ${Formatting.currency(tenant.section8_ha_amount)} | Tenant: ${Formatting.currency(tenant.section8_tenant_amount || 0)}</div>` : '';
+
+                                // Remaining payments count
+                                const remainingMonths = Tenants.getRemainingMonths(tenant.lease_end_date);
+                                let remainingBadge = '';
+                                if (remainingMonths !== null) {
+                                    if (remainingMonths <= 0) {
+                                        remainingBadge = '<span class="remaining-count remaining-expired">⚠️ Lease expired</span>';
+                                    } else if (remainingMonths <= 3) {
+                                        remainingBadge = `<span class="remaining-count remaining-soon">🗓 ${remainingMonths} payments remaining</span>`;
+                                    } else {
+                                        remainingBadge = `<span class="remaining-count">🗓 ${remainingMonths} payments remaining</span>`;
+                                    }
+                                }
+
                                 return `
                                     <div class="tenant-card" data-id="${tenant.id}">
                                         <div class="tenant-header">
-                                            <div class="tenant-name">${tenant.name}</div>
+                                            <div class="tenant-name">${tenant.name} ${section8Badge}</div>
                                             <div class="tenant-status ${tenant.status}">${tenant.status}</div>
                                         </div>
                                         <div class="tenant-details">
                                             <div class="detail">📞 ${tenant.phone || 'N/A'}</div>
                                             <div class="detail">✉️ ${tenant.email || 'N/A'}</div>
                                             <div class="detail">💰 ${Formatting.currency(tenant.monthly_rent)}/month</div>
+                                            ${section8Detail}
                                             <div class="detail">📅 ${Formatting.date(tenant.lease_start_date)} - ${Formatting.date(tenant.lease_end_date)}</div>
                                             ${tenant.security_deposit ? `<div class="detail">🔒 Deposit: ${Formatting.currency(tenant.security_deposit)}</div>` : ''}
                                         </div>
+                                        ${remainingBadge}
                                         ${statusBadge}
                                         <div class="tenant-actions">
                                             <button class="edit-btn" data-id="${tenant.id}">Edit</button>
@@ -119,8 +154,48 @@ const Tenants = {
             Tenants.currentEditId = null;
             document.getElementById('tenants-form').reset();
             document.querySelector('#tenants-modal .modal-header h3').textContent = 'Add Tenant';
+            // Reset Section 8 fields
+            document.getElementById('section8-fields')?.classList.add('hidden');
+            document.getElementById('tenant-is-section8').checked = false;
             UI.modal.show('tenants-modal');
         });
+
+        // Section 8 toggle
+        document.getElementById('tenant-is-section8')?.addEventListener('change', (e) => {
+            const fields = document.getElementById('section8-fields');
+            if (e.target.checked) {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        });
+
+        // Auto-calculate Section 8 split when monthly rent or HA amount changes
+        const rentInput = document.getElementById('tenant-monthly-rent');
+        const haInput = document.getElementById('tenant-section8-ha');
+        const tenantPayInput = document.getElementById('tenant-section8-tenant');
+
+        if (haInput && tenantPayInput && rentInput) {
+            haInput.addEventListener('input', () => {
+                const rent = parseFloat(rentInput.value) || 0;
+                const ha = parseFloat(haInput.value) || 0;
+                tenantPayInput.value = Math.max(0, rent - ha).toFixed(2);
+            });
+
+            tenantPayInput.addEventListener('input', () => {
+                const rent = parseFloat(rentInput.value) || 0;
+                const tenantPay = parseFloat(tenantPayInput.value) || 0;
+                haInput.value = Math.max(0, rent - tenantPay).toFixed(2);
+            });
+
+            rentInput.addEventListener('input', () => {
+                if (document.getElementById('tenant-is-section8').checked && haInput.value) {
+                    const rent = parseFloat(rentInput.value) || 0;
+                    const ha = parseFloat(haInput.value) || 0;
+                    tenantPayInput.value = Math.max(0, rent - ha).toFixed(2);
+                }
+            });
+        }
 
         // Close modal
         document.querySelector('#tenants-modal .close-btn')?.addEventListener('click', () => {
@@ -161,6 +236,22 @@ const Tenants = {
             form.querySelector('[name="security_deposit"]').value = tenant.security_deposit || '';
             form.querySelector('[name="status"]').value = tenant.status || 'active';
 
+            // Section 8 fields
+            const isSection8 = tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on';
+            const section8Checkbox = document.getElementById('tenant-is-section8');
+            const section8Fields = document.getElementById('section8-fields');
+            section8Checkbox.checked = isSection8;
+
+            if (isSection8) {
+                section8Fields.classList.remove('hidden');
+                document.getElementById('tenant-section8-ha').value = tenant.section8_ha_amount || '';
+                document.getElementById('tenant-section8-tenant').value = tenant.section8_tenant_amount || '';
+            } else {
+                section8Fields.classList.add('hidden');
+                document.getElementById('tenant-section8-ha').value = '';
+                document.getElementById('tenant-section8-tenant').value = '';
+            }
+
             document.querySelector('#tenants-modal .modal-header h3').textContent = 'Edit Tenant';
             UI.modal.show('tenants-modal');
         } catch (error) {
@@ -196,6 +287,15 @@ const Tenants = {
             if (new Date(data.lease_start_date) >= new Date(data.lease_end_date)) {
                 UI.showToast('Lease start date must be before end date', 'error');
                 return;
+            }
+
+            // Handle Section 8 checkbox (FormData doesn't include unchecked)
+            const isSection8 = document.getElementById('tenant-is-section8').checked;
+            data.is_section8 = isSection8 ? 'true' : 'false';
+
+            if (!isSection8) {
+                data.section8_ha_amount = '';
+                data.section8_tenant_amount = '';
             }
 
             if (Tenants.currentEditId) {

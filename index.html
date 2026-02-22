@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PropertyHub - Real Estate Portfolio Management</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=11">
 </head>
 <body>
     <div class="app-container">
@@ -236,7 +236,10 @@
                 <div id="properties-view" class="view">
                     <div class="view-header">
                         <h3>All Properties</h3>
-                        <button class="btn-primary" id="new-property-btn">+ New Property</button>
+                        <div class="view-header-actions">
+                            <button class="btn-secondary" id="import-closing-btn">📄 Import from Closing Doc</button>
+                            <button class="btn-primary" id="new-property-btn">+ New Property</button>
+                        </div>
                     </div>
 
                     <div id="properties-list" class="properties-list">
@@ -390,6 +393,38 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Import Closing Document Modal -->
+                    <div id="import-closing-modal" class="modal hidden">
+                        <div class="modal-content modal-wide">
+                            <div class="modal-header">
+                                <h3>📄 Import from Closing Document</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+
+                            <!-- Step 1: Paste -->
+                            <div id="import-step-paste" class="import-step">
+                                <p class="import-instructions">
+                                    Open your closing document (HUD-1 or Closing Disclosure) PDF, select all text (Ctrl+A / Cmd+A), copy it, and paste it below.
+                                </p>
+                                <textarea id="closing-doc-text" class="paste-area" placeholder="Paste your closing document text here...&#10;&#10;Supports: HUD-1, Closing Disclosure, Settlement Statements&#10;&#10;Tip: Open the PDF → Ctrl+A → Ctrl+C → paste here"></textarea>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-primary" id="extract-data-btn">Extract Data</button>
+                                    <button type="button" class="btn-secondary import-cancel-btn">Cancel</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Preview extracted data -->
+                            <div id="import-step-preview" class="import-step hidden">
+                                <div class="import-summary" id="import-summary"></div>
+                                <div class="parsed-preview" id="parsed-preview"></div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-primary" id="fill-form-btn">Fill Form & Review</button>
+                                    <button type="button" class="btn-secondary" id="try-again-btn">Try Again</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mortgages View -->
@@ -460,6 +495,49 @@
                                 <div class="form-actions">
                                     <button type="submit" class="btn-primary">Save Mortgage</button>
                                     <button type="button" class="btn-secondary" id="cancel-mortgage">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Escrow Transaction Modal -->
+                    <div id="escrow-transaction-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Add Escrow Transaction</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="escrow-transaction-form" class="form">
+                                <input type="hidden" name="mortgage_id">
+                                <input type="hidden" name="property_id">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Date *</label>
+                                        <input type="date" name="date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Type *</label>
+                                        <select name="type" required>
+                                            <option value="deposit">Deposit (Monthly Payment)</option>
+                                            <option value="tax_payment">Tax Payment (Disbursement)</option>
+                                            <option value="insurance_payment">Insurance Payment (Disbursement)</option>
+                                            <option value="refund">Refund</option>
+                                            <option value="adjustment">Adjustment</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Amount *</label>
+                                        <input type="number" name="amount" step="0.01" min="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" name="description" placeholder="e.g. Monthly escrow deposit">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Transaction</button>
+                                    <button type="button" class="btn-secondary" id="cancel-escrow-transaction">Cancel</button>
                                 </div>
                             </form>
                         </div>
@@ -745,11 +823,30 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Monthly Rent *</label>
-                                        <input type="number" name="monthly_rent" step="0.01" required>
+                                        <input type="number" name="monthly_rent" id="tenant-monthly-rent" step="0.01" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Security Deposit</label>
                                         <input type="number" name="security_deposit" step="0.01">
+                                    </div>
+                                </div>
+
+                                <!-- Section 8 Toggle -->
+                                <div class="form-group">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="tenant-is-section8" name="is_section8"> Section 8 Voucher
+                                    </label>
+                                </div>
+                                <div id="section8-fields" class="hidden">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Housing Authority Portion</label>
+                                            <input type="number" id="tenant-section8-ha" name="section8_ha_amount" step="0.01" placeholder="0.00">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tenant Self-Pay Portion</label>
+                                            <input type="number" id="tenant-section8-tenant" name="section8_tenant_amount" step="0.01" placeholder="0.00">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -807,22 +904,43 @@
 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Amount *</label>
+                                        <label>Expected Amount *</label>
                                         <input type="number" id="payment-amount" name="amount" step="0.01" required>
                                     </div>
+                                    <div class="form-group">
+                                        <label>Amount Paid</label>
+                                        <input type="number" id="payment-amount-paid" name="amount_paid" step="0.01" placeholder="Full amount if left blank">
+                                    </div>
+                                </div>
+
+                                <!-- Section 8 Split Fields (shown for Section 8 tenants) -->
+                                <div id="payment-section8-fields" class="hidden">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Housing Authority Payment</label>
+                                            <input type="number" id="payment-ha-paid" name="ha_paid" step="0.01" placeholder="0.00">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tenant Payment</label>
+                                            <input type="number" id="payment-tenant-paid" name="tenant_paid" step="0.01" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
                                     <div class="form-group">
                                         <label>Status</label>
                                         <select id="payment-status" name="status">
                                             <option value="pending">Pending</option>
                                             <option value="paid">Paid</option>
+                                            <option value="partial">Partial</option>
                                             <option value="late">Late</option>
                                         </select>
                                     </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Paid Date (if paid)</label>
-                                    <input type="date" id="payment-paid-date" name="paid_date">
+                                    <div class="form-group">
+                                        <label>Paid Date (if paid)</label>
+                                        <input type="date" id="payment-paid-date" name="paid_date">
+                                    </div>
                                 </div>
 
                                 <div class="form-actions">
@@ -961,6 +1079,36 @@
                                 <div class="form-group">
                                     <label>Assigned To</label>
                                     <input type="text" name="assigned_to" placeholder="Optional: person name">
+                                </div>
+
+                                <!-- Recurring Task Toggle -->
+                                <div class="form-group">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="task-is-recurring" name="is_recurring"> Recurring Task
+                                    </label>
+                                </div>
+                                <div id="recurring-fields" class="hidden">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Repeat Every</label>
+                                            <select id="task-recurrence-type" name="recurrence_type">
+                                                <option value="monthly">Monthly</option>
+                                                <option value="quarterly">Every 3 Months</option>
+                                                <option value="semi-annual">Every 6 Months</option>
+                                                <option value="annual">Annually</option>
+                                                <option value="custom">Custom (days)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group hidden" id="custom-interval-group">
+                                            <label>Every N Days</label>
+                                            <input type="number" id="task-recurrence-interval" name="recurrence_interval" min="1" placeholder="e.g. 14">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>End Date (optional)</label>
+                                        <input type="date" id="task-recurrence-end" name="recurrence_end_date">
+                                        <span class="field-hint">Leave blank to repeat forever</span>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -1274,17 +1422,17 @@
     <script src="js/storage.js"></script>
     <script src="js/utils/calculations.js"></script>
     <script src="js/utils/reports.js"></script>
-    <script src="js/api.js"></script>
+    <script src="js/api.js?v=11"></script>
     <script src="js/modules/dashboard.js"></script>
-    <script src="js/modules/properties.js"></script>
+    <script src="js/modules/properties.js?v=12"></script>
     <script src="js/modules/mortgages.js"></script>
     <script src="js/modules/expenses.js"></script>
     <script src="js/modules/utilities.js"></script>
     <script src="js/modules/contacts.js"></script>
-    <script src="js/modules/tenants.js"></script>
-    <script src="js/modules/rent_payments.js"></script>
+    <script src="js/modules/tenants.js?v=11"></script>
+    <script src="js/modules/rent_payments.js?v=12"></script>
     <script src="js/modules/insurance.js"></script>
-    <script src="js/modules/tasks.js"></script>
+    <script src="js/modules/tasks.js?v=11"></script>
     <script src="js/modules/analytics.js"></script>
     <script src="js/modules/refinance.js"></script>
     <script src="js/modules/financial_decisions.js"></script>

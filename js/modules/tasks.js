@@ -30,6 +30,36 @@ const Tasks = {
     },
 
     /**
+     * Calculate next due date based on recurrence type
+     */
+    getNextDueDate: (currentDue, recurrenceType, interval) => {
+        const d = new Date(currentDue);
+        switch (recurrenceType) {
+            case 'monthly': d.setMonth(d.getMonth() + 1); break;
+            case 'quarterly': d.setMonth(d.getMonth() + 3); break;
+            case 'semi-annual': d.setMonth(d.getMonth() + 6); break;
+            case 'annual': d.setFullYear(d.getFullYear() + 1); break;
+            case 'custom': d.setDate(d.getDate() + (parseInt(interval) || 30)); break;
+            default: d.setMonth(d.getMonth() + 1); break;
+        }
+        return d.toISOString().split('T')[0];
+    },
+
+    /**
+     * Get recurrence label for display
+     */
+    getRecurrenceLabel: (recurrenceType) => {
+        const labels = {
+            'monthly': 'Monthly',
+            'quarterly': 'Quarterly',
+            'semi-annual': 'Semi-Annual',
+            'annual': 'Annual',
+            'custom': 'Custom'
+        };
+        return labels[recurrenceType] || recurrenceType;
+    },
+
+    /**
      * Load and display all tasks
      */
     loadTasks: async () => {
@@ -97,10 +127,15 @@ const Tasks = {
                     const categoryLabel = categoryLabels[task.category] || task.category;
                     const categoryColor = categoryColors[task.category] || '#8E8E93';
 
+                    // Recurring badge
+                    const isRecurring = task.is_recurring === true || task.is_recurring === 'true' || task.is_recurring === 'on';
+                    const recurringBadge = isRecurring ?
+                        `<span class="badge-recurring">🔄 ${Tasks.getRecurrenceLabel(task.recurrence_type)}</span>` : '';
+
                     return `
                         <div class="task-card" data-id="${task.id}">
                             <div class="task-header">
-                                <div class="task-title">${task.title}</div>
+                                <div class="task-title">${task.title} ${recurringBadge}</div>
                                 <span class="category-badge" style="background-color: ${categoryColor}">${categoryLabel}</span>
                             </div>
                             <div class="task-details">
@@ -182,7 +217,31 @@ const Tasks = {
             document.getElementById('task-form').reset();
             document.querySelector('[name="status"][value="pending"]').checked = true;
             document.querySelector('#task-modal .modal-header h3').textContent = 'Add Task';
+            // Reset recurring fields
+            document.getElementById('recurring-fields')?.classList.add('hidden');
+            document.getElementById('custom-interval-group')?.classList.add('hidden');
+            document.getElementById('task-is-recurring').checked = false;
             UI.modal.show('task-modal');
+        });
+
+        // Recurring task toggle
+        document.getElementById('task-is-recurring')?.addEventListener('change', (e) => {
+            const fields = document.getElementById('recurring-fields');
+            if (e.target.checked) {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        });
+
+        // Custom interval toggle
+        document.getElementById('task-recurrence-type')?.addEventListener('change', (e) => {
+            const customGroup = document.getElementById('custom-interval-group');
+            if (e.target.value === 'custom') {
+                customGroup.classList.remove('hidden');
+            } else {
+                customGroup.classList.add('hidden');
+            }
         });
 
         // Close modal
@@ -221,6 +280,30 @@ const Tasks = {
             form.querySelector('[name="assigned_to"]').value = task.assigned_to || '';
             form.querySelector(`[name="status"][value="${task.status}"]`).checked = true;
 
+            // Recurring fields
+            const isRecurring = task.is_recurring === true || task.is_recurring === 'true' || task.is_recurring === 'on';
+            const recurringCheckbox = document.getElementById('task-is-recurring');
+            const recurringFields = document.getElementById('recurring-fields');
+            const customGroup = document.getElementById('custom-interval-group');
+
+            recurringCheckbox.checked = isRecurring;
+
+            if (isRecurring) {
+                recurringFields.classList.remove('hidden');
+                document.getElementById('task-recurrence-type').value = task.recurrence_type || 'monthly';
+                document.getElementById('task-recurrence-interval').value = task.recurrence_interval || '';
+                document.getElementById('task-recurrence-end').value = task.recurrence_end_date || '';
+
+                if (task.recurrence_type === 'custom') {
+                    customGroup.classList.remove('hidden');
+                } else {
+                    customGroup.classList.add('hidden');
+                }
+            } else {
+                recurringFields.classList.add('hidden');
+                customGroup.classList.add('hidden');
+            }
+
             document.querySelector('#task-modal .modal-header h3').textContent = 'Edit Task';
             UI.modal.show('task-modal');
         } catch (error) {
@@ -253,6 +336,16 @@ const Tasks = {
                 return;
             }
 
+            // Handle recurring checkbox (FormData doesn't include unchecked)
+            const isRecurring = document.getElementById('task-is-recurring').checked;
+            data.is_recurring = isRecurring ? 'true' : 'false';
+
+            if (!isRecurring) {
+                data.recurrence_type = '';
+                data.recurrence_interval = '';
+                data.recurrence_end_date = '';
+            }
+
             if (Tasks.currentEditId) {
                 // Update
                 await API.updateTask(Tasks.currentEditId, data);
@@ -272,7 +365,7 @@ const Tasks = {
     },
 
     /**
-     * Complete task (mark as completed without editing)
+     * Complete task (mark as completed, and auto-create next if recurring)
      */
     completeTask: async (taskId) => {
         try {
@@ -281,8 +374,44 @@ const Tasks = {
 
             if (!task) return;
 
+            // Mark current task as completed
             await API.updateTask(taskId, { status: 'completed' });
-            UI.showToast('Task marked as completed', 'success');
+
+            // Check if recurring — create next occurrence
+            const isRecurring = task.is_recurring === true || task.is_recurring === 'true' || task.is_recurring === 'on';
+
+            if (isRecurring && task.recurrence_type) {
+                const nextDueDate = Tasks.getNextDueDate(task.due_date, task.recurrence_type, task.recurrence_interval);
+
+                // Check if next date is within end date (or no end date set)
+                const withinEndDate = !task.recurrence_end_date || new Date(nextDueDate) <= new Date(task.recurrence_end_date);
+
+                if (withinEndDate) {
+                    const newTask = {
+                        property_id: task.property_id,
+                        title: task.title,
+                        category: task.category,
+                        due_date: nextDueDate,
+                        assigned_to: task.assigned_to || '',
+                        status: 'pending',
+                        is_recurring: 'true',
+                        recurrence_type: task.recurrence_type,
+                        recurrence_interval: task.recurrence_interval || '',
+                        recurrence_end_date: task.recurrence_end_date || '',
+                        parent_task_id: task.parent_task_id || taskId
+                    };
+
+                    await API.addTask(newTask);
+
+                    const nextLabel = new Date(nextDueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    UI.showToast(`✓ Task completed. Next occurrence created for ${nextLabel}`, 'success');
+                } else {
+                    UI.showToast('✓ Task completed. Recurring series ended (past end date).', 'success');
+                }
+            } else {
+                UI.showToast('Task marked as completed', 'success');
+            }
+
             await Tasks.loadTasks();
         } catch (error) {
             console.error('Error completing task:', error);

@@ -8,8 +8,45 @@ const RentPayments = {
      * Initialize rent payments module
      */
     init: async () => {
+        await RentPayments.populateAllTenants();
         await RentPayments.loadRentPayments();
         RentPayments.setupEventListeners();
+    },
+
+    /**
+     * Populate tenant dropdown with all active tenants
+     */
+    populateAllTenants: async () => {
+        try {
+            const tenants = await API.getTenants();
+            const properties = await API.getProperties();
+            const select = document.getElementById('payment-tenant-select');
+            if (!select) return;
+
+            const options = tenants
+                .filter(t => t.status === 'active')
+                .map(t => {
+                    const prop = properties.find(p => String(p.id) === String(t.property_id));
+                    const addr = prop ? ` (${prop.address})` : '';
+                    const s8 = (t.is_section8 === true || t.is_section8 === 'true' || t.is_section8 === 'on') ? ' [S8]' : '';
+                    return `<option value="${t.id}" data-rent="${t.monthly_rent}">${t.name}${s8}${addr}</option>`;
+                }).join('');
+
+            select.innerHTML = '<option value="">Select tenant...</option>' + options;
+        } catch (error) {
+            console.error('Error populating tenant select:', error);
+        }
+    },
+
+    /**
+     * Calculate remaining months until lease end
+     */
+    getRemainingMonths: (leaseEndDate) => {
+        if (!leaseEndDate) return null;
+        const today = new Date();
+        const end = new Date(leaseEndDate);
+        const months = (end.getFullYear() - today.getFullYear()) * 12 + (end.getMonth() - today.getMonth());
+        return months;
     },
 
     /**
@@ -45,6 +82,7 @@ const RentPayments = {
                 let totalReceived = 0;
                 let totalOutstanding = 0;
                 let lateCount = 0;
+                let partialCount = 0;
 
                 const paymentRows = monthPayments.map(payment => {
                     const tenant = tenants.find(t => String(t.id) === String(payment.tenant_id));
@@ -53,7 +91,15 @@ const RentPayments = {
                     const tenantName = tenant ? tenant.name : 'Unknown';
                     const propertyAddress = property ? property.address : 'Unknown';
 
+                    // Check if tenant is Section 8
+                    const isSection8 = tenant && (tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on');
+
                     totalExpected += payment.amount;
+
+                    // Calculate actual amount received
+                    const amountPaid = payment.amount_paid !== undefined && payment.amount_paid !== '' && payment.amount_paid !== null
+                        ? parseFloat(payment.amount_paid)
+                        : (payment.status === 'paid' ? payment.amount : 0);
 
                     let statusBadge = '';
                     let statusClass = 'status-' + payment.status;
@@ -61,6 +107,11 @@ const RentPayments = {
                     if (payment.status === 'paid') {
                         statusBadge = '✓ PAID';
                         totalReceived += payment.amount;
+                    } else if (payment.status === 'partial') {
+                        statusBadge = `⚡ PARTIAL`;
+                        totalReceived += amountPaid;
+                        totalOutstanding += (payment.amount - amountPaid);
+                        partialCount++;
                     } else if (payment.status === 'pending') {
                         statusBadge = '⏳ PENDING';
                         totalOutstanding += payment.amount;
@@ -70,11 +121,53 @@ const RentPayments = {
                         lateCount++;
                     }
 
+                    // Partial payment display
+                    let amountDisplay = Formatting.currency(payment.amount);
+                    if (payment.status === 'partial' && amountPaid > 0) {
+                        amountDisplay = `<span class="partial-amount">${Formatting.currency(amountPaid)} / ${Formatting.currency(payment.amount)}</span>`;
+                    }
+
+                    // Section 8 split display
+                    let section8Display = '';
+                    if (isSection8) {
+                        const haPaid = payment.ha_paid !== undefined && payment.ha_paid !== '' ? parseFloat(payment.ha_paid) : null;
+                        const tenantPaid = payment.tenant_paid !== undefined && payment.tenant_paid !== '' ? parseFloat(payment.tenant_paid) : null;
+                        const haExpected = tenant.section8_ha_amount || 0;
+                        const tenantExpected = tenant.section8_tenant_amount || 0;
+
+                        if (haPaid !== null || tenantPaid !== null) {
+                            const haStatus = haPaid >= haExpected ? '✓' : '✗';
+                            const tenantStatus = tenantPaid >= tenantExpected ? '✓' : '✗';
+                            section8Display = `
+                                <div class="payment-split">
+                                    <span class="split-item ${haPaid >= haExpected ? 'split-paid' : 'split-unpaid'}">HA: ${Formatting.currency(haPaid || 0)} ${haStatus}</span>
+                                    <span class="split-divider">|</span>
+                                    <span class="split-item ${tenantPaid >= tenantExpected ? 'split-paid' : 'split-unpaid'}">Tenant: ${Formatting.currency(tenantPaid || 0)} ${tenantStatus}</span>
+                                </div>`;
+                        }
+                    }
+
+                    // Remaining payments for this tenant
+                    const remainingMonths = tenant ? RentPayments.getRemainingMonths(tenant.lease_end_date) : null;
+                    let remainingDisplay = '';
+                    if (remainingMonths !== null) {
+                        if (remainingMonths <= 0) {
+                            remainingDisplay = '<span class="remaining-count remaining-expired" title="Lease expired">⚠️</span>';
+                        } else if (remainingMonths <= 3) {
+                            remainingDisplay = `<span class="remaining-count remaining-soon" title="${remainingMonths} payments remaining">🗓${remainingMonths}</span>`;
+                        } else {
+                            remainingDisplay = `<span class="remaining-count" title="${remainingMonths} payments remaining">🗓${remainingMonths}</span>`;
+                        }
+                    }
+
+                    // Section 8 badge
+                    const s8Badge = isSection8 ? '<span class="badge-section8 badge-small">S8</span>' : '';
+
                     return `
                         <tr data-id="${payment.id}">
-                            <td>${tenantName}</td>
+                            <td>${tenantName} ${s8Badge} ${remainingDisplay}</td>
                             <td>${propertyAddress}</td>
-                            <td>${Formatting.currency(payment.amount)}</td>
+                            <td>${amountDisplay}${section8Display}</td>
                             <td class="${statusClass}"><span class="status-badge">${statusBadge}</span></td>
                             <td>${payment.paid_date ? Formatting.date(payment.paid_date) : '-'}</td>
                             <td class="payment-actions">
@@ -93,6 +186,7 @@ const RentPayments = {
                                 <span class="stat">Expected: ${Formatting.currency(totalExpected)}</span>
                                 <span class="stat received">Received: ${Formatting.currency(totalReceived)}</span>
                                 ${totalOutstanding > 0 ? `<span class="stat outstanding">Outstanding: ${Formatting.currency(totalOutstanding)}</span>` : ''}
+                                ${partialCount > 0 ? `<span class="stat partial">⚡ ${partialCount} Partial</span>` : ''}
                                 ${lateCount > 0 ? `<span class="stat late">⚠️ ${lateCount} Late</span>` : ''}
                             </div>
                         </div>
@@ -136,13 +230,17 @@ const RentPayments = {
      */
     setupEventListeners: () => {
         // Record payment button
-        document.getElementById('record-payment-btn')?.addEventListener('click', () => {
+        document.getElementById('record-payment-btn')?.addEventListener('click', async () => {
             RentPayments.currentEditId = null;
             document.getElementById('rent-payment-form').reset();
             document.querySelector('#rent-payment-modal .modal-header h3').textContent = 'Record Payment';
 
             // Set default month to current month
             document.getElementById('payment-month').value = RentPayments.currentMonth;
+
+            // Refresh tenant list and hide Section 8 fields by default
+            await RentPayments.populateAllTenants();
+            document.getElementById('payment-section8-fields')?.classList.add('hidden');
 
             UI.modal.show('rent-payment-modal');
         });
@@ -162,18 +260,76 @@ const RentPayments = {
             RentPayments.savePayment();
         });
 
-        // Tenant change - auto-fill amount
+        // Tenant change - auto-fill amount and show Section 8 fields if applicable
         document.getElementById('payment-tenant-select')?.addEventListener('change', async (e) => {
             if (e.target.value) {
                 try {
                     const tenants = await API.getTenants();
                     const tenant = tenants.find(t => String(t.id) === String(e.target.value));
-                    if (tenant && !document.getElementById('payment-amount').value) {
+                    if (tenant) {
+                        // Auto-fill expected amount
                         document.getElementById('payment-amount').value = tenant.monthly_rent || '';
+
+                        // Check if Section 8 tenant
+                        const isSection8 = tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on';
+                        const section8Fields = document.getElementById('payment-section8-fields');
+
+                        if (isSection8 && section8Fields) {
+                            section8Fields.classList.remove('hidden');
+                            document.getElementById('payment-ha-paid').value = tenant.section8_ha_amount || '';
+                            document.getElementById('payment-tenant-paid').value = tenant.section8_tenant_amount || '';
+                            // Auto-calculate amount_paid from HA + tenant
+                            const ha = parseFloat(tenant.section8_ha_amount) || 0;
+                            const tp = parseFloat(tenant.section8_tenant_amount) || 0;
+                            if (ha + tp > 0) {
+                                const amountPaidField = document.getElementById('payment-amount-paid');
+                                amountPaidField.value = (ha + tp).toFixed(2);
+                            }
+                        } else if (section8Fields) {
+                            section8Fields.classList.add('hidden');
+                            document.getElementById('payment-ha-paid').value = '';
+                            document.getElementById('payment-tenant-paid').value = '';
+                        }
                     }
                 } catch (error) {
                     console.error('Error fetching tenant:', error);
                 }
+            } else {
+                // No tenant selected, hide Section 8 fields
+                document.getElementById('payment-section8-fields')?.classList.add('hidden');
+            }
+        });
+
+        // Auto-calculate amount_paid from HA + tenant split
+        const haPaidInput = document.getElementById('payment-ha-paid');
+        const tenantPaidInput = document.getElementById('payment-tenant-paid');
+
+        if (haPaidInput && tenantPaidInput) {
+            const updateAmountPaid = () => {
+                const ha = parseFloat(haPaidInput.value) || 0;
+                const tp = parseFloat(tenantPaidInput.value) || 0;
+                const total = ha + tp;
+                if (total > 0) {
+                    const amountPaidField = document.getElementById('payment-amount-paid');
+                    amountPaidField.value = total.toFixed(2);
+                    // Trigger auto-status detection
+                    amountPaidField.dispatchEvent(new Event('input'));
+                }
+            };
+            haPaidInput.addEventListener('input', updateAmountPaid);
+            tenantPaidInput.addEventListener('input', updateAmountPaid);
+        }
+
+        // Auto-set status to partial when amount_paid < amount
+        document.getElementById('payment-amount-paid')?.addEventListener('input', () => {
+            const expected = parseFloat(document.getElementById('payment-amount').value) || 0;
+            const paid = parseFloat(document.getElementById('payment-amount-paid').value) || 0;
+            const statusSelect = document.getElementById('payment-status');
+
+            if (paid > 0 && paid < expected) {
+                statusSelect.value = 'partial';
+            } else if (paid >= expected && paid > 0) {
+                statusSelect.value = 'paid';
             }
         });
     },
@@ -214,8 +370,23 @@ const RentPayments = {
             // Populate form
             document.getElementById('payment-month').value = payment.month || '';
             document.getElementById('payment-amount').value = payment.amount || '';
+            document.getElementById('payment-amount-paid').value = payment.amount_paid || '';
             document.getElementById('payment-status').value = payment.status || 'pending';
             document.getElementById('payment-paid-date').value = payment.paid_date || '';
+
+            // Section 8 fields
+            const tenants = await API.getTenants();
+            const tenant = tenants.find(t => String(t.id) === String(payment.tenant_id));
+            const isSection8 = tenant && (tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on');
+            const section8Fields = document.getElementById('payment-section8-fields');
+
+            if (isSection8 && section8Fields) {
+                section8Fields.classList.remove('hidden');
+                document.getElementById('payment-ha-paid').value = payment.ha_paid || '';
+                document.getElementById('payment-tenant-paid').value = payment.tenant_paid || '';
+            } else if (section8Fields) {
+                section8Fields.classList.add('hidden');
+            }
 
             // Set tenant after property is set
             await RentPayments.populateTenantSelect(payment.property_id);
@@ -237,8 +408,14 @@ const RentPayments = {
             const month = document.getElementById('payment-month').value;
             const tenantId = document.getElementById('payment-tenant-select').value;
             const amount = parseFloat(document.getElementById('payment-amount').value);
+            const amountPaidRaw = document.getElementById('payment-amount-paid').value;
+            const amountPaid = amountPaidRaw ? parseFloat(amountPaidRaw) : null;
             const status = document.getElementById('payment-status').value;
             const paidDate = document.getElementById('payment-paid-date').value;
+
+            // Section 8 fields
+            const haPaidRaw = document.getElementById('payment-ha-paid').value;
+            const tenantPaidRaw = document.getElementById('payment-tenant-paid').value;
 
             if (!month) {
                 UI.showToast('Please select a month', 'error');
@@ -270,8 +447,11 @@ const RentPayments = {
                 tenant_id: tenantId,
                 property_id: propertyId,
                 amount: amount,
+                amount_paid: amountPaid !== null ? amountPaid : (status === 'paid' ? amount : ''),
                 status: status,
-                paid_date: paidDate
+                paid_date: paidDate,
+                ha_paid: haPaidRaw || '',
+                tenant_paid: tenantPaidRaw || ''
             };
 
             if (RentPayments.currentEditId) {

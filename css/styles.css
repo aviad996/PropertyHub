@@ -635,6 +635,127 @@ html, body {
     background-color: #dc2626;
 }
 
+/* Escrow Account Section */
+.escrow-account-section {
+    margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.escrow-balance-card {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+
+.escrow-balance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.escrow-balance-header strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.escrow-balance-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.escrow-balance-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.escrow-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 4px 10px;
+    font-size: 11px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--primary-light);
+    color: white;
+    transition: var(--transition);
+}
+
+.btn-small:hover {
+    background: var(--primary-color);
+}
+
+.btn-small.btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary-light);
+    color: var(--primary-light);
+}
+
+.btn-small.btn-outline:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.escrow-transactions-wrapper {
+    margin-top: 12px;
+}
+
+.escrow-transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.escrow-transactions-table th {
+    text-align: left;
+    padding: 6px 8px;
+    background: rgba(59, 130, 246, 0.05);
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.escrow-transactions-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.escrow-deposit {
+    color: #22c55e !important;
+    font-weight: 600;
+}
+
+.escrow-disbursement {
+    color: #ef4444 !important;
+    font-weight: 600;
+}
+
+.escrow-delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.escrow-delete-btn:hover {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.1);
+}
+
 /* View Header */
 .view-header {
     display: flex;
@@ -8184,5 +8305,294 @@ html, body {
     .form-group select option {
         background-color: #0f172a;
         color: #ffffff;
+    }
+
+    /* Import modal dark mode */
+    .paste-area {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border-color: #475569 !important;
+    }
+    .paste-area::placeholder {
+        color: #94a3b8 !important;
+    }
+    .import-instructions {
+        color: #d1d5db !important;
+    }
+    .import-summary {
+        color: #d1d5db !important;
+    }
+    .preview-row {
+        border-bottom-color: #374151 !important;
+    }
+    .preview-row.not-found .preview-value {
+        color: #6b7280 !important;
+    }
+    .preview-status {
+        color: #6b7280 !important;
+    }
+    .preview-row.found .preview-status {
+        color: #10b981 !important;
+    }
+}
+
+/* =====================================================
+   Import from Closing Document
+   ===================================================== */
+
+.view-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.modal-wide {
+    max-width: 700px;
+}
+
+.import-step {
+    padding: 20px;
+}
+
+.import-step.hidden {
+    display: none;
+}
+
+.import-instructions {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.paste-area {
+    width: 100%;
+    min-height: 250px;
+    padding: 15px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    margin-bottom: 15px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.paste-area:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    border-style: solid;
+}
+
+.paste-area::placeholder {
+    color: var(--text-tertiary);
+}
+
+.import-summary {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.import-summary strong {
+    color: var(--primary-color);
+}
+
+.parsed-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.preview-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+}
+
+.preview-row:last-child {
+    border-bottom: none;
+}
+
+.preview-label {
+    flex: 0 0 150px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.preview-value {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.preview-row.not-found .preview-value {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+.preview-status {
+    flex: 0 0 30px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--text-tertiary);
+}
+
+.preview-row.found .preview-status {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+/* ==================== Toggle Section Hidden State ==================== */
+#section8-fields.hidden,
+#payment-section8-fields.hidden,
+#recurring-fields.hidden,
+#custom-interval-group.hidden {
+    display: none;
+}
+
+/* ==================== Section 8 Badges ==================== */
+.badge-section8 {
+    display: inline-block;
+    background-color: #3b82f6;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.badge-section8.badge-small {
+    font-size: 10px;
+    padding: 1px 6px;
+    margin-left: 4px;
+}
+
+/* ==================== Partial Payment ==================== */
+.partial-amount {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.status-partial .status-badge {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.stat.partial {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+/* ==================== Section 8 Payment Split ==================== */
+.payment-split {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.split-item {
+    font-weight: 500;
+}
+
+.split-item.split-paid {
+    color: var(--success-color);
+}
+
+.split-item.split-unpaid {
+    color: var(--danger-color);
+}
+
+.split-divider {
+    color: var(--text-tertiary);
+}
+
+/* ==================== Remaining Payments Count ==================== */
+.remaining-count {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background-color: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 6px;
+    margin-left: 4px;
+}
+
+.remaining-count.remaining-soon {
+    color: var(--warning-color);
+    background-color: rgba(245, 158, 11, 0.1);
+    font-weight: 600;
+}
+
+.remaining-count.remaining-expired {
+    color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.1);
+    font-weight: 600;
+}
+
+/* ==================== Recurring Task Badge ==================== */
+.badge-recurring {
+    display: inline-block;
+    background-color: #8b5cf6;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+/* ==================== Dark Mode Overrides ==================== */
+@media (prefers-color-scheme: dark) {
+    .badge-section8 {
+        background-color: #2563eb;
+    }
+
+    .badge-recurring {
+        background-color: #7c3aed;
+    }
+
+    .remaining-count {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+    }
+
+    .remaining-count.remaining-soon {
+        background-color: rgba(245, 158, 11, 0.15);
+    }
+
+    .remaining-count.remaining-expired {
+        background-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .payment-split {
+        color: var(--text-secondary);
+    }
+
+    #section8-fields input,
+    #recurring-fields input,
+    #recurring-fields select,
+    #payment-section8-fields input {
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        border-color: var(--input-border);
     }
 }
