@@ -170,7 +170,7 @@ const API = {
         }
 
         try {
-            const url = `${CONFIG.gasUrl}?action=${functionName}`;
+            const url = `${CONFIG.gasUrl}?action=${functionName}&key=${CONFIG.apiKey || ''}`;
             const queryParams = new URLSearchParams(params).toString();
             const fullUrl = queryParams ? `${url}&${queryParams}` : url;
 
