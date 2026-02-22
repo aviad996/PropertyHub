@@ -307,7 +307,9 @@ const Properties = {
             form.querySelector('[name="state"]').value = property.state || '';
             form.querySelector('[name="zip"]').value = property.zip || '';
             form.querySelector('[name="purchase_price"]').value = property.purchase_price || '';
-            form.querySelector('[name="purchase_date"]').value = property.purchase_date || '';
+            // Format date for HTML date input (needs YYYY-MM-DD)
+            const rawDate = property.purchase_date || '';
+            form.querySelector('[name="purchase_date"]').value = rawDate ? rawDate.substring(0, 10) : '';
             form.querySelector('[name="current_value"]').value = property.current_value || '';
             form.querySelector('[name="closing_costs"]').value = property.closing_costs || '';
 
