@@ -1,5 +1,135 @@
 /* PropertyHub Styles */
 
+/* ===== PIN Lock Screen ===== */
+.pin-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.pin-screen.hidden {
+    display: none;
+}
+
+.pin-container {
+    text-align: center;
+    padding: 48px 40px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 340px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.pin-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+
+.pin-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+.pin-input-group {
+    margin-bottom: 8px;
+}
+
+.pin-input {
+    width: 200px;
+    padding: 16px 20px;
+    font-size: 28px;
+    text-align: center;
+    letter-spacing: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: monospace;
+}
+
+.pin-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.pin-input::placeholder {
+    letter-spacing: 10px;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 20px;
+}
+
+.pin-submit-btn {
+    display: block;
+    width: 200px;
+    margin: 20px auto 0;
+    padding: 14px;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.pin-submit-btn:hover {
+    background: #2563eb;
+}
+
+.pin-submit-btn:active {
+    transform: scale(0.98);
+}
+
+.pin-submit-btn:disabled {
+    background: #4b5563;
+    cursor: not-allowed;
+}
+
+.pin-error {
+    color: #f87171;
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+.pin-error.hidden {
+    display: none;
+}
+
+/* PIN screen mobile */
+@media (max-width: 480px) {
+    .pin-container {
+        min-width: auto;
+        width: 90%;
+        padding: 36px 24px;
+    }
+    .pin-input {
+        width: 180px;
+        font-size: 24px;
+        letter-spacing: 10px;
+    }
+    .pin-submit-btn {
+        width: 180px;
+    }
+}
+
 :root {
     --primary-color: #2563eb;
     --primary-dark: #1e40af;

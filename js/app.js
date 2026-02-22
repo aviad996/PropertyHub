@@ -3,7 +3,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('PropertyHub initializing...');
 
-    // Initialize app
+    // Check PIN authentication first
+    if (!Auth.init()) {
+        return; // PIN screen shown, wait for user to enter PIN
+    }
+
+    // PIN verified (or session still valid) - initialize app
     await App.init();
 });
 
