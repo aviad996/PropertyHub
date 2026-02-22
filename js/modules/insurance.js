@@ -155,11 +155,17 @@ const Insurance = {
      */
     setupEventListeners: () => {
         // New policy button
-        document.getElementById('new-insurance-btn')?.addEventListener('click', () => {
+        const openNewInsurance = () => {
             Insurance.currentEditId = null;
             document.getElementById('insurance-form').reset();
             document.querySelector('#insurance-modal .modal-header h3').textContent = 'Add Insurance Policy';
             UI.modal.show('insurance-modal');
+        };
+        document.getElementById('new-insurance-btn')?.addEventListener('click', openNewInsurance);
+
+        // Header add button
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.action === 'add-insurance') openNewInsurance();
         });
 
         // Close modal

@@ -121,11 +121,17 @@ const Contacts = {
      */
     setupEventListeners: () => {
         // New contact button
-        document.getElementById('new-contact-btn')?.addEventListener('click', () => {
+        const openNewContact = () => {
             Contacts.currentEditId = null;
             document.getElementById('contacts-form').reset();
             document.querySelector('#contacts-modal .modal-header h3').textContent = 'Add Contact';
             UI.modal.show('contacts-modal');
+        };
+        document.getElementById('new-contact-btn')?.addEventListener('click', openNewContact);
+
+        // Header add button
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.action === 'add-contact') openNewContact();
         });
 
         // Close modal

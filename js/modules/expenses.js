@@ -133,12 +133,18 @@ const Expenses = {
      */
     setupEventListeners: () => {
         // New expense button
-        document.getElementById('new-expense-btn')?.addEventListener('click', () => {
+        const openNewExpense = () => {
             Expenses.currentEditId = null;
             document.getElementById('expense-form')?.reset();
             document.querySelector('#expense-modal .modal-header h3').textContent = 'Add Expense';
             Expenses.populatePropertySelect();
             UI.modal.show('expense-modal');
+        };
+        document.getElementById('new-expense-btn')?.addEventListener('click', openNewExpense);
+
+        // Header add button
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.action === 'add-expense') openNewExpense();
         });
 
         // Close modal

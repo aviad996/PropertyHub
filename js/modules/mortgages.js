@@ -281,8 +281,9 @@ const Mortgages = {
         });
 
         // Also add listener to header add button
-        document.getElementById('add-item-btn')?.addEventListener('click', () => {
-            if (document.querySelector('[data-view="mortgages"]').classList.contains('active')) {
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            if (btn.dataset.action === 'add-mortgage') {
                 Mortgages.currentEditId = null;
                 document.getElementById('mortgage-form').reset();
                 document.querySelector('#mortgage-modal .modal-header h3').textContent = 'Add Mortgage';

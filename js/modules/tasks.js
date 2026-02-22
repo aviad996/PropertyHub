@@ -212,7 +212,7 @@ const Tasks = {
      */
     setupEventListeners: () => {
         // New task button
-        document.getElementById('new-task-btn')?.addEventListener('click', () => {
+        const openNewTask = () => {
             Tasks.currentEditId = null;
             document.getElementById('task-form').reset();
             document.querySelector('[name="status"][value="pending"]').checked = true;
@@ -222,6 +222,12 @@ const Tasks = {
             document.getElementById('custom-interval-group')?.classList.add('hidden');
             document.getElementById('task-is-recurring').checked = false;
             UI.modal.show('task-modal');
+        };
+        document.getElementById('new-task-btn')?.addEventListener('click', openNewTask);
+
+        // Header add button
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.action === 'add-task') openNewTask();
         });
 
         // Recurring task toggle

@@ -185,7 +185,7 @@ const Tenants = {
      */
     setupEventListeners: () => {
         // New tenant button
-        document.getElementById('new-tenant-btn')?.addEventListener('click', () => {
+        const openNewTenant = () => {
             Tenants.currentEditId = null;
             document.getElementById('tenants-form').reset();
             document.querySelector('#tenants-modal .modal-header h3').textContent = 'Add Tenant';
@@ -195,6 +195,12 @@ const Tenants = {
             // Reset unit selector
             document.getElementById('unit-select-group').style.display = 'none';
             UI.modal.show('tenants-modal');
+        };
+        document.getElementById('new-tenant-btn')?.addEventListener('click', openNewTenant);
+
+        // Header add button
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.action === 'add-tenant') openNewTenant();
         });
 
         // Property change → update unit selector

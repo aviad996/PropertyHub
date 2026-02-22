@@ -221,8 +221,9 @@ const Properties = {
         });
 
         // Also add listener to header add button
-        document.getElementById('add-item-btn')?.addEventListener('click', () => {
-            if (document.querySelector('[data-view="properties"]')?.classList.contains('active')) {
+        document.getElementById('add-item-btn')?.addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            if (btn.dataset.action === 'add-property') {
                 Properties.currentEditId = null;
                 Properties.resetForm();
                 document.querySelector('#property-modal .modal-header h3').textContent = 'Add Property';

@@ -901,18 +901,21 @@ const UI = {
 
         // Update button visibility
         const addBtn = document.getElementById('add-item-btn');
-        if (viewName === 'properties') {
+        const btnConfig = {
+            'dashboard':    { text: '+ New Property', action: 'add-property' },
+            'properties':   { text: '+ New Property', action: 'add-property' },
+            'mortgages':    { text: '+ New Mortgage', action: 'add-mortgage' },
+            'expenses':     { text: '+ New Expense',  action: 'add-expense' },
+            'tenants':      { text: '+ New Tenant',   action: 'add-tenant' },
+            'insurance':    { text: '+ New Policy',   action: 'add-insurance' },
+            'tasks':        { text: '+ New Task',     action: 'add-task' },
+            'contacts':     { text: '+ New Contact',  action: 'add-contact' }
+        };
+        const cfg = btnConfig[viewName];
+        if (cfg) {
             addBtn.style.display = '';
-            addBtn.textContent = '+ New Property';
-            addBtn.dataset.action = 'add-property';
-        } else if (viewName === 'mortgages') {
-            addBtn.style.display = '';
-            addBtn.textContent = '+ New Mortgage';
-            addBtn.dataset.action = 'add-mortgage';
-        } else if (viewName === 'expenses') {
-            addBtn.style.display = '';
-            addBtn.textContent = '+ New Expense';
-            addBtn.dataset.action = 'add-expense';
+            addBtn.textContent = cfg.text;
+            addBtn.dataset.action = cfg.action;
         } else {
             addBtn.style.display = 'none';
         }
