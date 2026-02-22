@@ -239,7 +239,15 @@ const Properties = {
                 if (!isVisible) {
                     // Showing breakdown — make total readonly (auto-summed)
                     if (totalEl) totalEl.readOnly = true;
-                    Properties.updateClosingCostsTotal();
+                    // Only auto-sum if breakdown fields have values
+                    const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
+                    const hasBreakdownValues = ccFields.some(f => {
+                        const el = document.querySelector(`[name="${f}"]`);
+                        return el && parseFloat(el.value) > 0;
+                    });
+                    if (hasBreakdownValues) {
+                        Properties.updateClosingCostsTotal();
+                    }
                 } else {
                     // Hiding breakdown — make total editable again
                     if (totalEl) totalEl.readOnly = false;
@@ -337,13 +345,17 @@ const Properties = {
         const form = document.getElementById('property-form');
         if (!form) return;
         const ccFields = ['cc_appraisal', 'cc_title', 'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_taxes', 'cc_other'];
+        let anyFieldHasValue = false;
         const total = ccFields.reduce((sum, f) => {
             const el = form.querySelector(`[name="${f}"]`);
-            return sum + (parseFloat(el?.value) || 0);
+            const val = parseFloat(el?.value) || 0;
+            if (val > 0) anyFieldHasValue = true;
+            return sum + val;
         }, 0);
         const totalEl = document.getElementById('closing-costs-total');
-        if (totalEl) {
-            totalEl.value = total > 0 ? total.toFixed(2) : '';
+        // Only overwrite total if at least one breakdown field has a value
+        if (totalEl && anyFieldHasValue) {
+            totalEl.value = total.toFixed(2);
         }
     },
 
