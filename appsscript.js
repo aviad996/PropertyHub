@@ -892,17 +892,26 @@ function deleteTenant(id) {
 
 function getRentPayments() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
-    const data = sheet.getDataRange().getValues();
+    const range = sheet.getDataRange();
+    const data = range.getValues();
+    const displayData = range.getDisplayValues();
     const headers = data[0];
     const rows = data.slice(1);
+    const displayRows = displayData.slice(1);
 
-    const payments = rows.map(row => {
+    // Numeric fields that Sheets may auto-convert to Date objects
+    const numericFields = ['amount', 'amount_paid', 'ha_paid', 'tenant_paid'];
+
+    const payments = rows.map((row, rowIdx) => {
         const obj = {};
         headers.forEach((header, index) => {
             let val = row[index];
-            // Normalize Date objects to strings
+            // Handle Date objects
             if (val instanceof Date) {
-                if (header === 'month') {
+                if (numericFields.indexOf(header) !== -1) {
+                    // Numeric field misinterpreted as date — use display value
+                    val = parseFloat(displayRows[rowIdx][index]) || 0;
+                } else if (header === 'month') {
                     // Convert to YYYY-MM format
                     val = val.getFullYear() + '-' + String(val.getMonth() + 1).padStart(2, '0');
                 } else {
@@ -912,10 +921,12 @@ function getRentPayments() {
             }
             obj[header] = val;
         });
-        obj.amount = parseFloat(obj.amount) || 0;
-        if (obj.amount_paid !== undefined && obj.amount_paid !== '') {
-            obj.amount_paid = parseFloat(obj.amount_paid) || 0;
-        }
+        // Ensure numeric fields are parsed
+        numericFields.forEach(function(field) {
+            if (obj[field] !== undefined && obj[field] !== '') {
+                obj[field] = parseFloat(obj[field]) || 0;
+            }
+        });
         return obj;
     }).filter(p => p.id);
 
@@ -945,7 +956,16 @@ function addRentPayment(params) {
 
     // Format month cell as plain text to prevent date conversion
     const lastRow = sheet.getLastRow();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     sheet.getRange(lastRow, 4).setNumberFormat('@');
+
+    // Format numeric fields as numbers to prevent Sheets date auto-formatting
+    ['amount', 'amount_paid', 'ha_paid', 'tenant_paid'].forEach(function(field) {
+        var col = headers.indexOf(field);
+        if (col !== -1) {
+            sheet.getRange(lastRow, col + 1).setNumberFormat('#,##0.00');
+        }
+    });
 
     logAudit('CREATE', id, 'Added rent payment for tenant: ' + params.tenant_id);
     return { success: true, data: { id: id } };
@@ -977,6 +997,14 @@ function updateRentPayment(params) {
 
             // Format month cell as plain text
             sheet.getRange(i + 1, headers.indexOf('month') + 1).setNumberFormat('@');
+
+            // Format numeric fields as numbers to prevent Sheets date auto-formatting
+            ['amount', 'amount_paid', 'ha_paid', 'tenant_paid'].forEach(function(field) {
+                var col = headers.indexOf(field);
+                if (col !== -1) {
+                    sheet.getRange(i + 1, col + 1).setNumberFormat('#,##0.00');
+                }
+            });
 
             logAudit('UPDATE', params.id, 'Updated rent payment status: ' + params.status);
             return { success: true, data: { id: params.id } };

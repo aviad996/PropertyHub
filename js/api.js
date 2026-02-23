@@ -24,7 +24,13 @@ const API = {
             const parsed = { ...item };
             API._local._numericFields.forEach(field => {
                 if (parsed[field] !== undefined && parsed[field] !== '' && parsed[field] !== null) {
-                    const num = parseFloat(parsed[field]);
+                    const val = parsed[field];
+                    // Skip date strings that look like YYYY-MM-DD (Sheets date auto-format bug)
+                    if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}/.test(val)) {
+                        parsed[field] = 0; // Reset corrupted date-as-number
+                        return;
+                    }
+                    const num = parseFloat(val);
                     if (!isNaN(num)) parsed[field] = num;
                 }
             });
