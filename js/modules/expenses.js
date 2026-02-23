@@ -119,12 +119,13 @@ const Expenses = {
      */
     loadExpenses: async () => {
         try {
-            const [properties, tenants, mortgages, rentPayments, expenses] = await Promise.all([
+            const [properties, tenants, mortgages, rentPayments, expenses, mortgagePayments] = await Promise.all([
                 API.getProperties(),
                 API.getTenants(),
                 API.getMortgages(),
                 API.getRentPayments(),
-                API.getExpenses()
+                API.getExpenses(),
+                API.getMortgagePayments()
             ]);
 
             const container = document.getElementById('expenses-list');
@@ -196,33 +197,71 @@ const Expenses = {
                     incomeRows = `<tr class="pl-auto-row"><td colspan="3" style="text-align:center;opacity:0.5">No active tenants</td></tr>`;
                 }
 
-                // === FIXED EXPENSES: Mortgages ===
+                // === FIXED EXPENSES: Mortgages (actual payments preferred, estimated fallback) ===
                 const propMortgages = mortgages.filter(m => String(m.property_id) === propId);
                 let fixedTotal = 0;
                 let fixedRows = '';
 
                 propMortgages.forEach(mortgage => {
-                    const monthlyPmt = parseFloat(mortgage.monthly_payment) || 0;
-                    const escrow = parseFloat(mortgage.escrow_payment) || 0;
-                    const totalMonthly = monthlyPmt + escrow;
-                    const periodAmount = totalMonthly * monthsInPeriod;
-                    fixedTotal += periodAmount;
+                    const mortId = String(mortgage.id);
 
-                    fixedRows += `
-                        <tr class="pl-auto-row">
-                            <td>${mortgage.lender} (P&I)</td>
-                            <td class="pl-source">Auto (Mortgages)</td>
-                            <td class="amount-cell">${Formatting.currency(monthlyPmt * monthsInPeriod)}</td>
-                        </tr>
-                    `;
-                    if (escrow > 0) {
+                    // Filter actual mortgage payments for this mortgage within the period
+                    const actualPayments = mortgagePayments.filter(p =>
+                        String(p.mortgage_id) === mortId &&
+                        (p.status === 'paid' || p.status === 'partial') &&
+                        Expenses.isMonthInRange(p.month, startDate, endDate)
+                    );
+
+                    if (actualPayments.length > 0) {
+                        // === ACTUAL PAYMENTS PATH ===
+                        const actualTotal = actualPayments.reduce((sum, p) =>
+                            sum + (parseFloat(p.amount_paid) || parseFloat(p.amount) || 0), 0);
+                        fixedTotal += actualTotal;
+
                         fixedRows += `
                             <tr class="pl-auto-row">
-                                <td>${mortgage.lender} (Escrow)</td>
-                                <td class="pl-source">Auto (Mortgages)</td>
-                                <td class="amount-cell">${Formatting.currency(escrow * monthsInPeriod)}</td>
+                                <td>${mortgage.lender} (${actualPayments.length} payment${actualPayments.length !== 1 ? 's' : ''})</td>
+                                <td class="pl-source">Auto (Mortgage Payments)</td>
+                                <td class="amount-cell">${Formatting.currency(actualTotal)}</td>
                             </tr>
                         `;
+                    } else {
+                        // === FALLBACK: Estimated from mortgage terms ===
+                        const monthlyPmt = parseFloat(mortgage.monthly_payment) || 0;
+                        const escrow = parseFloat(mortgage.escrow_payment) || 0;
+                        const totalMonthly = monthlyPmt + escrow;
+
+                        // For "all time" period, calculate months since purchase instead of monthsInPeriod=1
+                        let effectiveMonths = monthsInPeriod;
+                        if (!startDate && !endDate && property.purchase_date) {
+                            const purchaseMonth = property.purchase_date.substring(0, 7);
+                            const todayMonth = new Date().toISOString().substring(0, 7);
+                            effectiveMonths = Expenses.getMonthsInRange(purchaseMonth, todayMonth);
+                        }
+
+                        const periodAmount = totalMonthly * effectiveMonths;
+                        fixedTotal += periodAmount;
+
+                        const estLabel = (!startDate && !endDate)
+                            ? `Est. (${effectiveMonths} mo)`
+                            : 'Est.';
+
+                        fixedRows += `
+                            <tr class="pl-auto-row">
+                                <td>${mortgage.lender} (P&I) <span class="pl-est-badge">${estLabel}</span></td>
+                                <td class="pl-source">Auto (Mortgages)</td>
+                                <td class="amount-cell">${Formatting.currency(monthlyPmt * effectiveMonths)}</td>
+                            </tr>
+                        `;
+                        if (escrow > 0) {
+                            fixedRows += `
+                                <tr class="pl-auto-row">
+                                    <td>${mortgage.lender} (Escrow) <span class="pl-est-badge">${estLabel}</span></td>
+                                    <td class="pl-source">Auto (Mortgages)</td>
+                                    <td class="amount-cell">${Formatting.currency(escrow * effectiveMonths)}</td>
+                                </tr>
+                            `;
+                        }
                     }
                 });
 
@@ -261,10 +300,15 @@ const Expenses = {
                 portfolioIncome += incomeTotal;
                 portfolioExpenses += totalExpenses;
 
+                // "Since Purchase" annotation for All Time view
+                const sinceLabel = (!startDate && !endDate && property.purchase_date)
+                    ? `<span class="pl-since-label">Since ${Formatting.date(property.purchase_date)}</span>`
+                    : '';
+
                 return `
                     <div class="property-pl-card">
                         <div class="property-pl-header">
-                            <h4>${property.address}</h4>
+                            <h4>${property.address} ${sinceLabel}</h4>
                             <button class="btn-sm btn-outline pl-add-expense-btn" data-property-id="${propId}">+ Expense</button>
                         </div>
 

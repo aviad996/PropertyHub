@@ -2549,6 +2549,32 @@ html, body {
     font-size: 13px;
 }
 
+/* Estimated badge for mortgage expenses without actual payment records */
+.pl-est-badge {
+    font-size: 0.7em;
+    background: #f0ad4e;
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 4px;
+    vertical-align: middle;
+    font-style: normal;
+}
+
+/* "Since purchase date" label */
+.pl-since-label {
+    font-size: 0.75em;
+    font-weight: normal;
+    color: var(--text-muted, #888);
+    margin-left: 8px;
+}
+
+/* Dark mode adjustments for P&L badges */
+[data-theme="dark"] .pl-est-badge {
+    background: #e0a800;
+    color: #1a1a1a;
+}
+
 /* Insurance View */
 .insurance-list {
     display: flex;
