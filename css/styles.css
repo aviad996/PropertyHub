@@ -1,5 +1,10 @@
 /* PropertyHub Styles */
 
+/* Global utility */
+.hidden {
+    display: none !important;
+}
+
 /* ===== PIN Lock Screen ===== */
 .pin-screen {
     position: fixed;
