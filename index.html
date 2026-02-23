@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PropertyHub - Real Estate Portfolio Management</title>
-    <link rel="stylesheet" href="css/styles.css?v=11">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=12">
 </head>
 <body>
     <!-- PIN Lock Screen -->
@@ -43,42 +46,40 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Dashboard</span>
                 </a>
+
+                <div class="nav-group-label">Portfolio</div>
                 <a href="#" class="nav-item" data-view="properties">
                     <span class="nav-icon">🏠</span>
                     <span class="nav-label">Properties</span>
                 </a>
                 <a href="#" class="nav-item" data-view="mortgages">
-                    <span class="nav-icon">💰</span>
+                    <span class="nav-icon">🏦</span>
                     <span class="nav-label">Mortgages</span>
-                </a>
-                <a href="#" class="nav-item" data-view="expenses">
-                    <span class="nav-icon">💸</span>
-                    <span class="nav-label">Expenses</span>
-                </a>
-                <a href="#" class="nav-item" data-view="utilities">
-                    <span class="nav-icon">⚡</span>
-                    <span class="nav-label">Utilities</span>
-                </a>
-                <a href="#" class="nav-item" data-view="contacts">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-label">Contacts</span>
                 </a>
                 <a href="#" class="nav-item" data-view="tenants">
                     <span class="nav-icon">👤</span>
                     <span class="nav-label">Tenants</span>
                 </a>
+                <a href="#" class="nav-item" data-view="insurance">
+                    <span class="nav-icon">🛡️</span>
+                    <span class="nav-label">Insurance</span>
+                </a>
+
+                <div class="nav-group-label">Financials</div>
                 <a href="#" class="nav-item" data-view="rent_payments">
                     <span class="nav-icon">💵</span>
                     <span class="nav-label">Rent Payments</span>
                 </a>
-                <a href="#" class="nav-item" data-view="insurance">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-label">Insurance</span>
+                <a href="#" class="nav-item" data-view="expenses">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-label">Income & Expenses</span>
                 </a>
-                <a href="#" class="nav-item" data-view="tasks">
-                    <span class="nav-icon">✅</span>
-                    <span class="nav-label">Tasks</span>
+                <a href="#" class="nav-item" data-view="utilities">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Utilities</span>
                 </a>
+
+                <div class="nav-group-label">Analytics</div>
                 <a href="#" class="nav-item" data-view="analytics">
                     <span class="nav-icon">📈</span>
                     <span class="nav-label">Analytics</span>
@@ -88,27 +89,39 @@
                     <span class="nav-label">Refinance</span>
                 </a>
                 <a href="#" class="nav-item" data-view="financial_decisions">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon">🧭</span>
                     <span class="nav-label">Decisions</span>
                 </a>
-                <a href="#" class="nav-item" data-view="predictive">
-                    <span class="nav-icon">🔮</span>
-                    <span class="nav-label">Forecasting</span>
+                <a href="#" class="nav-item" data-view="financial_reports">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-label">Reports</span>
+                </a>
+
+                <div class="nav-group-label">Tools</div>
+                <a href="#" class="nav-item" data-view="tasks">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-label">Tasks</span>
+                </a>
+                <a href="#" class="nav-item" data-view="contacts">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Contacts</span>
                 </a>
                 <a href="#" class="nav-item" data-view="tax">
                     <span class="nav-icon">🏛️</span>
-                    <span class="nav-label">Tax Optimization</span>
+                    <span class="nav-label">Tax Planning</span>
                 </a>
-                <a href="#" class="nav-item" data-view="automation">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-label">Automation</span>
+
+                <div class="nav-group-label">Advanced</div>
+                <a href="#" class="nav-item" data-view="predictive">
+                    <span class="nav-icon">🔮</span>
+                    <span class="nav-label">Forecasting</span>
                 </a>
                 <a href="#" class="nav-item" data-view="financial_analytics">
                     <span class="nav-icon">💹</span>
                     <span class="nav-label">Financial Analytics</span>
                 </a>
                 <a href="#" class="nav-item" data-view="kpi_monitoring">
-                    <span class="nav-icon">⚠️</span>
+                    <span class="nav-icon">📡</span>
                     <span class="nav-label">KPI Alerts</span>
                 </a>
                 <a href="#" class="nav-item" data-view="scenario_analysis">
@@ -123,20 +136,20 @@
                     <span class="nav-icon">💰</span>
                     <span class="nav-label">ROI Analysis</span>
                 </a>
-                <a href="#" class="nav-item" data-view="financial_reports">
-                    <span class="nav-icon">📄</span>
-                    <span class="nav-label">Reports</span>
-                </a>
                 <a href="#" class="nav-item" data-view="ml_analytics">
                     <span class="nav-icon">🤖</span>
                     <span class="nav-label">ML Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-view="automation">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Automation</span>
                 </a>
                 <a href="#" class="nav-item" data-view="mobile_app">
                     <span class="nav-icon">📱</span>
                     <span class="nav-label">Mobile App</span>
                 </a>
                 <a href="#" class="nav-item" data-view="users">
-                    <span class="nav-icon">👥</span>
+                    <span class="nav-icon">🔐</span>
                     <span class="nav-label">Users</span>
                 </a>
             </nav>
