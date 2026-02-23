@@ -621,6 +621,22 @@ const API = {
 
         const response = await API.call('getRentPayments');
         if (response && response.data) {
+            // Normalize month field: convert ISO dates to YYYY-MM format
+            response.data.forEach(p => {
+                if (p.month && p.month.length > 7) {
+                    // Full ISO date like "2025-08-01T04:00:00.000Z" → "2025-08"
+                    // Use Date object to handle timezone correctly
+                    const d = new Date(p.month);
+                    if (!isNaN(d.getTime())) {
+                        // Use UTC to avoid timezone shifts
+                        const y = d.getUTCFullYear();
+                        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                        p.month = `${y}-${m}`;
+                    } else {
+                        p.month = p.month.substring(0, 7);
+                    }
+                }
+            });
             Storage.cache('rent_payments', response.data, 60000);
             return response.data;
         }
@@ -680,6 +696,19 @@ const API = {
 
         const response = await API.call('getMortgagePayments');
         if (response && response.data) {
+            // Normalize month field: convert ISO dates to YYYY-MM format
+            response.data.forEach(p => {
+                if (p.month && p.month.length > 7) {
+                    const d = new Date(p.month);
+                    if (!isNaN(d.getTime())) {
+                        const y = d.getUTCFullYear();
+                        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                        p.month = `${y}-${m}`;
+                    } else {
+                        p.month = p.month.substring(0, 7);
+                    }
+                }
+            });
             Storage.cache('mortgage_payments', response.data, 60000);
             return response.data;
         }

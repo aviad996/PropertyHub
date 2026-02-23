@@ -191,7 +191,7 @@ function initializeSheets() {
 
     // Create Rent Payments sheet
     createSheetIfNotExists(ss, SHEET_NAMES.RENT_PAYMENTS, [
-        'id', 'tenant_id', 'property_id', 'month', 'amount', 'paid_date', 'status', 'created_date'
+        'id', 'tenant_id', 'property_id', 'month', 'amount', 'amount_paid', 'paid_date', 'status', 'ha_paid', 'tenant_paid', 'created_date'
     ]);
 
     // Create Mortgage Payments sheet (payment tracking per month)
@@ -899,9 +899,23 @@ function getRentPayments() {
     const payments = rows.map(row => {
         const obj = {};
         headers.forEach((header, index) => {
-            obj[header] = row[index];
+            let val = row[index];
+            // Normalize Date objects to strings
+            if (val instanceof Date) {
+                if (header === 'month') {
+                    // Convert to YYYY-MM format
+                    val = val.getFullYear() + '-' + String(val.getMonth() + 1).padStart(2, '0');
+                } else {
+                    // Convert to YYYY-MM-DD for date fields
+                    val = val.toISOString().split('T')[0];
+                }
+            }
+            obj[header] = val;
         });
         obj.amount = parseFloat(obj.amount) || 0;
+        if (obj.amount_paid !== undefined && obj.amount_paid !== '') {
+            obj.amount_paid = parseFloat(obj.amount_paid) || 0;
+        }
         return obj;
     }).filter(p => p.id);
 
@@ -912,16 +926,26 @@ function addRentPayment(params) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.RENT_PAYMENTS);
     const id = generateUUID();
 
+    // Store month as plain text to prevent Sheets date interpretation
+    const monthVal = params.month || new Date().toISOString().split('T')[0].substring(0, 7);
+
     sheet.appendRow([
         id,
         params.tenant_id || '',
         params.property_id || '',
-        params.month || new Date().toISOString().split('T')[0].substring(0, 7),
+        monthVal,
         parseFloat(params.amount) || 0,
+        params.amount_paid !== undefined && params.amount_paid !== '' ? parseFloat(params.amount_paid) : '',
         params.paid_date || '',
         params.status || 'pending',
+        params.ha_paid !== undefined && params.ha_paid !== '' ? parseFloat(params.ha_paid) : '',
+        params.tenant_paid !== undefined && params.tenant_paid !== '' ? parseFloat(params.tenant_paid) : '',
         new Date()
     ]);
+
+    // Format month cell as plain text to prevent date conversion
+    const lastRow = sheet.getLastRow();
+    sheet.getRange(lastRow, 4).setNumberFormat('@');
 
     logAudit('CREATE', id, 'Added rent payment for tenant: ' + params.tenant_id);
     return { success: true, data: { id: id } };
@@ -933,15 +957,26 @@ function updateRentPayment(params) {
     const headers = data[0];
 
     for (let i = 1; i < data.length; i++) {
-        if (data[i][0] === params.id) {
-            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
-                params.tenant_id || data[i][1],
-                params.property_id || data[i][2],
-                params.month || data[i][3],
-                parseFloat(params.amount) || data[i][4],
-                params.paid_date || data[i][5],
-                params.status || data[i][6]
-            ]]);
+        if (String(data[i][0]) === String(params.id)) {
+            // Build update array matching header order (skip id column)
+            const monthVal = params.month || data[i][headers.indexOf('month')];
+            const updateValues = [
+                params.tenant_id || data[i][headers.indexOf('tenant_id')] || '',
+                params.property_id || data[i][headers.indexOf('property_id')] || '',
+                monthVal,
+                parseFloat(params.amount) || data[i][headers.indexOf('amount')] || 0,
+                params.amount_paid !== undefined && params.amount_paid !== '' ? parseFloat(params.amount_paid) : (data[i][headers.indexOf('amount_paid')] || ''),
+                params.paid_date || data[i][headers.indexOf('paid_date')] || '',
+                params.status || data[i][headers.indexOf('status')] || 'pending',
+                params.ha_paid !== undefined && params.ha_paid !== '' ? parseFloat(params.ha_paid) : (data[i][headers.indexOf('ha_paid')] || ''),
+                params.tenant_paid !== undefined && params.tenant_paid !== '' ? parseFloat(params.tenant_paid) : (data[i][headers.indexOf('tenant_paid')] || ''),
+                data[i][headers.indexOf('created_date')] || ''
+            ];
+
+            sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([updateValues]);
+
+            // Format month cell as plain text
+            sheet.getRange(i + 1, headers.indexOf('month') + 1).setNumberFormat('@');
 
             logAudit('UPDATE', params.id, 'Updated rent payment status: ' + params.status);
             return { success: true, data: { id: params.id } };
@@ -979,7 +1014,16 @@ function getMortgagePayments() {
     const payments = rows.map(row => {
         const obj = {};
         headers.forEach((header, index) => {
-            obj[header] = row[index];
+            let val = row[index];
+            // Normalize Date objects to strings
+            if (val instanceof Date) {
+                if (header === 'month') {
+                    val = val.getFullYear() + '-' + String(val.getMonth() + 1).padStart(2, '0');
+                } else {
+                    val = val.toISOString().split('T')[0];
+                }
+            }
+            obj[header] = val;
         });
         obj.amount = parseFloat(obj.amount) || 0;
         obj.amount_paid = parseFloat(obj.amount_paid) || 0;
