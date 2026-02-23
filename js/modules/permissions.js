@@ -234,9 +234,16 @@ const Permissions = {
         // Hide action buttons for read-only roles
         // Exclude add-item-btn (shared header button) and add-rehab-item-btn (form sub-item button)
         const addButtons = document.querySelectorAll('[id*="new-"][id*="-btn"], [id*="add-"][id*="-btn"]:not(#add-item-btn):not(#add-rehab-item-btn), [id*="-property-btn"]');
+        // Map button ID fragments to permission module names
+        const btnToModule = {
+            'property': 'properties', 'mortgage': 'mortgages', 'expense': 'expenses',
+            'contact': 'contacts', 'tenant': 'tenants', 'insurance': 'insurance',
+            'task': 'tasks', 'rent-payment': 'rent_payments', 'utility': 'utilities'
+        };
         addButtons.forEach(btn => {
-            const elementType = btn.id.replace(/^new-|^add-/, '').replace('-btn$', '');
-            if (!Permissions.canCreate(elementType)) {
+            const rawType = btn.id.replace(/^new-|^add-/, '').replace(/-btn$/, '');
+            const module = btnToModule[rawType] || rawType;
+            if (!Permissions.canCreate(module)) {
                 btn.style.display = 'none';
             }
         });
