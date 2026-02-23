@@ -250,10 +250,9 @@ function initializeSheets() {
 }
 
 function createSheetIfNotExists(ss, sheetName, headers) {
-    try {
-        ss.getSheetByName(sheetName);
-    } catch (e) {
-        const sheet = ss.insertSheet(sheetName);
+    let sheet = ss.getSheetByName(sheetName);
+    if (!sheet) {
+        sheet = ss.insertSheet(sheetName);
         sheet.appendRow(headers);
     }
 }

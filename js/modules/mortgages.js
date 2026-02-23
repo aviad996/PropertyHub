@@ -623,7 +623,10 @@ const Mortgages = {
 
             // Build payment lookup
             const paymentMap = {};
-            mortgagePayments.forEach(p => { paymentMap[p.month] = p; });
+            mortgagePayments.forEach(p => {
+                const key = String(p.month).substring(0, 7); // normalize to YYYY-MM
+                paymentMap[key] = p;
+            });
 
             let paidCount = 0, totalCount = 0;
 
