@@ -147,14 +147,18 @@ function initializeSheets() {
 
     // Create Properties sheet (ENHANCED)
     createSheetIfNotExists(ss, SHEET_NAMES.PROPERTIES, [
-        'id', 'address', 'city', 'state', 'zip', 'type',
+        'id', 'address', 'city', 'state', 'zip', 'type', 'units',
         'purchase_price', 'purchase_date', 'current_value',
         'market_rent', 'equity_percentage', 'property_condition',
+        'closing_costs', 'annual_taxes', 'annual_insurance', 'cash_to_close',
         'electricity_provider', 'electricity_account_num', 'electricity_responsibility',
         'water_provider', 'water_account_num', 'water_responsibility',
         'gas_provider', 'gas_account_num', 'gas_responsibility',
-        'documents_folder_id',
-        'created_date'
+        'documents_folder_id', 'created_date',
+        'cc_appraisal', 'cc_inspection', 'cc_title', 'cc_escrow',
+        'cc_loan_fees', 'cc_survey', 'cc_insurance', 'cc_prepaid_interest',
+        'cc_taxes', 'cc_other',
+        'rehab_costs', 'rehab_items', 'holding_costs'
     ]);
 
     // Create Mortgages sheet
