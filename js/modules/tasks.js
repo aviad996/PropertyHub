@@ -69,7 +69,7 @@ const Tasks = {
             const container = document.getElementById('tasks-list');
 
             if (!tasks || tasks.length === 0) {
-                container.innerHTML = '<p class="loading">No tasks added yet. Click "New Task" to add one!</p>';
+                container.innerHTML = '<p class="loading empty-state">No tasks added yet. Click "New Task" to add one!</p>';
                 return;
             }
 

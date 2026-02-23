@@ -94,7 +94,7 @@ const Dashboard = {
             const summaryContainer = document.getElementById('properties-summary');
 
             if (!properties || properties.length === 0) {
-                summaryContainer.innerHTML = '<p class="loading">No properties added yet. Start by adding your first property!</p>';
+                summaryContainer.innerHTML = '<p class="loading empty-state">No properties added yet. Start by adding your first property!</p>';
                 return;
             }
 

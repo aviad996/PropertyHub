@@ -41,7 +41,7 @@ const FinancialDecisions = {
 
             if (!decisions || decisions.length === 0) {
                 document.getElementById('decisions-container').innerHTML =
-                    '<p class="loading">No decisions recorded yet. Start tracking your financial decisions.</p>';
+                    '<p class="loading empty-state">No decisions recorded yet. Start tracking your financial decisions.</p>';
                 return;
             }
 

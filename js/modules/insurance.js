@@ -39,7 +39,7 @@ const Insurance = {
             const container = document.getElementById('insurance-list');
 
             if (!policies || policies.length === 0) {
-                container.innerHTML = '<p class="loading">No insurance policies added yet. Click "New Policy" to add one!</p>';
+                container.innerHTML = '<p class="loading empty-state">No insurance policies added yet. Click "New Policy" to add one!</p>';
                 return;
             }
 

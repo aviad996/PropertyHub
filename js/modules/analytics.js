@@ -70,7 +70,7 @@ const Analytics = {
 
             if (!properties || properties.length === 0) {
                 document.getElementById('analytics-container').innerHTML =
-                    '<p class="loading">No data available. Add properties to generate reports.</p>';
+                    '<p class="loading empty-state">No data available. Add properties to generate reports.</p>';
                 return;
             }
 
@@ -400,7 +400,7 @@ const Analytics = {
         if (!section) return;
 
         if (expensesByCategory.length === 0) {
-            section.innerHTML = '<p class="loading">No expense data for selected period</p>';
+            section.innerHTML = '<p class="loading empty-state">No expense data for selected period</p>';
             return;
         }
 
@@ -437,7 +437,7 @@ const Analytics = {
         if (!section) return;
 
         if (trendData.length === 0) {
-            section.innerHTML = '<p class="loading">No data for selected period</p>';
+            section.innerHTML = '<p class="loading empty-state">No data for selected period</p>';
             return;
         }
 

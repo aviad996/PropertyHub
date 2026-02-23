@@ -20,7 +20,7 @@ const Utilities = {
             const container = document.getElementById('utilities-list');
 
             if (!properties || properties.length === 0) {
-                container.innerHTML = '<p class="loading">No properties with utilities configured.</p>';
+                container.innerHTML = '<p class="loading empty-state">No properties with utilities configured.</p>';
                 return;
             }
 

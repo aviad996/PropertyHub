@@ -39,7 +39,7 @@ const Contacts = {
             const listContainer = document.getElementById('contacts-list');
 
             if (!contacts || contacts.length === 0) {
-                listContainer.innerHTML = '<p class="loading">No contacts added yet. Click "New Contact" to add one!</p>';
+                listContainer.innerHTML = '<p class="loading empty-state">No contacts added yet. Click "New Contact" to add one!</p>';
                 return;
             }
 

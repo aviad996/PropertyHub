@@ -27,7 +27,7 @@ const TaxReport = {
 
             if (!properties || properties.length === 0) {
                 document.getElementById('tax-report-container').innerHTML =
-                    '<p class="loading">No data available. Add properties to generate tax reports.</p>';
+                    '<p class="loading empty-state">No data available. Add properties to generate tax reports.</p>';
                 return;
             }
 

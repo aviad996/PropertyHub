@@ -58,7 +58,7 @@ const AutomationEngine = {
 
             if (!properties || properties.length === 0) {
                 document.getElementById('automation-container').innerHTML =
-                    '<p class="loading">No properties found. Add properties to create automations.</p>';
+                    '<p class="loading empty-state">No properties found. Add properties to create automations.</p>';
                 return;
             }
 

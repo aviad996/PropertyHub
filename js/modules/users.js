@@ -104,7 +104,7 @@ const Users = {
         if (!container) return;
 
         if (Users.users.length === 0) {
-            container.innerHTML = '<p class="loading">No users yet</p>';
+            container.innerHTML = '<p class="loading empty-state">No users yet</p>';
             return;
         }
 
@@ -274,7 +274,7 @@ const Users = {
 
             const activities = await API.getActivityLog();
             if (!activities || activities.length === 0) {
-                container.innerHTML = '<p class="loading">No activities recorded</p>';
+                container.innerHTML = '<p class="loading empty-state">No activities recorded</p>';
                 return;
             }
 
@@ -373,7 +373,7 @@ const Users = {
         if (!container) return;
 
         if (Users.sessions.length === 0) {
-            container.innerHTML = '<p class="loading">No active sessions</p>';
+            container.innerHTML = '<p class="loading empty-state">No active sessions</p>';
             return;
         }
 

@@ -41,7 +41,7 @@ const Mortgages = {
             const listContainer = document.getElementById('mortgages-list');
 
             if (!mortgages || mortgages.length === 0) {
-                listContainer.innerHTML = '<p class="loading">No mortgages added yet. Click "New Mortgage" to add one!</p>';
+                listContainer.innerHTML = '<p class="loading empty-state">No mortgages added yet. Click "New Mortgage" to add one!</p>';
                 return;
             }
 
@@ -129,7 +129,7 @@ const Mortgages = {
                                         </thead>
                                         <tbody>${txnRows}</tbody>
                                     </table>
-                                ` : '<p class="loading">No transactions yet.</p>'}
+                                ` : '<p class="loading empty-state">No transactions yet.</p>'}
                             </div>
                         </div>
                     `;

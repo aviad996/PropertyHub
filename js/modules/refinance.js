@@ -39,7 +39,7 @@ const Refinance = {
 
             if (!mortgages || mortgages.length === 0) {
                 document.getElementById('refinance-container').innerHTML =
-                    '<p class="loading">No mortgages found. Add mortgages to analyze refinancing options.</p>';
+                    '<p class="loading empty-state">No mortgages found. Add mortgages to analyze refinancing options.</p>';
                 return;
             }
 

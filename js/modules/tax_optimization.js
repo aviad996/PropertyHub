@@ -47,7 +47,7 @@ const TaxOptimization = {
 
             if (!properties || properties.length === 0) {
                 document.getElementById('tax-container').innerHTML =
-                    '<p class="loading">No properties found. Add properties to calculate tax benefits.</p>';
+                    '<p class="loading empty-state">No properties found. Add properties to calculate tax benefits.</p>';
                 return;
             }
 

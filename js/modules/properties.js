@@ -31,7 +31,7 @@ const Properties = {
             const listContainer = document.getElementById('properties-list');
 
             if (!properties || properties.length === 0) {
-                listContainer.innerHTML = '<p class="loading">No properties added yet. Click "New Property" to add one!</p>';
+                listContainer.innerHTML = '<p class="loading empty-state">No properties added yet. Click "New Property" to add one!</p>';
                 return;
             }
 

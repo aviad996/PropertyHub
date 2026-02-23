@@ -49,7 +49,7 @@ const PredictiveAnalytics = {
 
             if (!properties || properties.length === 0) {
                 document.getElementById('predictive-container').innerHTML =
-                    '<p class="loading">No properties found. Add properties to generate forecasts.</p>';
+                    '<p class="loading empty-state">No properties found. Add properties to generate forecasts.</p>';
                 return;
             }
 

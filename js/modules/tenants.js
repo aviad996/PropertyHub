@@ -83,7 +83,7 @@ const Tenants = {
             const container = document.getElementById('tenants-list');
 
             if (!tenants || tenants.length === 0) {
-                container.innerHTML = '<p class="loading">No tenants added yet. Click "New Tenant" to add one!</p>';
+                container.innerHTML = '<p class="loading empty-state">No tenants added yet. Click "New Tenant" to add one!</p>';
                 return;
             }
 

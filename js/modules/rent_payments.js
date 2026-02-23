@@ -93,7 +93,7 @@ const RentPayments = {
             const today = new Date().toISOString().substring(0, 7);
 
             if (activeTenants.length === 0) {
-                container.innerHTML = '<p class="loading">No active tenants. Add tenants to see payment cubes.</p>';
+                container.innerHTML = '<p class="loading empty-state">No active tenants. Add tenants to see payment cubes.</p>';
                 return;
             }
 
@@ -282,7 +282,7 @@ const RentPayments = {
             const container = document.getElementById('rent-payments-list');
 
             if (!payments || payments.length === 0) {
-                container.innerHTML = '<p class="loading">No rent payments recorded yet. Click "Record Payment" to add one!</p>';
+                container.innerHTML = '<p class="loading empty-state">No rent payments recorded yet. Click "Record Payment" to add one!</p>';
                 return;
             }
 

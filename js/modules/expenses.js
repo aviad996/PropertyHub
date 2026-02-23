@@ -135,7 +135,7 @@ const Expenses = {
             let portfolioExpenses = 0;
 
             if (!properties || properties.length === 0) {
-                container.innerHTML = '<p class="loading">No properties found. Add properties first.</p>';
+                container.innerHTML = '<p class="loading empty-state">No properties found. Add properties first.</p>';
                 Expenses.renderPortfolioSummary(0, 0);
                 return;
             }
