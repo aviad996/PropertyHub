@@ -1740,6 +1740,326 @@ html, body {
     color: white;
 }
 
+/* ==================== Payment Cubes ==================== */
+
+.payment-cubes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 8px;
+    padding: 12px 0;
+}
+
+.payment-cube {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+    font-size: 12px;
+    position: relative;
+    user-select: none;
+}
+
+.payment-cube:hover {
+    transform: scale(1.08);
+    box-shadow: var(--shadow-md);
+    z-index: 1;
+}
+
+.cube-paid { background-color: #d4edda; border-color: #28a745; color: #155724; }
+.cube-partial { background-color: #fff3cd; border-color: #ffc107; color: #856404; }
+.cube-late { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+.cube-pending { background-color: #e2e3e5; border-color: #6c757d; color: #383d41; }
+.cube-future { background-color: var(--bg-tertiary, #f8f9fa); border-color: var(--border-color); color: var(--text-tertiary, #999); opacity: 0.5; }
+
+.cube-current {
+    border-width: 3px;
+    border-color: var(--primary-color, #2563eb);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.cube-month { font-weight: 600; font-size: 13px; line-height: 1.2; }
+.cube-year { font-size: 10px; opacity: 0.7; }
+.cube-status-icon { font-size: 14px; margin-top: 1px; }
+
+.cube-split {
+    display: flex;
+    gap: 3px;
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+.cube-ha, .cube-tenant {
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+/* Tenant cubes section */
+.tenant-cubes-section,
+.mortgage-cubes-section {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.tenant-cubes-header,
+.mortgage-cubes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light, #e9ecef);
+}
+
+.tenant-cubes-name,
+.mortgage-cubes-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.tenant-cubes-property {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+.tenant-cubes-stats,
+.mortgage-cubes-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    flex-wrap: wrap;
+}
+
+.tenant-cubes-stats .stat,
+.mortgage-cubes-stats .stat {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.tenant-cubes-stats .stat.received { background-color: #d4edda; color: #155724; }
+.tenant-cubes-stats .stat.outstanding { background-color: #fff3cd; color: #856404; }
+
+/* View toggle buttons */
+.view-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.view-toggle {
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary, #fff);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.view-toggle.active {
+    background: var(--primary-color, #2563eb);
+    color: white;
+    border-color: var(--primary-color, #2563eb);
+}
+
+/* Mortgage payment timeline toggle */
+.mortgage-timeline-toggle {
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.mortgage-timeline-toggle:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* ==================== Per-Property P&L View ==================== */
+
+.pl-portfolio-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.pl-summary-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.pl-summary-card .pl-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.pl-summary-card .pl-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.pl-summary-card.income .pl-value { color: #28a745; }
+.pl-summary-card.expense .pl-value { color: #dc3545; }
+.pl-summary-card.net .pl-value.positive { color: #28a745; }
+.pl-summary-card.net .pl-value.negative { color: #dc3545; }
+
+.property-pl-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.property-pl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.property-pl-header h4 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.property-pl-net { font-weight: 700; font-size: 16px; }
+.property-pl-net.positive { color: #28a745; }
+.property-pl-net.negative { color: #dc3545; }
+
+.pl-section { margin-bottom: 12px; }
+
+.pl-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pl-section-title .btn-small {
+    font-size: 11px;
+    padding: 2px 8px;
+    border: 1px dashed var(--primary-color);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.pl-section-title .btn-small:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.pl-table {
+    width: 100%;
+    font-size: 13px;
+    border-collapse: collapse;
+}
+
+.pl-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-light, #e9ecef);
+}
+
+.pl-table .pl-auto-row td {
+    color: var(--text-tertiary, #999);
+    font-style: italic;
+}
+
+.pl-table .pl-source {
+    font-size: 10px;
+    color: var(--text-tertiary, #999);
+}
+
+.pl-table .pl-sub-row td {
+    font-size: 11px;
+    color: var(--text-tertiary, #999);
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.pl-table .amount-cell {
+    text-align: right;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.pl-table .amount-cell.positive { color: #28a745; }
+.pl-table .amount-cell.negative { color: #dc3545; }
+
+.pl-subtotal {
+    text-align: right;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 8px 4px;
+    border-top: 1px solid var(--border-color);
+}
+
+.property-pl-footer {
+    border-top: 2px solid var(--border-color);
+    padding-top: 12px;
+    margin-top: 8px;
+}
+
+.pl-net-line {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.pl-filter-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pl-filter-controls input[type="month"],
+.pl-filter-controls select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg, #fff);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
 /* Insurance View */
 .insurance-list {
     display: flex;
@@ -8826,4 +9146,24 @@ html, body {
         color: var(--input-text);
         border-color: var(--input-border);
     }
+
+    /* Payment cubes dark mode */
+    .cube-paid { background-color: rgba(40, 167, 69, 0.2); border-color: #28a745; color: #69db7c; }
+    .cube-partial { background-color: rgba(255, 193, 7, 0.2); border-color: #ffc107; color: #ffe066; }
+    .cube-late { background-color: rgba(220, 53, 69, 0.2); border-color: #dc3545; color: #ff8787; }
+    .cube-pending { background-color: rgba(108, 117, 125, 0.2); border-color: #6c757d; color: #adb5bd; }
+    .cube-future { background-color: rgba(108, 117, 125, 0.1); }
+
+    .tenant-cubes-stats .stat.received { background-color: rgba(40, 167, 69, 0.2); color: #69db7c; }
+    .tenant-cubes-stats .stat.outstanding { background-color: rgba(255, 193, 7, 0.2); color: #ffe066; }
+
+    /* P&L dark mode */
+    .pl-summary-card.income .pl-value { color: #69db7c; }
+    .pl-summary-card.expense .pl-value { color: #ff8787; }
+    .pl-summary-card.net .pl-value.positive { color: #69db7c; }
+    .pl-summary-card.net .pl-value.negative { color: #ff8787; }
+    .property-pl-net.positive { color: #69db7c; }
+    .property-pl-net.negative { color: #ff8787; }
+    .pl-table .amount-cell.positive { color: #69db7c; }
+    .pl-table .amount-cell.negative { color: #ff8787; }
 }

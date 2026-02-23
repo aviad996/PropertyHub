@@ -13,6 +13,7 @@ const SHEET_NAMES = {
     CONTACTS: 'Contacts',
     TENANT_CHARGES: 'Tenant Charges',
     TRIGGERS: 'Triggers',
+    MORTGAGE_PAYMENTS: 'Mortgage Payments',
     AUDIT: 'Audit',
     CONFIG: 'Config'
 };
@@ -116,6 +117,19 @@ function doGet(e) {
                 result = deleteRentPayment(e.parameter.id);
                 break;
 
+            case 'getMortgagePayments':
+                result = getMortgagePayments();
+                break;
+            case 'addMortgagePayment':
+                result = addMortgagePayment(e.parameter);
+                break;
+            case 'updateMortgagePayment':
+                result = updateMortgagePayment(e.parameter);
+                break;
+            case 'deleteMortgagePayment':
+                result = deleteMortgagePayment(e.parameter.id);
+                break;
+
             case 'getPortfolioMetrics':
                 result = getPortfolioMetrics();
                 break;
@@ -165,7 +179,7 @@ function initializeSheets() {
     createSheetIfNotExists(ss, SHEET_NAMES.MORTGAGES, [
         'id', 'property_id', 'lender', 'original_balance', 'current_balance',
         'interest_rate', 'monthly_payment', 'escrow_payment', 'remaining_term_months',
-        'refinance_eligible_date', 'last_payment_date', 'created_date'
+        'refinance_eligible_date', 'start_date', 'last_payment_date', 'created_date'
     ]);
 
     // Create Tenants sheet
@@ -178,6 +192,12 @@ function initializeSheets() {
     // Create Rent Payments sheet
     createSheetIfNotExists(ss, SHEET_NAMES.RENT_PAYMENTS, [
         'id', 'tenant_id', 'property_id', 'month', 'amount', 'paid_date', 'status', 'created_date'
+    ]);
+
+    // Create Mortgage Payments sheet (payment tracking per month)
+    createSheetIfNotExists(ss, SHEET_NAMES.MORTGAGE_PAYMENTS, [
+        'id', 'mortgage_id', 'property_id', 'month', 'amount', 'amount_paid',
+        'paid_date', 'status', 'created_date'
     ]);
 
     // Create Expenses sheet (ENHANCED)
@@ -945,6 +965,89 @@ function deleteRentPayment(id) {
     }
 
     return { error: 'Rent payment not found' };
+}
+
+// ====== MORTGAGE PAYMENTS OPERATIONS ======
+
+function getMortgagePayments() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.MORTGAGE_PAYMENTS);
+    if (!sheet) return { success: true, data: [] };
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { success: true, data: [] };
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const payments = rows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        obj.amount = parseFloat(obj.amount) || 0;
+        obj.amount_paid = parseFloat(obj.amount_paid) || 0;
+        return obj;
+    }).filter(p => p.id);
+
+    return { success: true, data: payments };
+}
+
+function addMortgagePayment(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.MORTGAGE_PAYMENTS);
+    const id = generateUUID();
+
+    sheet.appendRow([
+        id,
+        params.mortgage_id || '',
+        params.property_id || '',
+        params.month || new Date().toISOString().split('T')[0].substring(0, 7),
+        parseFloat(params.amount) || 0,
+        parseFloat(params.amount_paid) || 0,
+        params.paid_date || '',
+        params.status || 'pending',
+        new Date()
+    ]);
+
+    logAudit('CREATE', id, 'Added mortgage payment for mortgage: ' + params.mortgage_id);
+    return { success: true, data: { id: id } };
+}
+
+function updateMortgagePayment(params) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.MORTGAGE_PAYMENTS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === params.id) {
+            sheet.getRange(i + 1, 2, 1, headers.length - 2).setValues([[
+                params.mortgage_id || data[i][1],
+                params.property_id || data[i][2],
+                params.month || data[i][3],
+                parseFloat(params.amount) || data[i][4],
+                parseFloat(params.amount_paid) || data[i][5],
+                params.paid_date || data[i][6],
+                params.status || data[i][7]
+            ]]);
+
+            logAudit('UPDATE', params.id, 'Updated mortgage payment status: ' + params.status);
+            return { success: true, data: { id: params.id } };
+        }
+    }
+
+    return { error: 'Mortgage payment not found' };
+}
+
+function deleteMortgagePayment(id) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.MORTGAGE_PAYMENTS);
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === id) {
+            sheet.deleteRow(i + 1);
+            logAudit('DELETE', id, 'Deleted mortgage payment');
+            return { success: true };
+        }
+    }
+
+    return { error: 'Mortgage payment not found' };
 }
 
 // ====== AUDIT LOGGING ======

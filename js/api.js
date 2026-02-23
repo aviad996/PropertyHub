@@ -114,6 +114,10 @@ const API = {
             addRentPayment: ['rent_payments', 'add'],
             updateRentPayment: ['rent_payments', 'update'],
             deleteRentPayment: ['rent_payments', 'delete'],
+            getMortgagePayments: ['mortgage_payments', 'get'],
+            addMortgagePayment: ['mortgage_payments', 'add'],
+            updateMortgagePayment: ['mortgage_payments', 'update'],
+            deleteMortgagePayment: ['mortgage_payments', 'delete'],
             getInsurance: ['insurance', 'get'],
             addInsurance: ['insurance', 'add'],
             updateInsurance: ['insurance', 'update'],
@@ -663,6 +667,65 @@ const API = {
             return true;
         }
         throw new Error(response?.error || 'Failed to delete rent payment');
+    },
+
+    // ====== MORTGAGE PAYMENTS ======
+
+    /**
+     * Get all mortgage payments
+     */
+    getMortgagePayments: async () => {
+        const cached = Storage.getCache('mortgage_payments');
+        if (cached) return cached;
+
+        const response = await API.call('getMortgagePayments');
+        if (response && response.data) {
+            Storage.cache('mortgage_payments', response.data, 60000);
+            return response.data;
+        }
+        return [];
+    },
+
+    /**
+     * Add mortgage payment
+     */
+    addMortgagePayment: async (paymentData) => {
+        const response = await API.call('addMortgagePayment', paymentData);
+        if (response && response.success) {
+            Storage.remove('mortgage_payments');
+            Storage.remove('portfolio_metrics');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to add mortgage payment');
+    },
+
+    /**
+     * Update mortgage payment
+     */
+    updateMortgagePayment: async (paymentId, paymentData) => {
+        const response = await API.call('updateMortgagePayment', {
+            id: paymentId,
+            ...paymentData
+        });
+        if (response && response.success) {
+            Storage.remove('mortgage_payments');
+            Storage.remove('portfolio_metrics');
+            return response.data;
+        }
+        throw new Error(response?.error || 'Failed to update mortgage payment');
+    },
+
+    /**
+     * Delete mortgage payment
+     */
+    deleteMortgagePayment: async (paymentId) => {
+        const response = await API.call('deleteMortgagePayment', { id: paymentId });
+        if (response && response.success) {
+            Storage.remove('mortgage_payments');
+            Storage.remove('portfolio_metrics');
+            return true;
+        }
+        throw new Error(response?.error || 'Failed to delete mortgage payment');
     },
 
     /**

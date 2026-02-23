@@ -174,6 +174,10 @@ const Mortgages = {
                                 </div>
                             </div>
                             ${escrowSectionHtml}
+                            <div class="mortgage-timeline-toggle">
+                                <button class="btn-small btn-outline mortgage-timeline-btn" data-mortgage-id="${mortgage.id}">Show Payment Timeline</button>
+                            </div>
+                            <div class="mortgage-payment-cubes hidden" id="mortgage-cubes-${mortgage.id}"></div>
                         </div>
                         <div class="list-item-actions">
                             <button class="edit-btn" data-id="${mortgage.id}">Edit</button>
@@ -220,6 +224,23 @@ const Mortgages = {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     Mortgages.deleteEscrowTransaction(e.target.dataset.id);
+                });
+            });
+
+            // Timeline toggle buttons
+            listContainer.querySelectorAll('.mortgage-timeline-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const mortgageId = e.target.dataset.mortgageId;
+                    const cubesContainer = document.getElementById(`mortgage-cubes-${mortgageId}`);
+                    if (cubesContainer) {
+                        const isHidden = cubesContainer.classList.contains('hidden');
+                        cubesContainer.classList.toggle('hidden');
+                        e.target.textContent = isHidden ? 'Hide Timeline' : 'Show Payment Timeline';
+                        if (isHidden) {
+                            Mortgages.loadPaymentCubes(mortgageId, cubesContainer, false);
+                        }
+                    }
                 });
             });
         } catch (error) {
@@ -293,6 +314,9 @@ const Mortgages = {
 
         // Escrow listeners
         Mortgages.setupEscrowListeners();
+
+        // Mortgage payment listeners
+        Mortgages.setupMortgagePaymentListeners();
     },
 
     /**
@@ -317,6 +341,7 @@ const Mortgages = {
             form.querySelector('[name="remaining_term_months"]').value = mortgage.remaining_term_months || '';
             form.querySelector('[name="refinance_eligible_date"]').value = mortgage.refinance_eligible_date || '';
             form.querySelector('[name="escrow_payment"]').value = mortgage.escrow_payment || '';
+            form.querySelector('[name="start_date"]').value = mortgage.start_date || '';
 
             document.querySelector('#mortgage-modal .modal-header h3').textContent = 'Edit Mortgage';
             UI.modal.show('mortgage-modal');
@@ -530,6 +555,272 @@ const Mortgages = {
         // Close escrow modal
         document.querySelector('#escrow-transaction-modal .close-btn')?.addEventListener('click', () => {
             UI.modal.hide('escrow-transaction-modal');
+        });
+    },
+
+    // =====================================================
+    // Mortgage Payment Cubes
+    // =====================================================
+
+    _mortgagePaymentEditId: null,
+
+    /**
+     * Estimate start date from remaining term if not provided
+     * Assumes 30-year (360 month) original term
+     */
+    estimateStartDate: (mortgage) => {
+        if (mortgage.start_date) return mortgage.start_date;
+        const originalTerm = 360; // assume 30 year
+        const elapsed = originalTerm - (mortgage.remaining_term_months || 0);
+        const start = new Date();
+        start.setMonth(start.getMonth() - elapsed);
+        return start.toISOString().substring(0, 10);
+    },
+
+    /**
+     * Generate month timeline for a mortgage
+     */
+    generateMortgageTimeline: (mortgage, showAll) => {
+        const months = [];
+        const startDate = Mortgages.estimateStartDate(mortgage);
+        if (!startDate) return months;
+
+        const current = new Date(startDate);
+        current.setDate(1);
+        const now = new Date();
+        const limit = new Date();
+        limit.setMonth(limit.getMonth() + 3); // show 3 months ahead
+        limit.setDate(1);
+
+        while (current <= limit) {
+            months.push(current.toISOString().substring(0, 7));
+            current.setMonth(current.getMonth() + 1);
+        }
+
+        // If not showAll, only return last 12 months + 3 future
+        if (!showAll && months.length > 15) {
+            const nowMonth = now.toISOString().substring(0, 7);
+            const nowIdx = months.indexOf(nowMonth);
+            const startIdx = Math.max(0, nowIdx - 11);
+            return months.slice(startIdx);
+        }
+        return months;
+    },
+
+    /**
+     * Load payment cubes for a specific mortgage
+     */
+    loadPaymentCubes: async (mortgageId, container, showAll) => {
+        try {
+            const mortgages = await API.getMortgages();
+            const mortgage = mortgages.find(m => String(m.id) === String(mortgageId));
+            if (!mortgage) return;
+
+            const payments = await API.getMortgagePayments();
+            const mortgagePayments = payments.filter(p => String(p.mortgage_id) === String(mortgageId));
+            const months = Mortgages.generateMortgageTimeline(mortgage, showAll);
+            const today = new Date().toISOString().substring(0, 7);
+
+            // Build payment lookup
+            const paymentMap = {};
+            mortgagePayments.forEach(p => { paymentMap[p.month] = p; });
+
+            let paidCount = 0, totalCount = 0;
+
+            const cubes = months.map(month => {
+                const payment = paymentMap[month];
+                const isFuture = month > today;
+                let statusClass, statusIcon, tooltip;
+
+                if (payment) {
+                    statusClass = 'cube-' + payment.status;
+                    if (payment.status === 'paid') {
+                        paidCount++;
+                        statusIcon = '&#10003;';
+                    } else if (payment.status === 'partial') {
+                        statusIcon = '&#8776;';
+                    } else if (payment.status === 'late') {
+                        statusIcon = '!';
+                    } else {
+                        statusIcon = '';
+                    }
+                    const amt = payment.amount_paid || payment.amount || 0;
+                    tooltip = `${month} - ${payment.status.toUpperCase()} ${Formatting.currency(amt)}`;
+                } else if (isFuture) {
+                    statusClass = 'cube-future';
+                    statusIcon = '';
+                    tooltip = `${month} - Future`;
+                } else {
+                    statusClass = 'cube-pending';
+                    statusIcon = '';
+                    tooltip = `${month} - No payment recorded`;
+                }
+
+                if (!isFuture) totalCount++;
+                const currentClass = month === today ? ' cube-current' : '';
+                const [y, m] = month.split('-');
+                const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('en-US', { month: 'short' });
+
+                return `<div class="payment-cube ${statusClass}${currentClass}"
+                             data-month="${month}" data-mortgage-id="${mortgageId}"
+                             data-payment-id="${payment?.id || ''}"
+                             title="${tooltip}">
+                    <span class="cube-month">${monthName}</span>
+                    <span class="cube-year">${y}</span>
+                    ${statusIcon ? `<span class="cube-status-icon">${statusIcon}</span>` : ''}
+                </div>`;
+            }).join('');
+
+            const showAllBtn = !showAll && months.length < Mortgages.generateMortgageTimeline(mortgage, true).length
+                ? `<button class="btn-small btn-outline mortgage-show-all-btn" data-mortgage-id="${mortgageId}">Show All</button>`
+                : '';
+
+            container.innerHTML = `
+                <div class="tenant-cubes-stats" style="margin-bottom: 8px;">
+                    <span>${paidCount}/${totalCount} Paid</span>
+                    ${showAllBtn}
+                </div>
+                <div class="payment-cubes-grid">${cubes}</div>
+            `;
+
+            // Attach click handlers to cubes
+            container.querySelectorAll('.payment-cube:not(.cube-future)').forEach(cube => {
+                cube.addEventListener('click', (e) => Mortgages.handleMortgageCubeClick(e.currentTarget));
+            });
+
+            // Show All button
+            container.querySelector('.mortgage-show-all-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                Mortgages.loadPaymentCubes(mortgageId, container, true);
+            });
+        } catch (error) {
+            console.error('Error loading mortgage payment cubes:', error);
+            container.innerHTML = '<p class="loading">Error loading payment timeline.</p>';
+        }
+    },
+
+    /**
+     * Handle click on a mortgage payment cube
+     */
+    handleMortgageCubeClick: async (cubeEl) => {
+        const month = cubeEl.dataset.month;
+        const mortgageId = cubeEl.dataset.mortgageId;
+        const paymentId = cubeEl.dataset.paymentId;
+
+        const mortgages = await API.getMortgages();
+        const mortgage = mortgages.find(m => String(m.id) === String(mortgageId));
+        if (!mortgage) return;
+
+        const form = document.getElementById('mortgage-payment-form');
+        const deleteBtn = document.getElementById('delete-mortgage-payment');
+
+        if (paymentId) {
+            // Existing payment — edit
+            const payments = await API.getMortgagePayments();
+            const payment = payments.find(p => String(p.id) === String(paymentId));
+            if (!payment) return;
+
+            Mortgages._mortgagePaymentEditId = paymentId;
+            document.getElementById('mp-mortgage-id').value = mortgageId;
+            document.getElementById('mp-property-id').value = mortgage.property_id;
+            document.getElementById('mp-month').value = payment.month;
+            document.getElementById('mp-amount').value = payment.amount || '';
+            document.getElementById('mp-amount-paid').value = payment.amount_paid || '';
+            document.getElementById('mp-status').value = payment.status || 'paid';
+            document.getElementById('mp-paid-date').value = payment.paid_date || '';
+            document.querySelector('#mortgage-payment-modal .modal-header h3').textContent = 'Edit Payment';
+            deleteBtn?.classList.remove('hidden');
+        } else {
+            // New payment — pre-fill with quick-pay values
+            Mortgages._mortgagePaymentEditId = null;
+            form.reset();
+            document.getElementById('mp-mortgage-id').value = mortgageId;
+            document.getElementById('mp-property-id').value = mortgage.property_id;
+            document.getElementById('mp-month').value = month;
+            document.getElementById('mp-amount').value = mortgage.monthly_payment || '';
+            document.getElementById('mp-amount-paid').value = mortgage.monthly_payment || '';
+            document.getElementById('mp-status').value = 'paid';
+            document.getElementById('mp-paid-date').value = new Date().toISOString().split('T')[0];
+            document.querySelector('#mortgage-payment-modal .modal-header h3').textContent = 'Record Payment';
+            deleteBtn?.classList.add('hidden');
+        }
+
+        UI.modal.show('mortgage-payment-modal');
+    },
+
+    /**
+     * Save a mortgage payment
+     */
+    saveMortgagePayment: async () => {
+        try {
+            const data = {
+                mortgage_id: document.getElementById('mp-mortgage-id').value,
+                property_id: document.getElementById('mp-property-id').value,
+                month: document.getElementById('mp-month').value,
+                amount: document.getElementById('mp-amount').value,
+                amount_paid: document.getElementById('mp-amount-paid').value || document.getElementById('mp-amount').value,
+                status: document.getElementById('mp-status').value,
+                paid_date: document.getElementById('mp-paid-date').value
+            };
+
+            if (!data.month || !data.amount) {
+                UI.showToast('Please fill in month and amount', 'error');
+                return;
+            }
+
+            if (Mortgages._mortgagePaymentEditId) {
+                await API.updateMortgagePayment(Mortgages._mortgagePaymentEditId, data);
+                UI.showToast('Payment updated', 'success');
+            } else {
+                await API.addMortgagePayment(data);
+                UI.showToast('Payment recorded', 'success');
+            }
+
+            UI.modal.hide('mortgage-payment-modal');
+            await Mortgages.loadMortgages();
+        } catch (error) {
+            console.error('Error saving mortgage payment:', error);
+            UI.showToast(error.message || 'Error saving payment', 'error');
+        }
+    },
+
+    /**
+     * Delete a mortgage payment
+     */
+    deleteMortgagePaymentRecord: async () => {
+        if (!Mortgages._mortgagePaymentEditId) return;
+        if (!confirm('Delete this mortgage payment record?')) return;
+
+        try {
+            await API.deleteMortgagePayment(Mortgages._mortgagePaymentEditId);
+            UI.showToast('Payment deleted', 'success');
+            UI.modal.hide('mortgage-payment-modal');
+            await Mortgages.loadMortgages();
+        } catch (error) {
+            console.error('Error deleting mortgage payment:', error);
+            UI.showToast(error.message || 'Error deleting payment', 'error');
+        }
+    },
+
+    /**
+     * Setup mortgage payment modal listeners (called from setupEventListeners)
+     */
+    setupMortgagePaymentListeners: () => {
+        document.getElementById('mortgage-payment-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            Mortgages.saveMortgagePayment();
+        });
+
+        document.getElementById('cancel-mortgage-payment')?.addEventListener('click', () => {
+            UI.modal.hide('mortgage-payment-modal');
+        });
+
+        document.querySelector('#mortgage-payment-modal .close-btn')?.addEventListener('click', () => {
+            UI.modal.hide('mortgage-payment-modal');
+        });
+
+        document.getElementById('delete-mortgage-payment')?.addEventListener('click', () => {
+            Mortgages.deleteMortgagePaymentRecord();
         });
     }
 };

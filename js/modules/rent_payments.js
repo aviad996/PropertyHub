@@ -3,14 +3,236 @@
 const RentPayments = {
     currentEditId: null,
     currentMonth: new Date().toISOString().substring(0, 7), // YYYY-MM format
+    currentViewMode: 'cubes', // 'cubes' or 'table'
 
     /**
      * Initialize rent payments module
      */
     init: async () => {
         await RentPayments.populateAllTenants();
-        await RentPayments.loadRentPayments();
         RentPayments.setupEventListeners();
+        RentPayments.setupViewToggle();
+        if (RentPayments.currentViewMode === 'cubes') {
+            await RentPayments.loadCubeView();
+        } else {
+            await RentPayments.loadRentPayments();
+        }
+    },
+
+    /**
+     * Generate array of YYYY-MM strings from start to end date
+     */
+    generateMonthRange: (startDate, endDate) => {
+        const months = [];
+        if (!startDate) return months;
+        const current = new Date(startDate);
+        current.setDate(1);
+        const end = endDate ? new Date(endDate) : new Date();
+        // Extend to at least current month + 1
+        const now = new Date();
+        now.setMonth(now.getMonth() + 1);
+        const limit = new Date(Math.max(end.getTime(), now.getTime()));
+        limit.setDate(1);
+
+        while (current <= limit) {
+            months.push(current.toISOString().substring(0, 7));
+            current.setMonth(current.getMonth() + 1);
+        }
+        return months;
+    },
+
+    /**
+     * Setup view toggle buttons
+     */
+    setupViewToggle: () => {
+        document.getElementById('rent-view-cubes')?.addEventListener('click', () => {
+            RentPayments.toggleView('cubes');
+        });
+        document.getElementById('rent-view-table')?.addEventListener('click', () => {
+            RentPayments.toggleView('table');
+        });
+    },
+
+    /**
+     * Toggle between cube and table view
+     */
+    toggleView: async (mode) => {
+        RentPayments.currentViewMode = mode;
+        const cubesView = document.getElementById('rent-cubes-view');
+        const tableView = document.getElementById('rent-payments-list');
+        const cubesBtn = document.getElementById('rent-view-cubes');
+        const tableBtn = document.getElementById('rent-view-table');
+
+        if (mode === 'cubes') {
+            cubesView?.classList.remove('hidden');
+            tableView?.classList.add('hidden');
+            cubesBtn?.classList.add('active');
+            tableBtn?.classList.remove('active');
+            await RentPayments.loadCubeView();
+        } else {
+            cubesView?.classList.add('hidden');
+            tableView?.classList.remove('hidden');
+            cubesBtn?.classList.remove('active');
+            tableBtn?.classList.add('active');
+            await RentPayments.loadRentPayments();
+        }
+    },
+
+    /**
+     * Load cube view — visual grid of monthly payment tiles per tenant
+     */
+    loadCubeView: async () => {
+        try {
+            const tenants = await API.getTenants();
+            const payments = await API.getRentPayments();
+            const properties = await API.getProperties();
+            const container = document.getElementById('rent-cubes-view');
+            if (!container) return;
+
+            const activeTenants = tenants.filter(t => t.status === 'active');
+            const today = new Date().toISOString().substring(0, 7);
+
+            if (activeTenants.length === 0) {
+                container.innerHTML = '<p class="loading">No active tenants. Add tenants to see payment cubes.</p>';
+                return;
+            }
+
+            const html = activeTenants.map(tenant => {
+                const property = properties.find(p => String(p.id) === String(tenant.property_id));
+                const tenantPayments = payments.filter(p => String(p.tenant_id) === String(tenant.id));
+                const months = RentPayments.generateMonthRange(tenant.lease_start_date, tenant.lease_end_date);
+
+                // Build payment lookup: month -> payment record
+                const paymentMap = {};
+                tenantPayments.forEach(p => { paymentMap[p.month] = p; });
+
+                const isSection8 = tenant.is_section8 === true || tenant.is_section8 === 'true' || tenant.is_section8 === 'on';
+
+                let paidCount = 0, unpaidCount = 0;
+
+                const cubes = months.map(month => {
+                    const payment = paymentMap[month];
+                    const isFuture = month > today;
+                    let statusClass, statusIcon, tooltip;
+
+                    if (payment) {
+                        statusClass = 'cube-' + payment.status;
+                        if (payment.status === 'paid') {
+                            paidCount++;
+                            statusIcon = '&#10003;';
+                        } else if (payment.status === 'partial') {
+                            unpaidCount++;
+                            statusIcon = '&#8776;';
+                        } else if (payment.status === 'late') {
+                            unpaidCount++;
+                            statusIcon = '!';
+                        } else {
+                            unpaidCount++;
+                            statusIcon = '';
+                        }
+                        const amt = payment.amount_paid || payment.amount || 0;
+                        tooltip = `${month} - ${payment.status.toUpperCase()} ${Formatting.currency(amt)}`;
+                    } else if (isFuture) {
+                        statusClass = 'cube-future';
+                        statusIcon = '';
+                        tooltip = `${month} - Future`;
+                    } else {
+                        statusClass = 'cube-pending';
+                        unpaidCount++;
+                        statusIcon = '';
+                        tooltip = `${month} - No payment recorded`;
+                    }
+
+                    const currentClass = month === today ? ' cube-current' : '';
+                    const [y, m] = month.split('-');
+                    const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('en-US', { month: 'short' });
+
+                    // Section 8 split display inside cube
+                    let splitHtml = '';
+                    if (isSection8 && payment && (payment.ha_paid || payment.tenant_paid)) {
+                        const haOk = parseFloat(payment.ha_paid || 0) >= parseFloat(tenant.section8_ha_amount || 0);
+                        const tOk = parseFloat(payment.tenant_paid || 0) >= parseFloat(tenant.section8_tenant_amount || 0);
+                        splitHtml = `<div class="cube-split">
+                            <span class="cube-ha" title="Housing Authority">${haOk ? '&#10003;' : '&#10007;'}</span>
+                            <span class="cube-tenant" title="Tenant">${tOk ? '&#10003;' : '&#10007;'}</span>
+                        </div>`;
+                    }
+
+                    return `<div class="payment-cube ${statusClass}${currentClass}"
+                                 data-month="${month}" data-tenant-id="${tenant.id}"
+                                 data-payment-id="${payment?.id || ''}"
+                                 title="${tooltip}">
+                        <span class="cube-month">${monthName}</span>
+                        <span class="cube-year">${y}</span>
+                        ${statusIcon ? `<span class="cube-status-icon">${statusIcon}</span>` : ''}
+                        ${splitHtml}
+                    </div>`;
+                }).join('');
+
+                const s8Badge = isSection8 ? ' <span class="badge-section8 badge-small">S8</span>' : '';
+
+                return `<div class="tenant-cubes-section">
+                    <div class="tenant-cubes-header">
+                        <div class="tenant-cubes-name">
+                            ${tenant.name}${s8Badge}
+                            <span class="tenant-cubes-property">${property?.address || ''}</span>
+                        </div>
+                        <div class="tenant-cubes-stats">
+                            <span>${Formatting.currency(tenant.monthly_rent)}/mo</span>
+                            <span class="stat received">${paidCount} Paid</span>
+                            ${unpaidCount > 0 ? `<span class="stat outstanding">${unpaidCount} Unpaid</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="payment-cubes-grid">${cubes}</div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = html;
+
+            // Attach click handlers to cubes
+            container.querySelectorAll('.payment-cube:not(.cube-future)').forEach(cube => {
+                cube.addEventListener('click', (e) => RentPayments.handleCubeClick(e.currentTarget));
+            });
+        } catch (error) {
+            console.error('Error loading cube view:', error);
+            const container = document.getElementById('rent-cubes-view');
+            if (container) container.innerHTML = '<p class="loading">Error loading payment cubes.</p>';
+        }
+    },
+
+    /**
+     * Handle click on a payment cube
+     */
+    handleCubeClick: async (cubeEl) => {
+        const month = cubeEl.dataset.month;
+        const tenantId = cubeEl.dataset.tenantId;
+        const paymentId = cubeEl.dataset.paymentId;
+
+        if (paymentId) {
+            // Existing payment — open edit form
+            RentPayments.editPayment(paymentId);
+        } else {
+            // No payment exists — open new form pre-filled
+            RentPayments.currentEditId = null;
+            document.getElementById('rent-payment-form').reset();
+            document.getElementById('payment-month').value = month;
+
+            // Set tenant in dropdown
+            await RentPayments.populateAllTenants();
+            const select = document.getElementById('payment-tenant-select');
+            if (select) {
+                select.value = tenantId;
+                // Trigger change to auto-fill amount and Section 8 fields
+                select.dispatchEvent(new Event('change'));
+            }
+
+            // Auto-set status to paid + today's date for quick entry
+            document.getElementById('payment-status').value = 'paid';
+            document.getElementById('payment-paid-date').value = new Date().toISOString().split('T')[0];
+
+            document.querySelector('#rent-payment-modal .modal-header h3').textContent = 'Record Payment';
+            UI.modal.show('rent-payment-modal');
+        }
     },
 
     /**
@@ -463,7 +685,11 @@ const RentPayments = {
             }
 
             UI.modal.hide('rent-payment-modal');
-            await RentPayments.loadRentPayments();
+            if (RentPayments.currentViewMode === 'cubes') {
+                await RentPayments.loadCubeView();
+            } else {
+                await RentPayments.loadRentPayments();
+            }
         } catch (error) {
             console.error('Error saving payment:', error);
             UI.showToast(error.message || 'Error saving payment', 'error');
@@ -481,7 +707,11 @@ const RentPayments = {
         try {
             await API.deleteRentPayment(paymentId);
             UI.showToast('Payment deleted successfully', 'success');
-            await RentPayments.loadRentPayments();
+            if (RentPayments.currentViewMode === 'cubes') {
+                await RentPayments.loadCubeView();
+            } else {
+                await RentPayments.loadRentPayments();
+            }
         } catch (error) {
             console.error('Error deleting payment:', error);
             UI.showToast(error.message || 'Error deleting payment', 'error');

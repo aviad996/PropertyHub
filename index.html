@@ -594,9 +594,60 @@
                                         <input type="number" name="escrow_payment" step="0.01">
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" name="start_date">
+                                </div>
                                 <div class="form-actions">
                                     <button type="submit" class="btn-primary">Save Mortgage</button>
                                     <button type="button" class="btn-secondary" id="cancel-mortgage">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Mortgage Payment Modal -->
+                    <div id="mortgage-payment-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Record Mortgage Payment</h3>
+                                <button class="close-btn">&times;</button>
+                            </div>
+                            <form id="mortgage-payment-form" class="form">
+                                <input type="hidden" name="mortgage_id" id="mp-mortgage-id">
+                                <input type="hidden" name="property_id" id="mp-property-id">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Month *</label>
+                                        <input type="month" name="month" id="mp-month" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Amount *</label>
+                                        <input type="number" name="amount" id="mp-amount" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Amount Paid</label>
+                                        <input type="number" name="amount_paid" id="mp-amount-paid" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status *</label>
+                                        <select name="status" id="mp-status" required>
+                                            <option value="paid">Paid</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="partial">Partial</option>
+                                            <option value="late">Late</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Paid Date</label>
+                                    <input type="date" name="paid_date" id="mp-paid-date">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Payment</button>
+                                    <button type="button" class="btn-secondary" id="cancel-mortgage-payment">Cancel</button>
+                                    <button type="button" class="btn-danger hidden" id="delete-mortgage-payment">Delete</button>
                                 </div>
                             </form>
                         </div>
@@ -649,12 +700,37 @@
                 <!-- Expenses View -->
                 <div id="expenses-view" class="view">
                     <div class="view-header">
-                        <h3>Expenses</h3>
+                        <h3>Income & Expenses</h3>
+                        <div class="pl-filter-controls">
+                            <input type="month" id="pl-month-filter" title="Filter by month">
+                            <select id="pl-period-filter">
+                                <option value="month">This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
                         <button class="btn-primary" id="new-expense-btn">+ New Expense</button>
                     </div>
 
+                    <!-- Portfolio Summary Bar -->
+                    <div id="pl-portfolio-summary" class="pl-portfolio-summary">
+                        <div class="pl-summary-card income">
+                            <div class="pl-summary-label">Total Income</div>
+                            <div class="pl-summary-value" id="pl-total-income">$0</div>
+                        </div>
+                        <div class="pl-summary-card expense">
+                            <div class="pl-summary-label">Total Expenses</div>
+                            <div class="pl-summary-value" id="pl-total-expenses">$0</div>
+                        </div>
+                        <div class="pl-summary-card net">
+                            <div class="pl-summary-label">Net Cash Flow</div>
+                            <div class="pl-summary-value" id="pl-net-cashflow">$0</div>
+                        </div>
+                    </div>
+
                     <div id="expenses-list" class="expenses-list">
-                        <p class="loading">Loading expenses...</p>
+                        <p class="loading">Loading income & expenses...</p>
                     </div>
 
                     <!-- Expense Form Modal -->
@@ -984,10 +1060,18 @@
                 <div id="rent_payments-view" class="view">
                     <div class="view-header">
                         <h3>Rent Payments</h3>
-                        <button class="btn-primary" id="record-payment-btn">+ Record Payment</button>
+                        <div class="view-controls">
+                            <button class="view-toggle active" data-mode="cubes" id="rent-view-cubes">Cube View</button>
+                            <button class="view-toggle" data-mode="table" id="rent-view-table">Table View</button>
+                            <button class="btn-primary" id="record-payment-btn">+ Record Payment</button>
+                        </div>
                     </div>
 
-                    <div id="rent-payments-list" class="rent-payments-list">
+                    <div id="rent-cubes-view">
+                        <p class="loading">Loading payment cubes...</p>
+                    </div>
+
+                    <div id="rent-payments-list" class="rent-payments-list hidden">
                         <p class="loading">Loading rent payments...</p>
                     </div>
 
