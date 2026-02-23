@@ -81,7 +81,7 @@ const Analytics = {
             const portfolioReport = Analytics.generatePortfolioReport(properties, mortgages, expenses, rentPayments, startDate, endDate);
             const propertyComparison = Analytics.generatePropertyComparison(properties, mortgages, expenses, rentPayments, startDate, endDate);
             const expenseAnalysis = Analytics.generateExpenseAnalysis(expenses, startDate, endDate);
-            const trendData = Analytics.generateTrendData(expenses, rentPayments, startDate, endDate);
+            const trendData = Analytics.generateTrendData(expenses, rentPayments, startDate, endDate, mortgages);
 
             // Render all sections
             Analytics.renderPortfolioReport(portfolioReport);
@@ -141,15 +141,26 @@ const Analytics = {
         let totalDebt = 0;
         let totalIncome = 0;
         let totalExpenses = 0;
+        let totalMonthlyMortgage = 0;
 
-        // Sum property values and calculate debt
+        // Calculate months in period for proper annualization
+        const monthsInPeriod = Math.max(1,
+            (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+            (endDate.getMonth() - startDate.getMonth()) + 1
+        );
+
+        // Sum property values, debt, and mortgage payments
         properties.forEach(prop => {
             totalValue += parseFloat(prop.current_value) || 0;
             const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
             if (mortgage) {
                 totalDebt += parseFloat(mortgage.current_balance) || 0;
+                totalMonthlyMortgage += parseFloat(mortgage.monthly_payment) || 0;
             }
         });
+
+        // Total mortgage cost for the period
+        const totalMortgageCost = totalMonthlyMortgage * monthsInPeriod;
 
         // Filter expenses by period
         const periodExpenses = Analytics.filterByDateRange(expenses || [], startDate, endDate);
@@ -159,13 +170,15 @@ const Analytics = {
         const periodRentPayments = Analytics.filterByDateRange(rentPayments || [], startDate, endDate, 'paid_date');
         totalIncome = periodRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
 
-        // Calculate metrics
+        // Calculate metrics — include mortgage payments in cash flow
         const totalEquity = totalValue - totalDebt;
         const ltv = totalValue > 0 ? (totalDebt / totalValue * 100).toFixed(1) : 0;
         const equityPercentage = totalValue > 0 ? ((totalEquity / totalValue) * 100).toFixed(1) : 0;
-        const cashFlow = totalIncome - totalExpenses;
-        const roi = totalValue > 0 ? (((totalIncome - totalExpenses) / totalValue) * 100 * 12).toFixed(2) : 0; // Annualized
-        const expenseRatio = totalIncome > 0 ? ((totalExpenses / totalIncome) * 100).toFixed(1) : 0;
+        const noi = totalIncome - totalExpenses;
+        const cashFlow = noi - totalMortgageCost;
+        const monthlyCashFlow = cashFlow / monthsInPeriod;
+        const roi = totalValue > 0 ? ((monthlyCashFlow * 12 / totalValue) * 100).toFixed(2) : 0;
+        const expenseRatio = totalIncome > 0 ? (((totalExpenses + totalMortgageCost) / totalIncome) * 100).toFixed(1) : 0;
 
         return {
             totalValue,
@@ -175,10 +188,14 @@ const Analytics = {
             equityPercentage,
             totalIncome,
             totalExpenses,
+            totalMortgageCost,
+            noi,
             cashFlow,
+            monthlyCashFlow,
             roi,
             expenseRatio,
             propertyCount: properties.length,
+            monthsInPeriod,
             daysInPeriod: Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))
         };
     },
@@ -187,6 +204,12 @@ const Analytics = {
      * Generate property-by-property comparison
      */
     generatePropertyComparison: (properties, mortgages, expenses, rentPayments, startDate, endDate) => {
+        // Calculate months in period
+        const monthsInPeriod = Math.max(1,
+            (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+            (endDate.getMonth() - startDate.getMonth()) + 1
+        );
+
         return properties.map(prop => {
             const mortgage = mortgages?.find(m => String(m.property_id) === String(prop.id));
             const propExpenses = (expenses || []).filter(e => String(e.property_id) === String(prop.id));
@@ -198,29 +221,36 @@ const Analytics = {
 
             const totalExpenses = periodExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
             const totalIncome = periodRentPayments.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+            const monthlyMortgage = parseFloat(mortgage?.monthly_payment) || 0;
+            const totalMortgageCost = monthlyMortgage * monthsInPeriod;
 
-            const equity = (prop.current_value || 0) - (mortgage?.current_balance || 0);
+            const equity = (parseFloat(prop.current_value) || 0) - (parseFloat(mortgage?.current_balance) || 0);
             const equityPercentage = prop.current_value > 0 ? ((equity / prop.current_value) * 100).toFixed(1) : 0;
             const noi = totalIncome - totalExpenses;
-            const capRate = prop.purchase_price > 0 ? (noi * 12 / prop.purchase_price * 100).toFixed(2) : 0;
-            const cashFlow = totalIncome - totalExpenses - (mortgage?.monthly_payment || 0);
-            const roi = prop.current_value > 0 ? ((cashFlow * 12 / prop.current_value) * 100).toFixed(2) : 0;
+            // Annualize: (period NOI / months) * 12
+            const annualizedNOI = (noi / monthsInPeriod) * 12;
+            const capRate = prop.purchase_price > 0 ? (annualizedNOI / prop.purchase_price * 100).toFixed(2) : 0;
+            const cashFlow = noi - totalMortgageCost;
+            const monthlyCashFlow = cashFlow / monthsInPeriod;
+            const roi = prop.current_value > 0 ? ((monthlyCashFlow * 12 / prop.current_value) * 100).toFixed(2) : 0;
 
             return {
                 id: prop.id,
                 address: prop.address,
                 city: prop.city,
-                value: prop.current_value || 0,
-                debt: mortgage?.current_balance || 0,
+                value: parseFloat(prop.current_value) || 0,
+                debt: parseFloat(mortgage?.current_balance) || 0,
                 equity: equity,
                 equityPercentage: equityPercentage,
                 income: totalIncome,
                 expenses: totalExpenses,
+                mortgageCost: totalMortgageCost,
                 noi: noi,
                 capRate: capRate,
                 cashFlow: cashFlow,
+                monthlyCashFlow: monthlyCashFlow,
                 roi: roi,
-                monthlyPayment: mortgage?.monthly_payment || 0
+                monthlyPayment: monthlyMortgage
             };
         });
     },
@@ -253,14 +283,22 @@ const Analytics = {
     /**
      * Generate trend data for monthly chart
      */
-    generateTrendData: (expenses, rentPayments, startDate, endDate) => {
+    generateTrendData: (expenses, rentPayments, startDate, endDate, mortgages) => {
         const months = {};
+
+        // Calculate total monthly mortgage across all properties
+        let totalMonthlyMortgage = 0;
+        if (mortgages) {
+            mortgages.forEach(m => {
+                totalMonthlyMortgage += parseFloat(m.monthly_payment) || 0;
+            });
+        }
 
         // Get all months in range
         const current = new Date(startDate);
         while (current <= endDate) {
             const monthKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
-            months[monthKey] = { income: 0, expenses: 0, date: new Date(current) };
+            months[monthKey] = { income: 0, expenses: 0, mortgage: totalMonthlyMortgage, date: new Date(current) };
             current.setMonth(current.getMonth() + 1);
         }
 
@@ -288,8 +326,10 @@ const Analytics = {
             month: monthKey,
             monthName: data.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
             income: data.income,
+            mortgage: data.mortgage,
             expenses: data.expenses,
-            cashFlow: data.income - data.expenses
+            totalCosts: data.mortgage + data.expenses,
+            cashFlow: data.income - data.mortgage - data.expenses
         }));
     },
 
@@ -320,16 +360,21 @@ const Analytics = {
                     <span class="metric-value">${report.ltv}%</span>
                 </div>
                 <div class="metric-card">
-                    <span class="metric-label">Total Income</span>
-                    <span class="metric-value">${Formatting.currency(report.totalIncome)}</span>
+                    <span class="metric-label">Rent Income (${report.monthsInPeriod}mo)</span>
+                    <span class="metric-value" style="color: green;">${Formatting.currency(report.totalIncome)}</span>
                 </div>
                 <div class="metric-card">
-                    <span class="metric-label">Total Expenses</span>
+                    <span class="metric-label">Mortgage Payments (${report.monthsInPeriod}mo)</span>
+                    <span class="metric-value" style="color: red;">${Formatting.currency(report.totalMortgageCost)}</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Other Expenses (${report.monthsInPeriod}mo)</span>
                     <span class="metric-value">${Formatting.currency(report.totalExpenses)}</span>
                 </div>
                 <div class="metric-card">
-                    <span class="metric-label">Net Cash Flow</span>
+                    <span class="metric-label">Net Cash Flow (${report.monthsInPeriod}mo)</span>
                     <span class="metric-value" style="${report.cashFlow >= 0 ? 'color: green;' : 'color: red;'}">${Formatting.currency(report.cashFlow)}</span>
+                    <span class="metric-subtext">${Formatting.currency(report.monthlyCashFlow)}/mo</span>
                 </div>
                 <div class="metric-card">
                     <span class="metric-label">Annualized ROI</span>
@@ -342,6 +387,10 @@ const Analytics = {
                 <div class="metric-card">
                     <span class="metric-label">Properties</span>
                     <span class="metric-value">${report.propertyCount}</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Period</span>
+                    <span class="metric-value">${report.monthsInPeriod} mo</span>
                 </div>
             </div>
         `;
@@ -365,8 +414,10 @@ const Analytics = {
                         <th>Debt</th>
                         <th>Equity</th>
                         <th>Income</th>
+                        <th>Mortgage</th>
                         <th>Expenses</th>
                         <th>Cash Flow</th>
+                        <th>Monthly</th>
                         <th>Cap Rate</th>
                         <th>ROI</th>
                     </tr>
@@ -378,9 +429,11 @@ const Analytics = {
                             <td>${Formatting.currency(prop.value)}</td>
                             <td>${Formatting.currency(prop.debt)}</td>
                             <td>${Formatting.currency(prop.equity)} <span class="metric-subtext">${prop.equityPercentage}%</span></td>
-                            <td>${Formatting.currency(prop.income)}</td>
+                            <td style="color: green;">${Formatting.currency(prop.income)}</td>
+                            <td style="color: red;">${Formatting.currency(prop.mortgageCost)}</td>
                             <td>${Formatting.currency(prop.expenses)}</td>
                             <td style="${prop.cashFlow >= 0 ? 'color: green;' : 'color: red;'}">${Formatting.currency(prop.cashFlow)}</td>
+                            <td style="${prop.monthlyCashFlow >= 0 ? 'color: green;' : 'color: red;'}">${Formatting.currency(prop.monthlyCashFlow)}/mo</td>
                             <td>${prop.capRate}%</td>
                             <td style="${prop.roi >= 0 ? 'color: green;' : 'color: red;'}">${prop.roi}%</td>
                         </tr>
@@ -441,10 +494,10 @@ const Analytics = {
             return;
         }
 
-        // Simple text-based chart rendering (can be enhanced with Google Charts library)
+        // Calculate max for scaling bars
         const maxIncome = Math.max(...trendData.map(d => d.income));
-        const maxExpenses = Math.max(...trendData.map(d => d.expenses));
-        const maxValue = Math.max(maxIncome, maxExpenses) || 1;
+        const maxCosts = Math.max(...trendData.map(d => d.totalCosts));
+        const maxValue = Math.max(maxIncome, maxCosts) || 1;
 
         const html = `
             <div class="trend-chart">
@@ -453,7 +506,8 @@ const Analytics = {
                         <div class="month-label">${month.monthName}</div>
                         <div class="bars">
                             <div class="bar income" style="height: ${(month.income / maxValue * 100)}%" title="Income: ${Formatting.currency(month.income)}"></div>
-                            <div class="bar expenses" style="height: ${(month.expenses / maxValue * 100)}%" title="Expenses: ${Formatting.currency(month.expenses)}"></div>
+                            <div class="bar mortgage" style="height: ${(month.mortgage / maxValue * 100)}%; background: #e74c3c;" title="Mortgage: ${Formatting.currency(month.mortgage)}"></div>
+                            <div class="bar expenses" style="height: ${(month.expenses / maxValue * 100)}%" title="Other Expenses: ${Formatting.currency(month.expenses)}"></div>
                         </div>
                         <div class="cashflow" style="color: ${month.cashFlow >= 0 ? 'green' : 'red'}">
                             ${Formatting.currency(month.cashFlow)}
@@ -463,7 +517,8 @@ const Analytics = {
             </div>
             <div class="trend-legend">
                 <span><div class="legend-box income"></div> Income</span>
-                <span><div class="legend-box expenses"></div> Expenses</span>
+                <span><div class="legend-box" style="background: #e74c3c;"></div> Mortgage</span>
+                <span><div class="legend-box expenses"></div> Other Expenses</span>
             </div>
         `;
 
@@ -488,9 +543,9 @@ const Analytics = {
             csv += `Period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}\n`;
             csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
-            csv += 'Property,Value,Debt,Equity,Income,Expenses,Cash Flow,Cap Rate,ROI\n';
+            csv += 'Property,Value,Debt,Equity,Income,Mortgage,Expenses,Cash Flow,Monthly Cash Flow,Cap Rate,ROI\n';
             propertyComparison.forEach(prop => {
-                csv += `"${prop.address}",${prop.value},${prop.debt},${prop.equity},${prop.income},${prop.expenses},${prop.cashFlow},${prop.capRate}%,${prop.roi}%\n`;
+                csv += `"${prop.address}",${prop.value},${prop.debt},${prop.equity},${prop.income},${prop.mortgageCost},${prop.expenses},${prop.cashFlow},${prop.monthlyCashFlow},${prop.capRate}%,${prop.roi}%\n`;
             });
 
             // Trigger download
