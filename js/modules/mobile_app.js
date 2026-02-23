@@ -10,6 +10,7 @@ const MobileApp = {
             await MobileApp.setupOfflineSupport();
             await MobileApp.setupNotifications();
             await MobileApp.detectPlatform();
+            MobileApp.handleAppLifecycle();
         } catch (error) {
             console.error('Error initializing mobile app:', error);
         }
@@ -33,7 +34,7 @@ const MobileApp = {
         }
 
         MobileApp.isNative = /propertyHub/.test(ua); // Check for native app wrapper
-        MobileApp.isStandalone = window.navigator.standalone === true;
+        MobileApp.isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
         console.log(`PropertyHub Platform: ${MobileApp.platform} v${MobileApp.platformVersion} (Standalone: ${MobileApp.isStandalone})`);
 
@@ -41,7 +42,7 @@ const MobileApp = {
             platform: MobileApp.platform,
             version: MobileApp.platformVersion,
             isNative: MobileApp.isNative,
-            isStandalone
+            isStandalone: MobileApp.isStandalone
         };
     },
 
@@ -242,8 +243,9 @@ const MobileApp = {
                 console.log('Notification permission:', permission);
             }
 
-            // Register push notifications
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
+            // Register push notifications (only if VAPID key is configured)
+            if ('serviceWorker' in navigator && 'PushManager' in window &&
+                MobileApp.vapidPublicKey && !MobileApp.vapidPublicKey.includes('YOUR_')) {
                 const registration = await navigator.serviceWorker.ready;
 
                 try {
@@ -635,8 +637,4 @@ const MobileApp = {
     }
 };
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
-    MobileApp.init();
-    MobileApp.handleAppLifecycle();
-});
+// MobileApp is initialized from app.js via MobileApp.init()

@@ -13,11 +13,12 @@ const InvestmentAnalysis = {
     },
 
     /**
-     * Load investment data
+     * Load investment data (computed from existing property/mortgage/expense data)
      */
     loadInvestmentData: async () => {
         try {
-            InvestmentAnalysis.investments = await API.getInvestmentAnalysis() || [];
+            // Investment analysis is computed from existing data, no dedicated API endpoint needed
+            InvestmentAnalysis.investments = [];
             return InvestmentAnalysis.investments;
         } catch (error) {
             console.error('Error loading investment data:', error);
