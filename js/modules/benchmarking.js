@@ -17,7 +17,13 @@ const PortfolioBenchmarking = {
      */
     loadBenchmarkData: async () => {
         try {
-            PortfolioBenchmarking.benchmarks = await API.getBenchmarkData() || PortfolioBenchmarking.getDefaultBenchmarks();
+            const data = await API.getBenchmarkData().catch(() => null);
+            // Only use API data if it has actual benchmark structure (regions, national, etc.)
+            if (data && data.regions && data.national) {
+                PortfolioBenchmarking.benchmarks = data;
+            } else {
+                PortfolioBenchmarking.benchmarks = PortfolioBenchmarking.getDefaultBenchmarks();
+            }
             return PortfolioBenchmarking.benchmarks;
         } catch (error) {
             console.error('Error loading benchmark data:', error);

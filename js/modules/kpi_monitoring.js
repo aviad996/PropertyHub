@@ -29,15 +29,12 @@ const KPIMonitoring = {
      */
     loadKPISettings: async () => {
         try {
-            const response = await fetch('/kpi-settings.json').catch(() => null);
-            if (response && response.ok) {
-                KPIMonitoring.settings = await response.json();
-            } else {
-                KPIMonitoring.settings = KPIMonitoring.getDefaultThresholds();
-            }
-            // Also try to load from API if available
+            // Start with defaults
+            KPIMonitoring.settings = KPIMonitoring.getDefaultThresholds();
+
+            // Try to load from API if available
             const apiSettings = await API.getKPISettings().catch(() => null);
-            if (apiSettings) {
+            if (apiSettings && typeof apiSettings === 'object' && apiSettings.ltv_critical !== undefined) {
                 KPIMonitoring.settings = apiSettings;
             }
         } catch (error) {

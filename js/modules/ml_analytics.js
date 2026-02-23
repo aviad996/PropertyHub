@@ -25,7 +25,13 @@ const MLAnalytics = {
             return MLAnalytics.models;
         } catch (error) {
             console.error('Error loading ML models:', error);
-            return null;
+            // Ensure models is always an object with required properties
+            MLAnalytics.models = {
+                valuation: MLAnalytics.initializeValuationModel(),
+                marketTrend: MLAnalytics.initializeMarketTrendModel(),
+                riskPredictor: MLAnalytics.initializeRiskPredictorModel()
+            };
+            return MLAnalytics.models;
         }
     },
 
@@ -272,6 +278,11 @@ const MLAnalytics = {
      */
     predictPortfolioRisk: async (portfolio, properties) => {
         try {
+            // Ensure models are initialized
+            if (!MLAnalytics.models || !MLAnalytics.models.riskPredictor) {
+                await MLAnalytics.loadMLModels();
+            }
+
             const riskFactors = {
                 ltv: portfolio.ltv,
                 cashFlow: portfolio.monthlyNOI,
