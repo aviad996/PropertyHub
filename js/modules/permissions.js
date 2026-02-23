@@ -188,8 +188,8 @@ const Permissions = {
      */
     filterUIElements: () => {
         // Hide action buttons for read-only roles
-        // Exclude add-item-btn (shared header button whose action changes per view)
-        const addButtons = document.querySelectorAll('[id*="new-"][id*="-btn"], [id*="add-"][id*="-btn"]:not(#add-item-btn), [id*="-property-btn"]');
+        // Exclude add-item-btn (shared header button) and add-rehab-item-btn (form sub-item button)
+        const addButtons = document.querySelectorAll('[id*="new-"][id*="-btn"], [id*="add-"][id*="-btn"]:not(#add-item-btn):not(#add-rehab-item-btn), [id*="-property-btn"]');
         addButtons.forEach(btn => {
             const elementType = btn.id.replace(/^new-|^add-/, '').replace('-btn$', '');
             if (!Permissions.canCreate(elementType)) {
