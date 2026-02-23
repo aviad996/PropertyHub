@@ -544,8 +544,9 @@ const Analytics = {
             csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
             csv += 'Property,Value,Debt,Equity,Income,Mortgage,Expenses,Cash Flow,Monthly Cash Flow,Cap Rate,ROI\n';
+            const r2 = (v) => Math.round((v || 0) * 100) / 100;
             propertyComparison.forEach(prop => {
-                csv += `"${prop.address}",${prop.value},${prop.debt},${prop.equity},${prop.income},${prop.mortgageCost},${prop.expenses},${prop.cashFlow},${prop.monthlyCashFlow},${prop.capRate}%,${prop.roi}%\n`;
+                csv += `"${prop.address}",${r2(prop.value)},${r2(prop.debt)},${r2(prop.equity)},${r2(prop.income)},${r2(prop.mortgageCost)},${r2(prop.expenses)},${r2(prop.cashFlow)},${r2(prop.monthlyCashFlow)},${r2(prop.capRate)}%,${r2(prop.roi)}%\n`;
             });
 
             // Trigger download
