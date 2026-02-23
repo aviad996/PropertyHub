@@ -2185,65 +2185,106 @@ html, body {
     }
 }
 
-/* ==================== Payment Cubes ==================== */
+/* ==================== Charge Cards (RentRedi-style) ==================== */
 
 .payment-cubes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
     padding: 12px 0;
 }
 
-.payment-cube {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: var(--radius-sm);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.charge-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
-    border: 2px solid transparent;
-    font-size: 12px;
     position: relative;
     user-select: none;
 }
-
-.payment-cube:hover {
-    transform: scale(1.08);
+.charge-card:hover {
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
     z-index: 1;
 }
 
-.cube-paid { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #10b981; }
-.cube-partial { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #f59e0b; }
-.cube-late { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #ef4444; }
-.cube-pending { background: rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.25); color: var(--text-tertiary); }
-.cube-future { background: rgba(148, 163, 184, 0.05); border-color: var(--border-color); color: var(--text-tertiary); opacity: 0.4; }
+/* Status left-border colors */
+.charge-card.card-paid    { border-left-color: #10b981; }
+.charge-card.card-partial { border-left-color: #f59e0b; }
+.charge-card.card-late    { border-left-color: #ef4444; }
+.charge-card.card-pending { border-left-color: #94a3b8; }
+.charge-card.card-future  { border-left-color: var(--border-color); opacity: 0.45; }
 
-.cube-current {
-    border-width: 3px;
-    border-color: var(--primary-color) !important;
+/* Current month highlight */
+.charge-card.card-current {
+    border-color: var(--primary-color);
+    border-left-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.cube-month { font-weight: 700; font-size: 13px; line-height: 1.2; }
-.cube-year { font-size: 10px; opacity: 0.7; }
-.cube-status-icon { font-size: 14px; margin-top: 1px; }
-
-.cube-split {
+/* Card header: type + badge */
+.charge-card-header {
     display: flex;
-    gap: 3px;
-    font-size: 9px;
-    margin-top: 2px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.charge-card-type {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+.charge-card-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    text-transform: lowercase;
+}
+.badge-paid    { background: #d1fae5; color: #065f46; }
+.badge-partial { background: #fef3c7; color: #92400e; }
+.badge-late    { background: #fee2e2; color: #991b1b; }
+.badge-unpaid  { background: #f1f5f9; color: #64748b; }
+
+/* Card date */
+.charge-card-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
 }
 
-.cube-ha, .cube-tenant {
-    padding: 1px 3px;
-    border-radius: 2px;
-    font-weight: 600;
+/* Card amount rows */
+.charge-card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 2px 0;
 }
+.charge-card-row.balance-row {
+    border-top: 1px solid var(--border-color);
+    margin-top: 6px;
+    padding-top: 8px;
+    font-weight: 700;
+}
+.charge-card-label { color: var(--text-secondary); }
+.charge-card-value { font-weight: 600; color: var(--text-primary); }
+
+/* Section 8 split rows */
+.charge-card-split {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 12px;
+}
+
+/* Dark mode badge overrides */
+[data-theme="dark"] .badge-paid    { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+[data-theme="dark"] .badge-partial { background: rgba(245,158,11,0.2); color: #fcd34d; }
+[data-theme="dark"] .badge-late    { background: rgba(239,68,68,0.2); color: #fca5a5; }
+[data-theme="dark"] .badge-unpaid  { background: rgba(148,163,184,0.15); color: #94a3b8; }
 
 /* Tenant cubes section */
 .tenant-cubes-section,

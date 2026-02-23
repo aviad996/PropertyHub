@@ -340,58 +340,74 @@ const RentPayments = {
                 const cubes = months.map(month => {
                     const payment = paymentMap[month];
                     const isFuture = month > today;
-                    let statusClass, statusIcon, tooltip;
+                    const isCurrent = month === today;
+                    const [y, m] = month.split('-');
+                    const monthDate = new Date(parseInt(y), parseInt(m) - 1, 1);
+                    const dateStr = monthDate.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+
+                    let statusClass, badgeClass, badgeText;
+                    const expectedAmt = parseFloat(tenant.monthly_rent) || 0;
+                    let paidAmt = 0;
 
                     if (payment) {
-                        statusClass = 'cube-' + payment.status;
+                        paidAmt = parseFloat(payment.amount_paid) || 0;
+                        statusClass = 'card-' + payment.status;
                         if (payment.status === 'paid') {
                             paidCount++;
-                            statusIcon = '&#10003;';
+                            badgeClass = 'badge-paid';
+                            badgeText = 'paid';
                         } else if (payment.status === 'partial') {
                             unpaidCount++;
-                            statusIcon = '&#8776;';
+                            badgeClass = 'badge-partial';
+                            badgeText = 'partial';
                         } else if (payment.status === 'late') {
                             unpaidCount++;
-                            statusIcon = '!';
+                            badgeClass = 'badge-late';
+                            badgeText = 'late';
                         } else {
                             unpaidCount++;
-                            statusIcon = '';
+                            badgeClass = 'badge-unpaid';
+                            badgeText = 'unpaid';
                         }
-                        const amt = payment.amount_paid || payment.amount || 0;
-                        tooltip = `${month} - ${payment.status.toUpperCase()} ${Formatting.currency(amt)}`;
                     } else if (isFuture) {
-                        statusClass = 'cube-future';
-                        statusIcon = '';
-                        tooltip = `${month} - Future`;
+                        statusClass = 'card-future';
+                        badgeClass = 'badge-unpaid';
+                        badgeText = 'upcoming';
                     } else {
-                        statusClass = 'cube-pending';
+                        statusClass = 'card-pending';
                         unpaidCount++;
-                        statusIcon = '';
-                        tooltip = `${month} - No payment recorded`;
+                        badgeClass = 'badge-unpaid';
+                        badgeText = 'unpaid';
                     }
 
-                    const currentClass = month === today ? ' cube-current' : '';
-                    const [y, m] = month.split('-');
-                    const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('en-US', { month: 'short' });
+                    const balance = expectedAmt - paidAmt;
+                    const currentClass = isCurrent ? ' card-current' : '';
 
-                    // Section 8 split display inside cube
+                    // Section 8 split rows
                     let splitHtml = '';
                     if (isSection8 && payment && (payment.ha_paid || payment.tenant_paid)) {
-                        const haOk = parseFloat(payment.ha_paid || 0) >= parseFloat(tenant.section8_ha_amount || 0);
-                        const tOk = parseFloat(payment.tenant_paid || 0) >= parseFloat(tenant.section8_tenant_amount || 0);
-                        splitHtml = `<div class="cube-split">
-                            <span class="cube-ha" title="Housing Authority">${haOk ? '&#10003;' : '&#10007;'}</span>
-                            <span class="cube-tenant" title="Tenant">${tOk ? '&#10003;' : '&#10007;'}</span>
+                        const haPaid = parseFloat(payment.ha_paid || 0);
+                        const tPaid = parseFloat(payment.tenant_paid || 0);
+                        const haExpected = parseFloat(tenant.section8_ha_amount || 0);
+                        const tExpected = parseFloat(tenant.section8_tenant_amount || 0);
+                        splitHtml = `<div class="charge-card-split">
+                            <div class="charge-card-row"><span class="charge-card-label">HA:</span><span class="charge-card-value">${Formatting.currency(haPaid)} ${haPaid >= haExpected ? '✓' : '✗'}</span></div>
+                            <div class="charge-card-row"><span class="charge-card-label">Tenant:</span><span class="charge-card-value">${Formatting.currency(tPaid)} ${tPaid >= tExpected ? '✓' : '✗'}</span></div>
                         </div>`;
                     }
 
-                    return `<div class="payment-cube ${statusClass}${currentClass}"
+                    return `<div class="charge-card ${statusClass}${currentClass}"
                                  data-month="${month}" data-tenant-id="${tenant.id}"
                                  data-payment-id="${payment?.id || ''}"
-                                 title="${tooltip}">
-                        <span class="cube-month">${monthName}</span>
-                        <span class="cube-year">${y}</span>
-                        ${statusIcon ? `<span class="cube-status-icon">${statusIcon}</span>` : ''}
+                                 title="${month}">
+                        <div class="charge-card-header">
+                            <span class="charge-card-type">Rent</span>
+                            <span class="charge-card-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <div class="charge-card-date">${dateStr}</div>
+                        <div class="charge-card-row"><span class="charge-card-label">Total:</span><span class="charge-card-value">${Formatting.currency(expectedAmt)}</span></div>
+                        <div class="charge-card-row"><span class="charge-card-label">Paid:</span><span class="charge-card-value">${Formatting.currency(paidAmt)}</span></div>
+                        <div class="charge-card-row balance-row"><span class="charge-card-label">Balance:</span><span class="charge-card-value">${Formatting.currency(balance)}</span></div>
                         ${splitHtml}
                     </div>`;
                 }).join('');
@@ -428,7 +444,7 @@ const RentPayments = {
             container.innerHTML = html;
 
             // Attach click handlers to cubes
-            container.querySelectorAll('.payment-cube:not(.cube-future)').forEach(cube => {
+            container.querySelectorAll('.charge-card:not(.card-future)').forEach(cube => {
                 cube.addEventListener('click', (e) => RentPayments.handleCubeClick(e.currentTarget));
             });
         } catch (error) {
