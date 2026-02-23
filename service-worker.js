@@ -1,6 +1,6 @@
 // Service Worker for PropertyHub - Offline Support & Caching Strategy
 
-const CACHE_NAME = 'propertyHub-v31';
+const CACHE_NAME = 'propertyHub-v32';
 const urlsToCache = [
   '/',
   '/index.html',

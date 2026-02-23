@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=13">
+    <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
     <!-- PIN Lock Screen -->
@@ -1076,8 +1076,56 @@
                         <div class="view-controls">
                             <button class="view-toggle active" data-mode="cubes" id="rent-view-cubes">Cube View</button>
                             <button class="view-toggle" data-mode="table" id="rent-view-table">Table View</button>
+                            <button class="btn-secondary btn-small" id="export-payments-btn" title="Export CSV">Export CSV</button>
                             <button class="btn-primary" id="record-payment-btn">+ Record Payment</button>
                         </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div id="rent-summary-cards" class="rent-summary-cards">
+                        <div class="rent-summary-card rent-card-collected">
+                            <div class="rent-card-icon">&#10003;</div>
+                            <div class="rent-card-content">
+                                <span class="rent-card-value" id="rent-total-collected">$0</span>
+                                <span class="rent-card-label">Collected</span>
+                            </div>
+                        </div>
+                        <div class="rent-summary-card rent-card-pending">
+                            <div class="rent-card-icon">&#9203;</div>
+                            <div class="rent-card-content">
+                                <span class="rent-card-value" id="rent-total-pending">$0</span>
+                                <span class="rent-card-label">Pending</span>
+                            </div>
+                        </div>
+                        <div class="rent-summary-card rent-card-overdue">
+                            <div class="rent-card-icon">&#9888;</div>
+                            <div class="rent-card-content">
+                                <span class="rent-card-value" id="rent-total-overdue">$0</span>
+                                <span class="rent-card-label">Overdue</span>
+                            </div>
+                        </div>
+                        <div class="rent-summary-card rent-card-rate">
+                            <div class="rent-card-icon">
+                                <svg class="progress-ring" width="44" height="44" viewBox="0 0 44 44">
+                                    <circle class="progress-ring-bg" cx="22" cy="22" r="18" fill="none" stroke-width="4"/>
+                                    <circle class="progress-ring-fill" id="rent-progress-ring" cx="22" cy="22" r="18" fill="none" stroke-width="4" stroke-dasharray="113.1" stroke-dashoffset="113.1"/>
+                                </svg>
+                                <span class="progress-ring-text" id="rent-rate-percent">0%</span>
+                            </div>
+                            <div class="rent-card-content">
+                                <span class="rent-card-value" id="rent-collection-rate">0%</span>
+                                <span class="rent-card-label">Collection Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="rent-filter-tabs" id="rent-filter-tabs">
+                        <button class="rent-filter-tab active" data-filter="all">All</button>
+                        <button class="rent-filter-tab" data-filter="paid">Paid</button>
+                        <button class="rent-filter-tab" data-filter="pending">Pending</button>
+                        <button class="rent-filter-tab" data-filter="overdue">Overdue</button>
+                        <button class="rent-filter-tab" data-filter="partial">Partial</button>
                     </div>
 
                     <div id="rent-cubes-view">
@@ -1637,7 +1685,7 @@
     <script src="js/modules/utilities.js"></script>
     <script src="js/modules/contacts.js"></script>
     <script src="js/modules/tenants.js?v=11"></script>
-    <script src="js/modules/rent_payments.js?v=12"></script>
+    <script src="js/modules/rent_payments.js?v=13"></script>
     <script src="js/modules/insurance.js"></script>
     <script src="js/modules/tasks.js?v=11"></script>
     <script src="js/modules/analytics.js"></script>

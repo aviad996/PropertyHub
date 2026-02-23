@@ -4,6 +4,8 @@ const RentPayments = {
     currentEditId: null,
     currentMonth: new Date().toISOString().substring(0, 7), // YYYY-MM format
     currentViewMode: 'cubes', // 'cubes' or 'table'
+    currentFilter: 'all', // 'all', 'paid', 'pending', 'overdue', 'partial'
+    cachedData: null, // cached tenants/payments/properties for filter switching
 
     /**
      * Initialize rent payments module
@@ -12,6 +14,8 @@ const RentPayments = {
         await RentPayments.populateAllTenants();
         RentPayments.setupEventListeners();
         RentPayments.setupViewToggle();
+        RentPayments.setupFilterTabs();
+        RentPayments.setupExportButton();
         if (RentPayments.currentViewMode === 'cubes') {
             await RentPayments.loadCubeView();
         } else {
@@ -79,6 +83,206 @@ const RentPayments = {
     },
 
     /**
+     * Setup filter tab buttons
+     */
+    setupFilterTabs: () => {
+        document.querySelectorAll('.rent-filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.rent-filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                RentPayments.currentFilter = tab.dataset.filter;
+                if (RentPayments.currentViewMode === 'cubes') {
+                    RentPayments.loadCubeView();
+                } else {
+                    RentPayments.loadRentPayments();
+                }
+            });
+        });
+    },
+
+    /**
+     * Setup export CSV button
+     */
+    setupExportButton: () => {
+        document.getElementById('export-payments-btn')?.addEventListener('click', async () => {
+            try {
+                const payments = await API.getRentPayments();
+                const tenants = await API.getTenants();
+                const properties = await API.getProperties();
+
+                if (!payments || payments.length === 0) {
+                    UI.showToast('No payment data to export', 'error');
+                    return;
+                }
+
+                const headers = ['Month', 'Tenant', 'Property', 'Expected', 'Paid', 'Status', 'Paid Date', 'Running Balance'];
+                const rows = payments
+                    .sort((a, b) => a.month.localeCompare(b.month))
+                    .map(p => {
+                        const tenant = tenants.find(t => String(t.id) === String(p.tenant_id));
+                        const prop = properties.find(pr => String(pr.id) === String(p.property_id || (tenant ? tenant.property_id : '')));
+                        const amountPaid = p.amount_paid !== undefined && p.amount_paid !== '' && p.amount_paid !== null
+                            ? parseFloat(p.amount_paid) : (p.status === 'paid' ? p.amount : 0);
+                        return [
+                            p.month,
+                            tenant ? tenant.name : 'Unknown',
+                            prop ? prop.address : 'Unknown',
+                            p.amount,
+                            amountPaid,
+                            p.status,
+                            p.paid_date || '',
+                            ''
+                        ];
+                    });
+
+                // Calculate running balance per tenant
+                const balances = {};
+                rows.forEach(row => {
+                    const tenantName = row[1];
+                    if (!balances[tenantName]) balances[tenantName] = 0;
+                    balances[tenantName] += (row[3] - row[4]); // expected - paid
+                    row[7] = balances[tenantName].toFixed(2);
+                });
+
+                const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rent-payments-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                UI.showToast('Payments exported successfully', 'success');
+            } catch (error) {
+                console.error('Error exporting payments:', error);
+                UI.showToast('Error exporting payments', 'error');
+            }
+        });
+    },
+
+    /**
+     * Update summary cards with current month data
+     */
+    updateSummaryCards: (tenants, payments, properties) => {
+        const today = new Date().toISOString().substring(0, 7);
+        const activeTenants = tenants.filter(t => t.status === 'active');
+
+        // Calculate expected rent for current month
+        let totalExpected = 0;
+        activeTenants.forEach(t => {
+            totalExpected += parseFloat(t.monthly_rent) || 0;
+        });
+
+        // Get current month payments
+        const currentPayments = payments.filter(p => p.month === today);
+
+        let totalCollected = 0;
+        let totalPending = 0;
+        let totalOverdue = 0;
+        let paidCount = 0;
+
+        // Map which tenants have payments this month
+        const tenantPaymentMap = {};
+        currentPayments.forEach(p => {
+            tenantPaymentMap[String(p.tenant_id)] = p;
+            const amountPaid = p.amount_paid !== undefined && p.amount_paid !== '' && p.amount_paid !== null
+                ? parseFloat(p.amount_paid) : (p.status === 'paid' ? parseFloat(p.amount) : 0);
+
+            if (p.status === 'paid') {
+                totalCollected += parseFloat(p.amount);
+                paidCount++;
+            } else if (p.status === 'partial') {
+                totalCollected += amountPaid;
+                totalPending += (parseFloat(p.amount) - amountPaid);
+            } else if (p.status === 'late') {
+                totalOverdue += parseFloat(p.amount);
+            } else if (p.status === 'pending') {
+                totalPending += parseFloat(p.amount);
+            }
+        });
+
+        // Count tenants with no payment record this month as pending
+        activeTenants.forEach(t => {
+            if (!tenantPaymentMap[String(t.id)]) {
+                totalPending += parseFloat(t.monthly_rent) || 0;
+            }
+        });
+
+        const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0;
+
+        // Update DOM
+        const collectedEl = document.getElementById('rent-total-collected');
+        const pendingEl = document.getElementById('rent-total-pending');
+        const overdueEl = document.getElementById('rent-total-overdue');
+        const rateEl = document.getElementById('rent-collection-rate');
+        const ratePercentEl = document.getElementById('rent-rate-percent');
+        const progressRing = document.getElementById('rent-progress-ring');
+
+        if (collectedEl) collectedEl.textContent = Formatting.currency(totalCollected);
+        if (pendingEl) pendingEl.textContent = Formatting.currency(totalPending);
+        if (overdueEl) overdueEl.textContent = Formatting.currency(totalOverdue);
+        if (rateEl) rateEl.textContent = collectionRate + '%';
+        if (ratePercentEl) ratePercentEl.textContent = collectionRate + '%';
+
+        // Update progress ring
+        if (progressRing) {
+            const circumference = 2 * Math.PI * 18; // r=18
+            const offset = circumference - (collectionRate / 100) * circumference;
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        // Update filter tab counts
+        const allPaymentsThisMonth = currentPayments;
+        const paidPayments = allPaymentsThisMonth.filter(p => p.status === 'paid');
+        const pendingPayments = allPaymentsThisMonth.filter(p => p.status === 'pending');
+        const overduePayments = allPaymentsThisMonth.filter(p => p.status === 'late');
+        const partialPayments = allPaymentsThisMonth.filter(p => p.status === 'partial');
+
+        // Update tab badges
+        document.querySelectorAll('.rent-filter-tab').forEach(tab => {
+            const filter = tab.dataset.filter;
+            const badge = tab.querySelector('.filter-count');
+            let count = 0;
+            if (filter === 'all') count = activeTenants.length;
+            else if (filter === 'paid') count = paidPayments.length;
+            else if (filter === 'pending') count = pendingPayments.length + (activeTenants.length - currentPayments.length);
+            else if (filter === 'overdue') count = overduePayments.length;
+            else if (filter === 'partial') count = partialPayments.length;
+
+            if (badge) {
+                badge.textContent = count;
+            } else if (count > 0 && filter !== 'all') {
+                tab.innerHTML = tab.textContent.split(' ')[0] + ` <span class="filter-count">${count}</span>`;
+            }
+        });
+    },
+
+    /**
+     * Calculate running balance for a tenant
+     */
+    calculateRunningBalance: (tenantId, payments, monthlyRent, leaseStart) => {
+        if (!leaseStart) return 0;
+        const today = new Date().toISOString().substring(0, 7);
+        const months = RentPayments.generateMonthRange(leaseStart, null);
+        const tenantPayments = payments.filter(p => String(p.tenant_id) === String(tenantId));
+        const paymentMap = {};
+        tenantPayments.forEach(p => { paymentMap[p.month] = p; });
+
+        let balance = 0;
+        months.forEach(month => {
+            if (month > today) return; // Skip future months
+            balance += parseFloat(monthlyRent) || 0;
+            const payment = paymentMap[month];
+            if (payment) {
+                const amountPaid = payment.amount_paid !== undefined && payment.amount_paid !== '' && payment.amount_paid !== null
+                    ? parseFloat(payment.amount_paid) : (payment.status === 'paid' ? parseFloat(payment.amount) : 0);
+                balance -= amountPaid;
+            }
+        });
+        return balance;
+    },
+
+    /**
      * Load cube view — visual grid of monthly payment tiles per tenant
      */
     loadCubeView: async () => {
@@ -89,6 +293,12 @@ const RentPayments = {
             const container = document.getElementById('rent-cubes-view');
             if (!container) return;
 
+            // Cache data for filter switching
+            RentPayments.cachedData = { tenants, payments, properties };
+
+            // Update summary cards
+            RentPayments.updateSummaryCards(tenants, payments, properties);
+
             const activeTenants = tenants.filter(t => t.status === 'active');
             const today = new Date().toISOString().substring(0, 7);
 
@@ -97,7 +307,24 @@ const RentPayments = {
                 return;
             }
 
-            const html = activeTenants.map(tenant => {
+            // Apply filter
+            const filter = RentPayments.currentFilter;
+            const filteredTenants = activeTenants.filter(tenant => {
+                if (filter === 'all') return true;
+                const currentMonthPayment = payments.find(p => String(p.tenant_id) === String(tenant.id) && p.month === today);
+                if (filter === 'paid') return currentMonthPayment && currentMonthPayment.status === 'paid';
+                if (filter === 'pending') return !currentMonthPayment || currentMonthPayment.status === 'pending';
+                if (filter === 'overdue') return currentMonthPayment && currentMonthPayment.status === 'late';
+                if (filter === 'partial') return currentMonthPayment && currentMonthPayment.status === 'partial';
+                return true;
+            });
+
+            if (filteredTenants.length === 0) {
+                container.innerHTML = `<p class="loading empty-state">No tenants match the "${filter}" filter.</p>`;
+                return;
+            }
+
+            const html = filteredTenants.map(tenant => {
                 const property = properties.find(p => String(p.id) === String(tenant.property_id));
                 const tenantPayments = payments.filter(p => String(p.tenant_id) === String(tenant.id));
                 const months = RentPayments.generateMonthRange(tenant.lease_start_date, tenant.lease_end_date);
@@ -171,6 +398,16 @@ const RentPayments = {
 
                 const s8Badge = isSection8 ? ' <span class="badge-section8 badge-small">S8</span>' : '';
 
+                // Calculate running balance
+                const runningBalance = RentPayments.calculateRunningBalance(
+                    tenant.id, payments, tenant.monthly_rent, tenant.lease_start_date
+                );
+                const balanceHtml = runningBalance > 0
+                    ? `<span class="stat balance-owed" title="Outstanding balance">Owes ${Formatting.currency(runningBalance)}</span>`
+                    : runningBalance < 0
+                    ? `<span class="stat balance-credit" title="Credit balance">Credit ${Formatting.currency(Math.abs(runningBalance))}</span>`
+                    : '';
+
                 return `<div class="tenant-cubes-section">
                     <div class="tenant-cubes-header">
                         <div class="tenant-cubes-name">
@@ -181,6 +418,7 @@ const RentPayments = {
                             <span>${Formatting.currency(tenant.monthly_rent)}/mo</span>
                             <span class="stat received">${paidCount} Paid</span>
                             ${unpaidCount > 0 ? `<span class="stat outstanding">${unpaidCount} Unpaid</span>` : ''}
+                            ${balanceHtml}
                         </div>
                     </div>
                     <div class="payment-cubes-grid">${cubes}</div>
@@ -276,13 +514,32 @@ const RentPayments = {
      */
     loadRentPayments: async () => {
         try {
-            const payments = await API.getRentPayments();
+            const allPayments = await API.getRentPayments();
             const tenants = await API.getTenants();
             const properties = await API.getProperties();
             const container = document.getElementById('rent-payments-list');
 
-            if (!payments || payments.length === 0) {
+            // Cache data and update summary
+            RentPayments.cachedData = { tenants, payments: allPayments, properties };
+            RentPayments.updateSummaryCards(tenants, allPayments, properties);
+
+            if (!allPayments || allPayments.length === 0) {
                 container.innerHTML = '<p class="loading empty-state">No rent payments recorded yet. Click "Record Payment" to add one!</p>';
+                return;
+            }
+
+            // Apply filter
+            const filter = RentPayments.currentFilter;
+            const payments = filter === 'all' ? allPayments : allPayments.filter(p => {
+                if (filter === 'paid') return p.status === 'paid';
+                if (filter === 'pending') return p.status === 'pending';
+                if (filter === 'overdue') return p.status === 'late';
+                if (filter === 'partial') return p.status === 'partial';
+                return true;
+            });
+
+            if (payments.length === 0) {
+                container.innerHTML = `<p class="loading empty-state">No "${filter}" payments found.</p>`;
                 return;
             }
 
