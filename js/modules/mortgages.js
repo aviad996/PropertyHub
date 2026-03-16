@@ -317,6 +317,36 @@ const Mortgages = {
 
         // Mortgage payment listeners
         Mortgages.setupMortgagePaymentListeners();
+
+        // Mortgage payment date filters
+        document.getElementById('mortgage-filter-apply')?.addEventListener('click', () => {
+            const from = document.getElementById('mortgage-filter-from')?.value;
+            const to = document.getElementById('mortgage-filter-to')?.value;
+            Mortgages._filterFrom = from || null;
+            Mortgages._filterTo = to || null;
+            Mortgages.reloadOpenTimelines();
+        });
+        document.getElementById('mortgage-filter-clear')?.addEventListener('click', () => {
+            Mortgages._filterFrom = null;
+            Mortgages._filterTo = null;
+            const fromEl = document.getElementById('mortgage-filter-from');
+            const toEl = document.getElementById('mortgage-filter-to');
+            if (fromEl) fromEl.value = '';
+            if (toEl) toEl.value = '';
+            Mortgages.reloadOpenTimelines();
+        });
+    },
+
+    /**
+     * Reload all currently open mortgage payment timelines
+     */
+    reloadOpenTimelines: () => {
+        document.querySelectorAll('.mortgage-payment-cubes:not(.hidden)').forEach(container => {
+            const mortgageId = container.id?.replace('mortgage-cubes-', '');
+            if (mortgageId) {
+                Mortgages.loadPaymentCubes(mortgageId, container, false);
+            }
+        });
     },
 
     /**
@@ -563,6 +593,37 @@ const Mortgages = {
     // =====================================================
 
     _mortgagePaymentEditId: null,
+    _filterFrom: null,
+    _filterTo: null,
+
+    /**
+     * Build full amortization schedule for a mortgage
+     * Returns Map<"YYYY-MM", { principal, interest, remainingBalance, paymentNumber }>
+     */
+    buildAmortizationSchedule: (mortgage) => {
+        const schedule = new Map();
+        const monthlyPI = (mortgage.monthly_payment || 0) - (mortgage.escrow_payment || 0);
+        const monthlyRate = (mortgage.interest_rate || 0) / 100 / 12;
+        let balance = mortgage.original_balance || mortgage.current_balance || 0;
+        const startDate = Mortgages.estimateStartDate(mortgage);
+        if (!startDate || !balance || !monthlyPI) return schedule;
+
+        const current = new Date(startDate);
+        current.setDate(1);
+        const totalMonths = 360;
+
+        for (let i = 1; i <= totalMonths && balance > 0; i++) {
+            const month = current.toISOString().substring(0, 7);
+            const interest = Math.round(balance * monthlyRate * 100) / 100;
+            let principal = Math.round((monthlyPI - interest) * 100) / 100;
+            if (principal > balance) principal = balance;
+            balance = Math.round((balance - principal) * 100) / 100;
+
+            schedule.set(month, { principal, interest, remainingBalance: balance, paymentNumber: i });
+            current.setMonth(current.getMonth() + 1);
+        }
+        return schedule;
+    },
 
     /**
      * Estimate start date from remaining term if not provided
@@ -597,6 +658,12 @@ const Mortgages = {
             current.setMonth(current.getMonth() + 1);
         }
 
+        // Apply date filters if set
+        let filtered = months;
+        if (Mortgages._filterFrom) filtered = filtered.filter(m => m >= Mortgages._filterFrom);
+        if (Mortgages._filterTo) filtered = filtered.filter(m => m <= Mortgages._filterTo);
+        if (Mortgages._filterFrom || Mortgages._filterTo) return filtered;
+
         // If not showAll, only return last 12 months + 3 future
         if (!showAll && months.length > 15) {
             const nowMonth = now.toISOString().substring(0, 7);
@@ -604,7 +671,7 @@ const Mortgages = {
             const startIdx = Math.max(0, nowIdx - 11);
             return months.slice(startIdx);
         }
-        return months;
+        return filtered;
     },
 
     /**
@@ -621,56 +688,77 @@ const Mortgages = {
             const months = Mortgages.generateMortgageTimeline(mortgage, showAll);
             const today = new Date().toISOString().substring(0, 7);
 
+            // Build amortization schedule for P&I breakdown
+            const amortSchedule = Mortgages.buildAmortizationSchedule(mortgage);
+
             // Build payment lookup
             const paymentMap = {};
             mortgagePayments.forEach(p => {
-                const key = String(p.month).substring(0, 7); // normalize to YYYY-MM
+                const key = String(p.month).substring(0, 7);
                 paymentMap[key] = p;
             });
 
             let paidCount = 0, totalCount = 0;
+            let totalPrincipalPaid = 0, totalInterestPaid = 0;
 
-            const cubes = months.map(month => {
+            const cards = months.map(month => {
                 const payment = paymentMap[month];
+                const amort = amortSchedule.get(month);
                 const isFuture = month > today;
-                let statusClass, statusIcon, tooltip;
+                let statusClass, badgeClass, badgeText;
 
                 if (payment) {
-                    statusClass = 'cube-' + payment.status;
-                    if (payment.status === 'paid') {
-                        paidCount++;
-                        statusIcon = '&#10003;';
-                    } else if (payment.status === 'partial') {
-                        statusIcon = '&#8776;';
-                    } else if (payment.status === 'late') {
-                        statusIcon = '!';
-                    } else {
-                        statusIcon = '';
+                    statusClass = 'card-' + payment.status;
+                    badgeClass = payment.status === 'paid' ? 'badge-paid' : payment.status === 'late' ? 'badge-late' : 'badge-pending';
+                    badgeText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
+                    if (payment.status === 'paid') paidCount++;
+                    if (amort && (payment.status === 'paid' || payment.status === 'partial')) {
+                        totalPrincipalPaid += amort.principal;
+                        totalInterestPaid += amort.interest;
                     }
-                    const amt = payment.amount_paid || payment.amount || 0;
-                    tooltip = `${month} - ${payment.status.toUpperCase()} ${Formatting.currency(amt)}`;
                 } else if (isFuture) {
-                    statusClass = 'cube-future';
-                    statusIcon = '';
-                    tooltip = `${month} - Future`;
+                    statusClass = 'card-future';
+                    badgeClass = 'badge-future';
+                    badgeText = 'Future';
                 } else {
-                    statusClass = 'cube-pending';
-                    statusIcon = '';
-                    tooltip = `${month} - No payment recorded`;
+                    statusClass = 'card-pending';
+                    badgeClass = 'badge-pending';
+                    badgeText = 'Pending';
                 }
 
                 if (!isFuture) totalCount++;
-                const currentClass = month === today ? ' cube-current' : '';
+                const currentClass = month === today ? ' card-current' : '';
                 const [y, m] = month.split('-');
                 const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('en-US', { month: 'short' });
+                const paidDate = payment?.paid_date ? new Date(payment.paid_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 
-                return `<div class="payment-cube ${statusClass}${currentClass}"
+                return `<div class="mortgage-payment-card ${statusClass}${currentClass}"
                              data-month="${month}" data-mortgage-id="${mortgageId}"
-                             data-payment-id="${payment?.id || ''}"
-                             title="${tooltip}">
-                    <span class="cube-month">${monthName}</span>
-                    <span class="cube-year">${y}</span>
-                    ${statusIcon ? `<span class="cube-status-icon">${statusIcon}</span>` : ''}
+                             data-payment-id="${payment?.id || ''}">
+                    <div class="mp-card-header">
+                        <span class="mp-card-title">${monthName} ${y}</span>
+                        <span class="mp-card-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    ${paidDate ? `<div class="mp-card-date">${paidDate}</div>` : ''}
+                    ${amort ? `
+                    <div class="mp-card-row">
+                        <span>Principal</span>
+                        <span>${Formatting.currency(amort.principal)}</span>
+                    </div>
+                    <div class="mp-card-row">
+                        <span>Interest</span>
+                        <span>${Formatting.currency(amort.interest)}</span>
+                    </div>
+                    <div class="mp-card-row mp-card-balance">
+                        <span>Balance</span>
+                        <span>${Formatting.currency(amort.remainingBalance)}</span>
+                    </div>
+                    ` : `
+                    <div class="mp-card-row">
+                        <span>Payment</span>
+                        <span>${Formatting.currency(mortgage.monthly_payment)}</span>
+                    </div>
+                    `}
                 </div>`;
             }).join('');
 
@@ -679,16 +767,18 @@ const Mortgages = {
                 : '';
 
             container.innerHTML = `
-                <div class="tenant-cubes-stats" style="margin-bottom: 8px;">
+                <div class="tenant-cubes-stats" style="margin-bottom: 8px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
                     <span>${paidCount}/${totalCount} Paid</span>
+                    <span style="color: var(--success-color);">Principal: ${Formatting.currency(totalPrincipalPaid)}</span>
+                    <span style="color: var(--warning-color);">Interest: ${Formatting.currency(totalInterestPaid)}</span>
                     ${showAllBtn}
                 </div>
-                <div class="payment-cubes-grid">${cubes}</div>
+                <div class="mortgage-payment-cards-grid">${cards}</div>
             `;
 
-            // Attach click handlers to cubes
-            container.querySelectorAll('.payment-cube:not(.cube-future)').forEach(cube => {
-                cube.addEventListener('click', (e) => Mortgages.handleMortgageCubeClick(e.currentTarget));
+            // Attach click handlers to cards
+            container.querySelectorAll('.mortgage-payment-card:not(.card-future)').forEach(card => {
+                card.addEventListener('click', (e) => Mortgages.handleMortgageCubeClick(e.currentTarget));
             });
 
             // Show All button

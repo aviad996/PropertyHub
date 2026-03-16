@@ -2285,6 +2285,105 @@ html, body {
 [data-theme="dark"] .badge-partial { background: rgba(245,158,11,0.2); color: #fcd34d; }
 [data-theme="dark"] .badge-late    { background: rgba(239,68,68,0.2); color: #fca5a5; }
 [data-theme="dark"] .badge-unpaid  { background: rgba(148,163,184,0.15); color: #94a3b8; }
+.badge-pending { background: #f1f5f9; color: #64748b; }
+.badge-future  { background: #f1f5f9; color: #94a3b8; }
+[data-theme="dark"] .badge-pending { background: rgba(148,163,184,0.15); color: #94a3b8; }
+[data-theme="dark"] .badge-future  { background: rgba(148,163,184,0.1); color: #64748b; }
+
+/* ==================== Mortgage Payment Cards ==================== */
+.mortgage-timeline-filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    margin-bottom: 8px;
+}
+.mortgage-timeline-filters label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.mortgage-timeline-filters input[type="month"] {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+.mortgage-payment-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px 0;
+}
+.mortgage-payment-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.mortgage-payment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.mortgage-payment-card.card-paid    { border-left-color: #10b981; }
+.mortgage-payment-card.card-partial { border-left-color: #f59e0b; }
+.mortgage-payment-card.card-late    { border-left-color: #ef4444; }
+.mortgage-payment-card.card-pending { border-left-color: #94a3b8; }
+.mortgage-payment-card.card-future  { border-left-color: var(--border-color); opacity: 0.45; pointer-events: none; }
+.mortgage-payment-card.card-current {
+    border-color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+.mp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.mp-card-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+.mp-card-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    text-transform: lowercase;
+}
+.mp-card-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.mp-card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 2px 0;
+    color: var(--text-secondary);
+}
+.mp-card-row span:last-child {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.mp-card-balance {
+    border-top: 1px solid var(--border-color);
+    margin-top: 4px;
+    padding-top: 6px;
+    font-weight: 700;
+}
+.mp-card-balance span:last-child {
+    color: var(--primary-color);
+}
 
 /* Tenant cubes section */
 .tenant-cubes-section,

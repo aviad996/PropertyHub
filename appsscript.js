@@ -831,6 +831,7 @@ function addTenant(params) {
     sheet.appendRow([
         id,
         params.property_id || '',
+        params.unit_number || '',
         params.name || '',
         params.email || '',
         params.phone || '',
@@ -839,8 +840,16 @@ function addTenant(params) {
         parseFloat(params.monthly_rent) || 0,
         parseFloat(params.security_deposit) || 0,
         params.status || 'active',
+        params.is_section8 === 'true' || params.is_section8 === true,
+        parseFloat(params.section8_ha_amount) || '',
+        parseFloat(params.section8_tenant_amount) || '',
         new Date()
     ]);
+
+    // Set number format for numeric fields
+    const lastRow = sheet.getLastRow();
+    sheet.getRange(lastRow, 9).setNumberFormat('0.00');  // monthly_rent
+    sheet.getRange(lastRow, 10).setNumberFormat('0.00'); // security_deposit
 
     logAudit('CREATE', id, 'Added tenant: ' + params.name);
     return { success: true, data: { id: id } };
@@ -855,14 +864,19 @@ function updateTenant(params) {
         if (data[i][0] === params.id) {
             sheet.getRange(i + 1, 2, 1, headers.length - 1).setValues([[
                 params.property_id || data[i][1],
-                params.name || data[i][2],
-                params.email || data[i][3],
-                params.phone || data[i][4],
-                params.lease_start_date || data[i][5],
-                params.lease_end_date || data[i][6],
-                parseFloat(params.monthly_rent) || data[i][7],
-                parseFloat(params.security_deposit) || data[i][8],
-                params.status || data[i][9]
+                params.unit_number !== undefined ? params.unit_number : data[i][2],
+                params.name || data[i][3],
+                params.email !== undefined ? params.email : data[i][4],
+                params.phone !== undefined ? params.phone : data[i][5],
+                params.lease_start_date || data[i][6],
+                params.lease_end_date || data[i][7],
+                parseFloat(params.monthly_rent) || data[i][8],
+                parseFloat(params.security_deposit) || data[i][9],
+                params.status || data[i][10],
+                params.is_section8 === 'true' || params.is_section8 === true || data[i][11],
+                parseFloat(params.section8_ha_amount) || data[i][12],
+                parseFloat(params.section8_tenant_amount) || data[i][13],
+                data[i][14] // created_date - don't update
             ]]);
 
             logAudit('UPDATE', params.id, 'Updated tenant: ' + params.name);
