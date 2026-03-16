@@ -268,7 +268,7 @@ const Mortgages = {
         const interestPayment = mortgage.current_balance * monthlyRate;
 
         // Principal
-        const principalPayment = mortgage.monthly_payment - interestPayment - (mortgage.escrow_payment || 0);
+        const principalPayment = mortgage.monthly_payment - interestPayment; // monthly_payment is P&I only (excludes escrow)
 
         return Math.max(0, principalPayment);
     },
@@ -602,7 +602,7 @@ const Mortgages = {
      */
     buildAmortizationSchedule: (mortgage) => {
         const schedule = new Map();
-        const monthlyPI = (mortgage.monthly_payment || 0) - (mortgage.escrow_payment || 0);
+        const monthlyPI = mortgage.monthly_payment || 0; // already P&I only (excludes escrow)
         const monthlyRate = (mortgage.interest_rate || 0) / 100 / 12;
         let balance = mortgage.original_balance || mortgage.current_balance || 0;
         const startDate = Mortgages.estimateStartDate(mortgage);
