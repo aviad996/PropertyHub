@@ -6,6 +6,8 @@ const RentPayments = {
     currentViewMode: 'cubes', // 'cubes' or 'table'
     currentFilter: 'all', // 'all', 'paid', 'pending', 'overdue', 'partial'
     cachedData: null, // cached tenants/payments/properties for filter switching
+    _filterFrom: null,
+    _filterTo: null,
 
     /**
      * Initialize rent payments module
@@ -16,6 +18,7 @@ const RentPayments = {
         RentPayments.setupViewToggle();
         RentPayments.setupFilterTabs();
         RentPayments.setupExportButton();
+        RentPayments.setupDateFilters();
         if (RentPayments.currentViewMode === 'cubes') {
             await RentPayments.loadCubeView();
         } else {
@@ -157,6 +160,44 @@ const RentPayments = {
                 console.error('Error exporting payments:', error);
                 UI.showToast('Error exporting payments', 'error');
             }
+        });
+    },
+
+    /**
+     * Setup date filter controls
+     */
+    setupDateFilters: () => {
+        document.getElementById('rent-filter-apply')?.addEventListener('click', () => {
+            RentPayments._filterFrom = document.getElementById('rent-filter-from').value || null;
+            RentPayments._filterTo = document.getElementById('rent-filter-to').value || null;
+            if (RentPayments.currentViewMode === 'cubes') {
+                RentPayments.loadCubeView();
+            } else {
+                RentPayments.loadRentPayments();
+            }
+        });
+        document.getElementById('rent-filter-clear')?.addEventListener('click', () => {
+            document.getElementById('rent-filter-from').value = '';
+            document.getElementById('rent-filter-to').value = '';
+            RentPayments._filterFrom = null;
+            RentPayments._filterTo = null;
+            if (RentPayments.currentViewMode === 'cubes') {
+                RentPayments.loadCubeView();
+            } else {
+                RentPayments.loadRentPayments();
+            }
+        });
+    },
+
+    /**
+     * Filter months array by From/To date range
+     */
+    applyDateFilter: (months) => {
+        if (!RentPayments._filterFrom && !RentPayments._filterTo) return months;
+        return months.filter(m => {
+            if (RentPayments._filterFrom && m < RentPayments._filterFrom) return false;
+            if (RentPayments._filterTo && m > RentPayments._filterTo) return false;
+            return true;
         });
     },
 
@@ -327,7 +368,8 @@ const RentPayments = {
             const html = filteredTenants.map(tenant => {
                 const property = properties.find(p => String(p.id) === String(tenant.property_id));
                 const tenantPayments = payments.filter(p => String(p.tenant_id) === String(tenant.id));
-                const months = RentPayments.generateMonthRange(tenant.lease_start_date, tenant.lease_end_date);
+                const allMonths = RentPayments.generateMonthRange(tenant.lease_start_date, tenant.lease_end_date);
+                const months = RentPayments.applyDateFilter(allMonths);
 
                 // Build payment lookup: month -> payment record
                 const paymentMap = {};
@@ -396,15 +438,20 @@ const RentPayments = {
                         </div>`;
                     }
 
+                    const chargeType = payment?.book_to || 'rent';
+                    const chargeLabel = chargeType === 'rent' ? 'Rent' : chargeType === 'late_fee' ? 'Late Fee' : chargeType === 'deposit' ? 'Deposit' : chargeType === 'utility' ? 'Utility' : chargeType.charAt(0).toUpperCase() + chargeType.slice(1);
+                    const descText = payment?.description || '';
+
                     return `<div class="charge-card ${statusClass}${currentClass}"
                                  data-month="${month}" data-tenant-id="${tenant.id}"
                                  data-payment-id="${payment?.id || ''}"
                                  title="${month}">
                         <div class="charge-card-header">
-                            <span class="charge-card-type">Rent</span>
+                            <span class="charge-card-type">${chargeLabel}</span>
                             <span class="charge-card-badge ${badgeClass}">${badgeText}</span>
                         </div>
                         <div class="charge-card-date">${dateStr}</div>
+                        ${descText ? `<div class="charge-card-desc">${descText}</div>` : ''}
                         <div class="charge-card-row"><span class="charge-card-label">Total:</span><span class="charge-card-value">${Formatting.currency(expectedAmt)}</span></div>
                         <div class="charge-card-row"><span class="charge-card-label">Paid:</span><span class="charge-card-value">${Formatting.currency(paidAmt)}</span></div>
                         <div class="charge-card-row balance-row"><span class="charge-card-label">Balance:</span><span class="charge-card-value">${Formatting.currency(balance)}</span></div>
@@ -483,6 +530,13 @@ const RentPayments = {
             // Auto-set status to paid + today's date for quick entry
             document.getElementById('payment-status').value = 'paid';
             document.getElementById('payment-paid-date').value = new Date().toISOString().split('T')[0];
+
+            // Auto-fill charge details
+            document.getElementById('payment-book-to').value = 'rent';
+            const [yr, mo] = month.split('-');
+            const monthName = new Date(parseInt(yr), parseInt(mo) - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('payment-description').value = `${monthName} Rent`;
+            document.getElementById('payment-due-date').value = `${month}-01`;
 
             document.querySelector('#rent-payment-modal .modal-header h3').textContent = 'Record Payment';
             UI.modal.show('rent-payment-modal');
@@ -733,6 +787,13 @@ const RentPayments = {
             // Set default month to current month
             document.getElementById('payment-month').value = RentPayments.currentMonth;
 
+            // Set default charge details
+            const [yr, mo] = RentPayments.currentMonth.split('-');
+            const monthName = new Date(parseInt(yr), parseInt(mo) - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('payment-book-to').value = 'rent';
+            document.getElementById('payment-description').value = `${monthName} Rent`;
+            document.getElementById('payment-due-date').value = `${RentPayments.currentMonth}-01`;
+
             // Refresh tenant list and hide Section 8 fields by default
             await RentPayments.populateAllTenants();
             document.getElementById('payment-section8-fields')?.classList.add('hidden');
@@ -868,6 +929,9 @@ const RentPayments = {
             document.getElementById('payment-amount-paid').value = payment.amount_paid || '';
             document.getElementById('payment-status').value = payment.status || 'pending';
             document.getElementById('payment-paid-date').value = payment.paid_date || '';
+            document.getElementById('payment-book-to').value = payment.book_to || 'rent';
+            document.getElementById('payment-due-date').value = payment.due_date || '';
+            document.getElementById('payment-description').value = payment.description || '';
 
             // Section 8 fields
             const tenants = await API.getTenants();
@@ -937,6 +1001,10 @@ const RentPayments = {
             const tenant = tenants.find(t => String(t.id) === String(tenantId));
             const propertyId = tenant?.property_id || '';
 
+            const bookTo = document.getElementById('payment-book-to').value || 'rent';
+            const dueDate = document.getElementById('payment-due-date').value || '';
+            const description = document.getElementById('payment-description').value || '';
+
             const data = {
                 month: month,
                 tenant_id: tenantId,
@@ -946,7 +1014,10 @@ const RentPayments = {
                 status: status,
                 paid_date: paidDate,
                 ha_paid: haPaidRaw || '',
-                tenant_paid: tenantPaidRaw || ''
+                tenant_paid: tenantPaidRaw || '',
+                book_to: bookTo,
+                due_date: dueDate,
+                description: description
             };
 
             if (RentPayments.currentEditId) {
