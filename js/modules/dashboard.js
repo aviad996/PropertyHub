@@ -142,25 +142,56 @@ const Dashboard = {
                 const propCapRate = purchasePrice > 0 ? (noi / purchasePrice) * 100 : 0;
 
                 return `
-                    <div class="property-card" data-id="${prop.id}">
-                        <div class="property-card-header">${prop.address}${prop.property_type === 'Multi-Family' ? ` <span style="font-size:11px;background:rgba(59,130,246,0.2);padding:2px 6px;border-radius:4px;color:#60a5fa">${units} units</span>` : ''}</div>
-                        <div class="property-card-detail">${prop.city}, ${prop.state}</div>
-                        <div class="property-card-detail">Value: ${Formatting.currency(prop.current_value)} · Equity: ${Formatting.currency(equity)}</div>
-                        ${mortgage ? `
-                            <div class="property-card-detail">Debt: ${Formatting.currency(mortgage.current_balance)}</div>
-                            <div class="property-card-detail">Payment: ${Formatting.currency(mortgageTotal)}/mo${mortgageEscrow > 0 ? ` <span style="font-size:11px;color:var(--text-secondary)">(P&I ${Formatting.currency(mortgagePI)} + Esc ${Formatting.currency(mortgageEscrow)})</span>` : ''}</div>
-                        ` : ''}
-                        <div class="property-card-detail">Rent: ${propRent > 0 ? Formatting.currency(propRent) + '/mo' : 'N/A'} · <span class="${occupancyClass}">${occupancyText}</span></div>
-                        <div class="property-card-detail" style="font-size:12px;color:var(--text-secondary)">Cash Invested: ${Formatting.currency(cashToClose)}</div>
-                        <div class="property-card-detail" style="font-size:12px;color:var(--text-secondary)">Cap Rate: ${propCapRate > 0 ? propCapRate.toFixed(1) + '%' : 'N/A'} · CoC: ${cocReturn !== 0 ? cocReturn.toFixed(1) + '%' : 'N/A'}</div>
-                        <div class="property-card-detail cash-flow-label">
-                            Cash Flow: <span class="${cashFlowClass}">${Formatting.currency(propCashFlow)}/mo</span>
+                    <div class="dash-property-card" data-id="${prop.id}">
+                        <div class="dash-card-header">
+                            <div class="dash-card-address">${prop.address}</div>
+                            <div class="dash-card-location">${prop.city}, ${prop.state}</div>
+                            <div class="dash-card-badges">
+                                ${prop.property_type ? `<span class="dash-card-badge">${prop.property_type}</span>` : ''}
+                                <span class="dash-card-badge ${occupancyClass}">${occupancyText}</span>
+                            </div>
+                        </div>
+                        <div class="dash-card-divider"></div>
+                        <div class="dash-card-grid">
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Value</div>
+                                <div class="dash-card-stat-value">${Formatting.currency(prop.current_value)}</div>
+                            </div>
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Equity</div>
+                                <div class="dash-card-stat-value">${Formatting.currency(equity)}</div>
+                            </div>
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Debt</div>
+                                <div class="dash-card-stat-value">${mortgage ? Formatting.currency(mortgage.current_balance) : 'N/A'}</div>
+                            </div>
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Payment</div>
+                                <div class="dash-card-stat-value">${mortgageTotal > 0 ? Formatting.currency(mortgageTotal) + '/mo' : 'N/A'}</div>
+                            </div>
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Rent</div>
+                                <div class="dash-card-stat-value">${propRent > 0 ? Formatting.currency(propRent) + '/mo' : 'N/A'}</div>
+                            </div>
+                            <div class="dash-card-stat">
+                                <div class="dash-card-stat-label">Cash Invested</div>
+                                <div class="dash-card-stat-value">${Formatting.currency(cashToClose)}</div>
+                            </div>
+                        </div>
+                        <div class="dash-card-divider"></div>
+                        <div class="dash-card-cashflow">
+                            <div class="dash-card-cashflow-label">Cash Flow</div>
+                            <div class="dash-card-cashflow-value ${propCashFlow >= 0 ? 'positive' : 'negative'}">${Formatting.currency(propCashFlow)}/mo</div>
+                            <div class="dash-card-returns">
+                                <span class="dash-card-return">Cap Rate: ${propCapRate > 0 ? propCapRate.toFixed(1) + '%' : 'N/A'}</span>
+                                <span class="dash-card-return">CoC: ${cocReturn !== 0 ? cocReturn.toFixed(1) + '%' : 'N/A'}</span>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            summaryContainer.innerHTML = html;
+            summaryContainer.innerHTML = '<div class="properties-summary-grid">' + html + '</div>';
         } catch (error) {
             console.error('Error loading properties summary:', error);
             UI.showToast('Error loading properties', 'error');

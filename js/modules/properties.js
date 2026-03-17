@@ -44,79 +44,125 @@ const Properties = {
                 const typeDisplay = Properties.formatType(prop.type);
                 const unitsDisplay = prop.units ? ` (${prop.units} units)` : '';
 
+                const appreciation = (prop.current_value || 0) - (prop.purchase_price || 0);
+                const appreciationPct = prop.purchase_price ? ((appreciation / prop.purchase_price) * 100).toFixed(1) : '0.0';
+                const pp = parseFloat(prop.purchase_price) || 0;
+                const cc = parseFloat(prop.closing_costs) || 0;
+                const rc = parseFloat(prop.rehab_costs) || 0;
+                const hc = parseFloat(prop.holding_costs) || 0;
+                const loan = parseFloat(mortgage?.original_balance || mortgage?.current_balance) || 0;
+                const totalInvested = pp + cc + rc + hc - loan;
+
                 return `
-                    <div class="list-item" data-id="${prop.id}">
-                        <div class="list-item-content">
-                            <div class="list-item-title">${prop.address}</div>
-                            <div class="list-item-details">
-                                <div class="detail-item">
-                                    <span class="detail-label">Location:</span> ${prop.city}, ${prop.state}
+                    <div class="prop-card" data-id="${prop.id}">
+                        <div class="prop-card-header">
+                            <div>
+                                <div class="prop-card-address">${prop.address}</div>
+                                <div class="prop-card-location">${prop.city}, ${prop.state}</div>
+                            </div>
+                            <div class="prop-card-header-right">
+                                <span class="prop-card-badge">${typeDisplay}${unitsDisplay}</span>
+                                <div class="prop-card-actions">
+                                    <button class="edit-btn" data-id="${prop.id}">Edit</button>
+                                    <button class="delete-btn" data-id="${prop.id}">Delete</button>
                                 </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Type:</span> ${typeDisplay}${unitsDisplay}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Purchased:</span> ${Formatting.date(prop.purchase_date)}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Purchase Price:</span> ${Formatting.currency(prop.purchase_price)}
-                                </div>
-                                ${prop.closing_costs ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">Closing Costs:</span> ${Formatting.currency(prop.closing_costs)}
-                                </div>` : ''}
-                                ${prop.rehab_costs ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">Rehab Costs:</span> ${Formatting.currency(prop.rehab_costs)}${prop.rehab_items ? ` (${JSON.parse(prop.rehab_items).length} items)` : ''}
-                                </div>` : ''}
-                                ${prop.holding_costs ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">Holding Costs:</span> ${Formatting.currency(prop.holding_costs)}
-                                </div>` : ''}
-                                <div class="detail-item">
-                                    <span class="detail-label">Current Value:</span> ${Formatting.currency(prop.current_value)}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Appreciation:</span> ${Formatting.currency(prop.current_value - prop.purchase_price)}
-                                </div>
-                                ${mortgage ? `
-                                    <div class="detail-item">
-                                        <span class="detail-label">Equity:</span> ${Formatting.currency(equity)} (${ltv}% LTV)
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Mortgage Balance:</span> ${Formatting.currency(mortgage.current_balance)}
-                                    </div>
-                                ` : '<div class="detail-item"><span class="detail-label">No mortgage</span></div>'}
-                                ${prop.annual_taxes ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">Annual Taxes:</span> ${Formatting.currency(prop.annual_taxes)} (${Formatting.currency(prop.annual_taxes / 12)}/mo)
-                                </div>` : ''}
-                                ${prop.annual_insurance ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">Annual Insurance:</span> ${Formatting.currency(prop.annual_insurance)} (${Formatting.currency(prop.annual_insurance / 12)}/mo)
-                                </div>` : ''}
-                                ${prop.monthly_hoa ? `
-                                <div class="detail-item">
-                                    <span class="detail-label">HOA:</span> ${Formatting.currency(prop.monthly_hoa)}/mo
-                                </div>` : ''}
-                                ${(() => {
-                                    const pp = parseFloat(prop.purchase_price) || 0;
-                                    const cc = parseFloat(prop.closing_costs) || 0;
-                                    const rc = parseFloat(prop.rehab_costs) || 0;
-                                    const hc = parseFloat(prop.holding_costs) || 0;
-                                    const loan = parseFloat(mortgage?.original_balance || mortgage?.current_balance) || 0;
-                                    const totalInvested = pp + cc + rc + hc - loan;
-                                    return totalInvested > 0 ? `
-                                <div class="detail-item" style="font-weight:600;color:var(--primary-color)">
-                                    <span class="detail-label">Cash Invested:</span> ${Formatting.currency(totalInvested)}
-                                </div>` : '';
-                                })()}
                             </div>
                         </div>
-                        <div class="list-item-actions">
-                            <button class="edit-btn" data-id="${prop.id}">Edit</button>
-                            <button class="delete-btn" data-id="${prop.id}">Delete</button>
+
+                        <div class="prop-card-section">
+                            <div class="prop-card-section-title">Purchase Info</div>
+                            <div class="prop-card-metrics">
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Purchase Price</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.purchase_price)}</div>
+                                </div>
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Date</div>
+                                    <div class="prop-card-metric-value">${Formatting.date(prop.purchase_date)}</div>
+                                </div>
+                                ${totalInvested > 0 ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Cash Invested</div>
+                                    <div class="prop-card-metric-value accent">${Formatting.currency(totalInvested)}</div>
+                                </div>` : ''}
+                                ${prop.closing_costs ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Closing Costs</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.closing_costs)}</div>
+                                </div>` : ''}
+                                ${prop.rehab_costs ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Rehab Costs</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.rehab_costs)}${prop.rehab_items ? ` <span style="font-size:10px;opacity:0.6">(${JSON.parse(prop.rehab_items).length} items)</span>` : ''}</div>
+                                </div>` : ''}
+                                ${prop.holding_costs ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Holding Costs</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.holding_costs)}</div>
+                                </div>` : ''}
+                            </div>
                         </div>
+
+                        <div class="prop-card-section">
+                            <div class="prop-card-section-title">Valuation</div>
+                            <div class="prop-card-metrics">
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Current Value</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.current_value)}</div>
+                                </div>
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Appreciation</div>
+                                    <div class="prop-card-metric-value ${appreciation >= 0 ? 'positive' : 'negative'}">${appreciation >= 0 ? '+' : ''}${Formatting.currency(appreciation)} <span style="font-size:10px;opacity:0.7">(${appreciationPct}%)</span></div>
+                                </div>
+                                ${mortgage ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Equity</div>
+                                    <div class="prop-card-metric-value positive">${Formatting.currency(equity)}</div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="prop-card-section">
+                            <div class="prop-card-section-title">Mortgage</div>
+                            <div class="prop-card-metrics">
+                                ${mortgage ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Balance</div>
+                                    <div class="prop-card-metric-value negative">${Formatting.currency(mortgage.current_balance)}</div>
+                                </div>
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">LTV</div>
+                                    <div class="prop-card-metric-value">${ltv}%</div>
+                                </div>
+                                ` : `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Status</div>
+                                    <div class="prop-card-metric-value positive">Free & Clear</div>
+                                </div>`}
+                            </div>
+                        </div>
+
+                        ${(prop.annual_taxes || prop.annual_insurance || prop.monthly_hoa) ? `
+                        <div class="prop-card-section">
+                            <div class="prop-card-section-title">Annual Costs</div>
+                            <div class="prop-card-metrics">
+                                ${prop.annual_taxes ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Taxes</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.annual_taxes)} <span style="font-size:10px;opacity:0.6">${Formatting.currency(prop.annual_taxes / 12)}/mo</span></div>
+                                </div>` : ''}
+                                ${prop.annual_insurance ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">Insurance</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.annual_insurance)} <span style="font-size:10px;opacity:0.6">${Formatting.currency(prop.annual_insurance / 12)}/mo</span></div>
+                                </div>` : ''}
+                                ${prop.monthly_hoa ? `
+                                <div class="prop-card-metric">
+                                    <div class="prop-card-metric-label">HOA</div>
+                                    <div class="prop-card-metric-value">${Formatting.currency(prop.monthly_hoa)}/mo</div>
+                                </div>` : ''}
+                            </div>
+                        </div>` : ''}
                     </div>
                 `;
             }).join('');

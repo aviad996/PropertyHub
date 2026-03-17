@@ -138,50 +138,63 @@ const Mortgages = {
                 return `
                     <div class="list-item" data-id="${mortgage.id}">
                         <div class="list-item-content">
-                            <div class="list-item-title">${propertyAddress}</div>
-                            <div class="list-item-details">
-                                <div class="detail-item">
-                                    <span class="detail-label">Lender:</span> ${mortgage.lender}
+                            <div class="mortgage-card-header">
+                                <div>
+                                    <span class="mortgage-property-name">${propertyAddress}</span>
+                                    <span class="mortgage-lender-badge">${mortgage.lender}</span>
                                 </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Interest Rate:</span> ${(mortgage.interest_rate || 0).toFixed(3)}%
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Current Balance:</span> ${Formatting.currency(mortgage.current_balance)}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Monthly Payment:</span> ${Formatting.currency(mortgage.monthly_payment)}
-                                </div>
-                                <div class="detail-item" style="background-color: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 4px;">
-                                    <strong>Payment Breakdown:</strong>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">→ Principal:</span> ${Formatting.currency(principal)}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">→ Interest:</span> ${Formatting.currency(interest)}
-                                </div>
-                                ${mortgage.escrow_payment ? `
-                                    <div class="detail-item">
-                                        <span class="detail-label">→ Escrow:</span> ${Formatting.currency(mortgage.escrow_payment)}
-                                    </div>
-                                ` : ''}
-                                <div class="detail-item">
-                                    <span class="detail-label">Remaining Term:</span> ${Formatting.monthsRemaining(mortgage.remaining_term_months)}
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Refinance Eligible:</span> ${canRefi}
+                                <div class="list-item-actions">
+                                    <button class="edit-btn" data-id="${mortgage.id}">Edit</button>
+                                    <button class="delete-btn" data-id="${mortgage.id}">Delete</button>
                                 </div>
                             </div>
+                            <div class="mortgage-details-grid">
+                                <div class="mortgage-detail-cell">
+                                    <div class="mortgage-detail-label">Interest Rate</div>
+                                    <div class="mortgage-detail-value">${(mortgage.interest_rate || 0).toFixed(3)}%</div>
+                                </div>
+                                <div class="mortgage-detail-cell">
+                                    <div class="mortgage-detail-label">Current Balance</div>
+                                    <div class="mortgage-detail-value">${Formatting.currency(mortgage.current_balance)}</div>
+                                </div>
+                                <div class="mortgage-detail-cell">
+                                    <div class="mortgage-detail-label">Monthly Payment</div>
+                                    <div class="mortgage-detail-value">${Formatting.currency(mortgage.monthly_payment)}</div>
+                                </div>
+                                <div class="mortgage-detail-cell">
+                                    <div class="mortgage-detail-label">Remaining Term</div>
+                                    <div class="mortgage-detail-value">${yearsRemaining} years</div>
+                                </div>
+                                <div class="mortgage-detail-cell">
+                                    <div class="mortgage-detail-label">Refinance</div>
+                                    <div class="mortgage-detail-value">${canRefi}</div>
+                                </div>
+                            </div>
+                            <div class="mortgage-pi-breakdown">
+                                <div class="mortgage-pi-item">
+                                    <div class="mortgage-pi-label">Monthly P&I</div>
+                                    <div class="mortgage-pi-value">${Formatting.currency(mortgage.monthly_payment)}</div>
+                                </div>
+                                <div class="mortgage-pi-item">
+                                    <div class="mortgage-pi-label">Principal</div>
+                                    <div class="mortgage-pi-value principal">${Formatting.currency(principal)}</div>
+                                </div>
+                                <div class="mortgage-pi-item">
+                                    <div class="mortgage-pi-label">Interest</div>
+                                    <div class="mortgage-pi-value interest">${Formatting.currency(interest)}</div>
+                                </div>
+                            </div>
+                            ${mortgage.escrow_payment ? `
+                            <div class="mortgage-detail-cell" style="margin-bottom:12px">
+                                <div class="mortgage-detail-label">Escrow (Taxes & Insurance)</div>
+                                <div class="mortgage-detail-value">${Formatting.currency(mortgage.escrow_payment)}/mo</div>
+                            </div>
+                            ` : ''}
                             ${escrowSectionHtml}
                             <div class="mortgage-timeline-toggle">
                                 <button class="btn-small btn-outline mortgage-timeline-btn" data-mortgage-id="${mortgage.id}">Show Payment Timeline</button>
                             </div>
                             <div class="mortgage-payment-cubes hidden" id="mortgage-cubes-${mortgage.id}"></div>
-                        </div>
-                        <div class="list-item-actions">
-                            <button class="edit-btn" data-id="${mortgage.id}">Edit</button>
-                            <button class="delete-btn" data-id="${mortgage.id}">Delete</button>
                         </div>
                     </div>
                 `;
